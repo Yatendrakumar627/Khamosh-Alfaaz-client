@@ -5,6 +5,7 @@ import { sessionApi } from '../services/api';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { BookOpen, LockKeyhole, Sparkles, UserRound, ArrowLeft } from 'lucide-react';
+import favicon from '../assets/favicon.png';
 import { STORAGE_KEYS } from '../constants';
 
 export const Welcome = () => {
@@ -138,17 +139,11 @@ export const Welcome = () => {
         </p>
 
         <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-lg)' }}>
-          <div className="welcome-emblem" style={{
-            width: '88px', height: '88px', borderRadius: '50%',
-            border: '2px solid var(--gold)',
-            backgroundColor: 'var(--paper)',
-            color: 'var(--accent)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto var(--spacing-lg)', fontSize: '2.75rem', fontWeight: 600,
-            boxShadow: 'inset 0 1px 1px rgba(255, 251, 240, 0.6), 0 2px 10px var(--shadow-sm)',
-          }}>
-            د
-          </div>
+          <img
+            src={favicon}
+            alt="Khamosh Alfaaz emblem"
+            style={{ position: 'relative', width: 48, height: 48, borderRadius: 8, flexShrink: 0, margin: '0 auto var(--spacing-lg)', display: 'block' }}
+          />
           <h1 style={{
             fontFamily: 'var(--font-family-heading)',
             fontSize: 'clamp(2rem, 5vw, 3rem)',

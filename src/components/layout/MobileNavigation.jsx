@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useSidebar } from '../../context/SidebarContext';
 import { NAV_ITEMS } from '../../routes';
-import { Home, PenLine, BookOpen, Quote, Star, Calendar, Tag, BarChart3, Download, Settings, Feather, X } from 'lucide-react';
+import { Home, PenLine, BookOpen, Quote, Star, Calendar, Tag, BarChart3, Download, Settings, X } from 'lucide-react';
+import favicon from '../../assets/favicon.png';
 import { classNames } from '../../utils/helpers';
 
 const navIcons = {
@@ -93,7 +94,7 @@ export const MobileNavigation = () => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-            <Feather size={20} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+            <img src={favicon} alt="" style={{ width: 20, height: 20, flexShrink: 0, borderRadius: 4 }} />
             <div style={{ minWidth: 0 }}>
               <h1
                 style={{

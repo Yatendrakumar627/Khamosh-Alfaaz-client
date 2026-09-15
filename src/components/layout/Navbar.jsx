@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useSession } from '../../context/SessionContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useSidebar } from '../../context/SidebarContext';
-import { Menu, Sun, Moon, LogOut, ChevronDown, Feather } from 'lucide-react';
+import { Menu, Sun, Moon, LogOut, ChevronDown } from 'lucide-react';
+import favicon from '../../assets/favicon.png';
 import { Link, useLocation } from 'react-router-dom';
 import { getInitials } from '../../utils/helpers';
 
@@ -68,10 +69,10 @@ export const Navbar = () => {
 
       {/* Brand (mobile only) */}
       <div className="navbar-brand">
-        <Feather
-          size={22}
-          aria-hidden="true"
-          style={{ color: 'var(--gold)', flexShrink: 0 }}
+        <img
+          src={favicon}
+          alt=""
+          style={{ width: 24, height: 24, flexShrink: 0, borderRadius: 4 }}
         />
         <div className="navbar-brand-text">
           <span className="navbar-brand-title">Khamosh Alfaaz</span>

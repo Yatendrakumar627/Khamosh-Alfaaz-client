@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Feather, X, Sun, Moon } from 'lucide-react';
+import { X, Sun, Moon } from 'lucide-react';
+import favicon from '../assets/favicon.png';
 import { useTheme } from '../context/ThemeContext';
 import { classNames } from '../utils/helpers';
 import { VisitorBottomNavigation } from '../components/visitor/VisitorBottomNavigation';
@@ -60,7 +61,7 @@ export const VisitorLayout = () => {
       >
         <div className="visitor-header-inner" style={{ maxWidth: '1080px', margin: '0 auto', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
           <Link to="/" className="visitor-brand" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', minWidth: 0 }}>
-            <Feather size={22} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+            <img src={favicon} alt="" style={{ width: 22, height: 22, flexShrink: 0, borderRadius: 4 }} />
             <div style={{ minWidth: 0 }}>
               <span style={{ display: 'block', fontFamily: 'var(--font-family-heading)', fontSize: '1.1rem', fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden' }}>
                 Khamosh Alfaaz
@@ -182,7 +183,7 @@ export const VisitorLayout = () => {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: '86px', padding: '14px 10px 14px 16px', borderBottom: '1px solid var(--border)', gap: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-                <Feather size={20} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+                <img src={favicon} alt="" style={{ width: 20, height: 20, flexShrink: 0, borderRadius: 4 }} />
                 <div style={{ minWidth: 0 }}>
                   <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: '1.35rem', fontWeight: 500, color: 'var(--ink)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', lineHeight: 1.2 }}>Khamosh Alfaaz</h1>
                   <p style={{ margin: '3px 0 0', fontSize: '0.75rem', color: 'var(--ink-muted)', whiteSpace: 'nowrap', overflow: 'hidden' }}>A quiet place to leave words.</p>

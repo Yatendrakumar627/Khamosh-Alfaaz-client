@@ -13,6 +13,7 @@ import {
   Settings,
   Feather,
 } from 'lucide-react';
+import favicon from '../../assets/favicon.png';
 import { classNames } from '../../utils/helpers';
 
 const navIcons = {
@@ -67,7 +68,7 @@ export const Sidebar = () => {
       >
         {expanded ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-            <Feather size={20} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+            <img src={favicon} alt="" style={{ width: 20, height: 20, flexShrink: 0, borderRadius: 4 }} />
             <div style={{ minWidth: 0 }}>
               <h1
                 style={{
@@ -110,7 +111,7 @@ export const Sidebar = () => {
               flexShrink: 0,
             }}
           >
-            <Feather size={18} />
+            <img src={favicon} alt="" style={{ width: 18, height: 18, borderRadius: 4 }} />
           </div>
         )}
       </div>

@@ -7,6 +7,7 @@ const Input = forwardRef(({
   hint,
   required,
   className,
+  leftIcon,
   ...props
 }, ref) => {
   return (
@@ -17,6 +18,7 @@ const Input = forwardRef(({
       description={hint}
       required={required}
       className={className}
+      leftSection={leftIcon}
       {...props}
     />
   );
