@@ -1,0 +1,117 @@
+import axios from 'axios';
+import { API_ENDPOINTS } from '../constants';
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || '',
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 30000,
+});
+
+const isSessionRequest = (url) => url === API_ENDPOINTS.SESSION || url === API_ENDPOINTS.SESSION_LOGIN;
+
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && originalRequest && !isSessionRequest(originalRequest.url) && !originalRequest._retry) {
+      originalRequest._retry = true;
+      window.location.href = '/';
+      return Promise.reject(error);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export const sessionApi = {
+  create: (credentials) => api.post(API_ENDPOINTS.SESSION, credentials),
+  login: (credentials) => api.post(API_ENDPOINTS.SESSION_LOGIN, credentials),
+  checkUsername: (username) => api.get(API_ENDPOINTS.SESSION_USERNAME, { params: { username } }),
+  get: () => api.get(API_ENDPOINTS.SESSION),
+  updateName: (name) => api.patch(API_ENDPOINTS.SESSION_NAME, { name }),
+  delete: () => api.delete(API_ENDPOINTS.SESSION_DELETE),
+};
+
+export const entriesApi = {
+  list: (params = {}) => api.get(API_ENDPOINTS.ENTRIES, { params }),
+  get: (id) => api.get(API_ENDPOINTS.ENTRY(id)),
+  create: (data) => api.post(API_ENDPOINTS.ENTRIES, data),
+  update: (id, data) => api.patch(API_ENDPOINTS.ENTRY(id), data),
+  delete: (id) => api.delete(API_ENDPOINTS.ENTRY(id)),
+  toggleFavorite: (id, value) => api.patch(API_ENDPOINTS.ENTRY_FAVORITE(id), { isFavorite: value }),
+  togglePin: (id, value) => api.patch(API_ENDPOINTS.ENTRY_PIN(id), { isPinned: value }),
+  search: (query, params = {}) => api.get(API_ENDPOINTS.SEARCH, { params: { q: query, ...params } }),
+  calendar: (month) => api.get(API_ENDPOINTS.CALENDAR, { params: { month } }),
+  onThisDay: () => api.get(API_ENDPOINTS.ON_THIS_DAY),
+};
+
+export const categoriesApi = {
+  list: () => api.get(API_ENDPOINTS.CATEGORIES),
+  create: (data) => api.post(API_ENDPOINTS.CATEGORIES, data),
+  update: (id, data) => api.patch(API_ENDPOINTS.CATEGORY(id), data),
+  delete: (id) => api.delete(API_ENDPOINTS.CATEGORY(id)),
+};
+
+export const exportApi = {
+  entry: (id, format) => api.get(API_ENDPOINTS.EXPORT_ENTRY(id, format), { responseType: 'blob' }),
+  bulk: (format, params = {}) => api.post(API_ENDPOINTS.EXPORT_BULK(format), {}, {
+    responseType: 'blob',
+    params,
+  }),
+};
+
+export const backupApi = {
+  export: () => api.get(API_ENDPOINTS.BACKUP, { responseType: 'blob' }),
+  import: (data) => {
+    const payload = data instanceof File ? null : data;
+    if (data instanceof File) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            resolve(api.post(API_ENDPOINTS.BACKUP_RESTORE, parsed));
+          } catch (err) {
+            reject(err);
+          }
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(data);
+      });
+    }
+    return api.post(API_ENDPOINTS.BACKUP_RESTORE, payload);
+  },
+  deleteAll: (pin) => api.post(API_ENDPOINTS.BACKUP_DELETE_ALL, { pin }),
+};
+
+export const statisticsApi = {
+  get: () => api.get(API_ENDPOINTS.STATISTICS),
+};
+
+export const publicApi = {
+  list: (params = {}) => api.get(API_ENDPOINTS.PUBLIC_ENTRIES, { params }),
+  get: (id) => api.get(API_ENDPOINTS.PUBLIC_ENTRY(id)),
+  quotes: (params = {}) => api.get(API_ENDPOINTS.PUBLIC_QUOTES, { params }),
+  categories: () => api.get(API_ENDPOINTS.PUBLIC_CATEGORIES),
+};
+
+export const healthApi = {
+  check: () => api.get(API_ENDPOINTS.HEALTH),
+};
+
+export const downloadBlob = (blob, filename) => {
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+};
+
+export default api;
