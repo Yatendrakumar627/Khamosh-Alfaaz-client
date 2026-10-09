@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useEffect, useMemo } from 'react';
 import { FileText, ArrowRight, Feather, Sparkles, TrendingUp } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
@@ -252,13 +252,12 @@ export const Dashboard = () => {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {entries.map((entry, index) => (
-              <div key={entry._id} style={{ animation: `fadeIn 0.35s var(--ease-out) ${index * 0.06}s both` }}>
-                <DashboardEntryCard
-                  key={entry._id}
-                  entry={entry}
-                  onDelete={() => refresh()}
-                />
-              </div>
+              <DashboardEntryCard
+                key={entry._id}
+                entry={entry}
+                onDelete={() => refresh()}
+                style={{ animation: `fadeIn 0.35s var(--ease-out) ${index * 0.06}s both` }}
+              />
             ))}
           </div>
         )}

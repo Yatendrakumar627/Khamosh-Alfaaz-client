@@ -70,6 +70,7 @@
   --font-family-body: 'Inter', 'Lato', 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
 
   /* Z */
+  --z-dropdown: 100;
   --z-sticky: 200;
   --z-modal: 1000;
   --z-toast: 1100;
@@ -465,7 +466,7 @@ main,
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity: 1; transform: none; }
 }
 
 .slide-in {
@@ -648,7 +649,8 @@ main,
    paint above the absolutely-positioned sibling menu. */
 .menu-open,
 .menu-open:hover {
-  z-index: 50;
+  z-index: 100 !important;
+  position: relative !important;
 }
 
 .menu-open > .dashboard-entry-card,
