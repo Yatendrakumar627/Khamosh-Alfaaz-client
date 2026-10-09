@@ -622,8 +622,7 @@ main,
 
 /* Entry card hover lift */
 .dashboard-entry-card {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 110px;
+  position: relative;
 }
 
 .dashboard-entry-card:hover {
@@ -634,8 +633,7 @@ main,
 }
 
 .entry-card {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 160px;
+  position: relative;
 }
 
 .entry-card:hover {

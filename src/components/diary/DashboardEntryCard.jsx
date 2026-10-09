@@ -103,7 +103,7 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
   };
 
   return (
-    <div ref={menuRef} style={{ position: 'relative' }}>
+    <div ref={menuRef} style={{ position: 'relative', zIndex: showMenu ? 50 : 'auto' }}>
       <article
         className="dashboard-entry-card paper-texture"
         onClick={() => navigate(`/entries/${entry._id}`)}

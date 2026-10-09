@@ -107,7 +107,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
   });
 
   return (
-    <div ref={menuRef} style={{ position: 'relative' }}>
+    <div ref={menuRef} style={{ position: 'relative', zIndex: showMenu ? 50 : 'auto' }}>
       <article
         style={{
           backgroundColor: 'var(--paper)',
