@@ -112,60 +112,71 @@ export const WriteCard = ({ onSaved }) => {
     clearDraft();
   };
 
-  const wordCount = draft.content ? draft.content.trim().split(/\s+/).filter(Boolean).length : 0;
-
   return (
     <section
       className="write-card paper-texture"
       style={{
         backgroundColor: 'var(--paper)',
         border: '1px solid var(--border)',
-        borderRadius: '12px',
-        padding: '18px',
+        borderRadius: '14px',
+        padding: '18px 20px',
       }}
       aria-label="Write your thoughts"
     >
       {/* Header */}
-      <div className="write-card-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+      <div className="write-card-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-          <div style={{
-            width: '46px',
-            height: '46px',
+          <div className="write-card-pen-badge" style={{
+            width: '42px',
+            height: '42px',
             borderRadius: '10px',
             background: 'linear-gradient(135deg, var(--gold-muted) 0%, var(--gold) 55%, var(--gold-dark) 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: '0 4px 12px rgba(122, 92, 52, 0.28)',
+            boxShadow: '0 4px 14px rgba(122, 92, 52, 0.28)',
           }}>
-            <Pen size={20} style={{ color: 'var(--paper)' }} />
+            <Pen size={18} style={{ color: 'var(--paper)' }} />
           </div>
           <div style={{ minWidth: 0 }}>
-            <h2 style={{
+            <h2 className="write-card-title" style={{
               fontFamily: 'var(--font-family-heading)',
-              fontSize: '1.14rem',
+              fontSize: '1.18rem',
               fontWeight: 600,
               color: 'var(--ink)',
               margin: 0,
               lineHeight: 1.25,
+              letterSpacing: '-0.01em',
             }}>
               Write Your Thoughts
             </h2>
-            <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
+            <p className="write-card-subtitle" style={{ margin: '2px 0 0', fontSize: '0.84rem', color: 'var(--ink-muted)', lineHeight: 1.45 }}>
               Anything on your mind — your day, a thought, a quote, a feeling...
             </p>
           </div>
         </div>
 
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', color: 'var(--ink-muted)', fontSize: '0.8rem', fontWeight: 500, paddingTop: '5px', padding: '5px 12px', borderRadius: 'var(--radius-full)', backgroundColor: 'var(--paper-dark)', border: '1px solid var(--border)' }}>
-          <CalendarDays size={14} style={{ color: 'var(--gold)' }} />
+        <div className="write-card-date-badge" style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '7px',
+          color: 'var(--gold)',
+          fontSize: '0.8rem',
+          fontWeight: 600,
+          padding: '5px 13px',
+          borderRadius: 'var(--radius-full)',
+          backgroundColor: 'var(--paper-dark)',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow-xs)',
+        }}>
+          <CalendarDays size={14} />
           <span>{formatDate(draft.entryDate || getLocalDateString(), 'SHORT')}</span>
         </div>
       </div>
 
       {/* Full editor */}
-      <div style={{ marginTop: '14px' }}>
+      <div>
         <EntryEditor
           initialData={hydrated ? draft : editorInitial}
           onSave={handleSave}
@@ -177,33 +188,11 @@ export const WriteCard = ({ onSaved }) => {
           showFavorite={true}
           showPin={true}
           submitLabel="Write New Entry"
-          submitIcon={<ArrowRight size={18} />}
+          submitIcon={<ArrowRight size={17} />}
           submitIconPosition="right"
           onChange={setDraft}
+          statusSlot={<StatusPill saving={draftSaving} lastSaved={lastSaved} />}
         />
-      </div>
-
-      {/* Status footer */}
-      <div
-        style={{
-          marginTop: 'var(--spacing-lg)',
-          paddingTop: 'var(--spacing-lg)',
-          borderTop: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 'var(--spacing-sm)',
-          fontSize: '0.85rem',
-          color: 'var(--ink-light)',
-        }}
-      >
-        <StatusPill saving={draftSaving} lastSaved={lastSaved} />
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontVariantNumeric: 'tabular-nums' }}>
-          <span style={{ fontWeight: 600, color: 'var(--ink-muted)' }}>{wordCount}</span> words
-          <span style={{ color: 'var(--border-dark)' }}>•</span>
-          <span style={{ fontWeight: 600, color: 'var(--ink-muted)' }}>{draft.content.length}</span> characters
-        </span>
       </div>
     </section>
   );

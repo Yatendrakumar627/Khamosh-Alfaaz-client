@@ -114,8 +114,8 @@ export const transitions = {
 
 export const typography = {
   fontFamily: {
-    heading: '"Playfair Display", "Cormorant Garamond", "Libre Baskerville", Georgia, serif',
-    body: '"Inter", "Lato", "Source Sans 3", -apple-system, BlinkMacSystemFont, sans-serif',
+    heading: '"Playfair Display", "EB Garamond", "Cormorant Garamond", Georgia, serif',
+    body: '"EB Garamond", "Cormorant Garamond", "Libre Baskerville", Georgia, serif',
     handwriting: '"Dancing Script", "Great Vibes", cursive',
   },
   fontSize: {

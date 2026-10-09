@@ -68,7 +68,7 @@ export const Favorites = () => {
   }
 
   return (
-    <div style={{ padding: 'var(--spacing-xl)', maxWidth: '1000px', margin: '0 auto' }}>
+    <div className="page-container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
       <header style={{ marginBottom: 'var(--spacing-xl)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-lg)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
@@ -153,10 +153,11 @@ export const Favorites = () => {
       ) : (
         <>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-            {entries.map(entry => (
+            {entries.map((entry, index) => (
               <EntryCard
                 key={entry._id}
                 entry={entry}
+                index={index}
                 onEdit={(e) => window.location.href = `/entries/${e._id}/edit?from=${encodeURIComponent('/favorites')}`}
                 onDelete={async (id) => {
                   await entriesApi.delete(id);

@@ -1,12 +1,12 @@
-import { formatDate, formatRelativeTime, truncate } from '../../utils/helpers';
-import { TypeBadge, FavoriteBadge, PinBadge, VisibilityBadge } from '../ui/Badge';
+import { formatDate, formatRelativeTime, countWords } from '../../utils/helpers';
+import { TypeBadge, VisibilityBadge } from '../ui/Badge';
 import { Calendar, Star, MoreVertical, Edit, Trash2, Globe, Lock, Eye, Pin } from 'lucide-react';
 import { ConfirmDialog } from '../ui/Modal';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context';
 
-export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibility, showActions = true }) => {
+export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibility, showActions = true, index = 0 }) => {
   const navigate = useNavigate();
   const { error: showError } = useToast();
   const [showMenu, setShowMenu] = useState(false);
@@ -47,7 +47,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
     setShowMenu(false);
     try {
       await onFavorite?.(entry, next);
-    } catch (err) {
+    } catch {
       setFav(prev);
       showError('Failed to update favorite');
     }
@@ -61,7 +61,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
     setShowMenu(false);
     try {
       await onPin?.(entry, next);
-    } catch (err) {
+    } catch {
       setPinned(prev);
       showError('Failed to update pin');
     }
@@ -75,36 +75,26 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
     setShowMenu(false);
     try {
       await onVisibility?.(entry, next);
-    } catch (err) {
+    } catch {
       setVisibility(prev);
       showError('Failed to update visibility');
     }
   };
 
-  const POPUP_HEIGHT = 390;
-
   const openMenu = (e) => {
     e.stopPropagation();
-    if (showMenu) {
-      setShowMenu(false);
-      return;
-    }
+    if (showMenu) { setShowMenu(false); return; }
     const rect = btnRef.current.getBoundingClientRect();
     const container = menuRef.current && menuRef.current.closest('.dashboard-main');
     const cRect = container ? container.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
     const belowSpace = cRect.bottom - rect.bottom;
     const aboveSpace = rect.top - cRect.top;
-    setOpenUp(belowSpace < POPUP_HEIGHT && aboveSpace > belowSpace);
+    setOpenUp(belowSpace < 360 && aboveSpace > belowSpace);
     setShowMenu(true);
   };
 
-  const menuItemStyle = (color) => ({
-    display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)',
-    width: '100%', padding: 'var(--spacing-sm) var(--spacing-md)',
-    border: 'none', background: 'transparent', color: color || 'var(--ink)',
-    borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-    fontSize: '0.9rem', fontFamily: 'inherit', textAlign: 'left',
-  });
+  const words = countWords(entry.content);
+  const tags = Array.isArray(entry.tags) ? entry.tags : [];
 
   return (
     <div
@@ -112,182 +102,200 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
       className={showMenu ? 'menu-open' : undefined}
       style={{
         position: 'relative',
-        ...(showMenu ? { zIndex: 100, transform: 'none' } : {}),
+        zIndex: showMenu ? 10 : 'auto',
       }}
     >
       <article
+        onClick={() => navigate(`/entries/${entry._id}`)}
+        onKeyDown={(e) => { if (e.key === 'Enter' && e.target === e.currentTarget) navigate(`/entries/${entry._id}`); }}
+        tabIndex={0}
+        role="link"
+        aria-label={entry.title ? `Open entry: ${entry.title}` : 'Open entry'}
+        className="entry-card paper-texture"
         style={{
           backgroundColor: 'var(--paper)',
           border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-lg)',
-          padding: 'var(--spacing-lg)',
-          boxShadow: 'var(--shadow-sm)',
+          borderRadius: '10px',
+          padding: '14px 16px',
+          cursor: 'pointer',
           transition: 'border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease',
         }}
-        className="paper-texture diary-page fade-in entry-card"
       >
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)', alignItems: 'center' }}>
-          <TypeBadge type={entry.type} />
-          {entry.isPinned && <PinBadge isPinned={entry.isPinned} />}
-          {entry.isFavorite && <FavoriteBadge isFavorite={entry.isFavorite} />}
-          {(entry.visibility === 'public' || entry.visibility === 'private') && <VisibilityBadge visibility={entry.visibility} />}
+        {/* ── Top row: badges + actions ── */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: entry.title || entry.content ? '8px' : '0' }}>
+          {/* Left: type badge + status indicators */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', minWidth: 0 }}>
+            <TypeBadge type={entry.type} />
+            <VisibilityBadge visibility={visibility} />
+            {pinned && (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '3px',
+                padding: '2px 7px', borderRadius: '999px',
+                backgroundColor: 'rgba(185,146,74,0.12)',
+                border: '1px solid rgba(185,146,74,0.28)',
+                fontSize: '0.68rem', fontWeight: 600,
+                color: 'var(--gold)', letterSpacing: '0.04em',
+              }}>
+                <Pin size={10} fill="currentColor" /> Pinned
+              </span>
+            )}
+            {fav && (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '3px',
+                padding: '2px 7px', borderRadius: '999px',
+                backgroundColor: 'rgba(185,146,74,0.12)',
+                border: '1px solid rgba(185,146,74,0.28)',
+                fontSize: '0.68rem', fontWeight: 600,
+                color: 'var(--gold)',
+              }}>
+                <Star size={10} fill="currentColor" />
+              </span>
+            )}
+          </div>
+
+          {/* Right: meta + kebab */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.76rem', color: 'var(--ink-light)', whiteSpace: 'nowrap' }}>
+              <Calendar size={12} />
+              {formatDate(entry.entryDate || entry.createdAt, 'DISPLAY')}
+            </span>
+            <span style={{ fontSize: '0.72rem', color: 'var(--ink-light)', whiteSpace: 'nowrap' }}>
+              {formatRelativeTime(entry.updatedAt || entry.createdAt)}
+            </span>
+            {showActions && (
+              <button
+                ref={btnRef}
+                onClick={openMenu}
+                className="icon-btn entry-kebab"
+                style={{
+                  padding: '4px',
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'var(--ink-light)',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+                aria-label="More options"
+                aria-expanded={showMenu}
+              >
+                <MoreVertical size={16} />
+              </button>
+            )}
+          </div>
         </div>
 
+        {/* ── Title ── */}
         {entry.title && (
           <h3 style={{
             fontFamily: 'var(--font-family-heading)',
-            fontSize: '1.12rem',
+            fontSize: '1.02rem',
             fontWeight: 600,
             color: 'var(--ink)',
-            margin: '0 0 var(--spacing-sm)',
+            margin: '0 0 5px',
             lineHeight: 1.35,
             letterSpacing: '-0.01em',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           }}>
             {entry.title}
           </h3>
         )}
 
+        {/* ── Content preview ── */}
         <div style={{
           color: 'var(--ink-muted)',
-          fontSize: '0.92rem',
-          lineHeight: 1.5,
-          marginBottom: 'var(--spacing-md)',
+          fontSize: '0.875rem',
+          lineHeight: 1.55,
           display: '-webkit-box',
-          WebkitLineClamp: 3,
+          WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
+          marginBottom: tags.length > 0 ? '10px' : '0',
         }}>
-          {truncate(entry.content, 200)}
+          {entry.content}
         </div>
 
-        {entry.tags && entry.tags.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-xs)', marginBottom: 'var(--spacing-md)', alignItems: 'center' }}>
-            {entry.tags.slice(0, 5).map(tag => (
-              <span key={tag} className="tag-chip">#{tag}</span>
-            ))}
-            {entry.tags.length > 5 && (
-              <span style={{
-                fontSize: '0.75rem',
-                color: 'var(--ink-light)',
-              }}>
-                +{entry.tags.length - 5} more
+        {/* ── Tags + word count ── */}
+        {tags.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+              {tags.slice(0, 4).map(tag => (
+                <span key={tag} className="entry-tag">#{tag}</span>
+              ))}
+              {tags.length > 4 && (
+                <span style={{ fontSize: '0.72rem', color: 'var(--ink-light)', alignSelf: 'center' }}>
+                  +{tags.length - 4}
+                </span>
+              )}
+            </div>
+            {words > 0 && (
+              <span style={{ fontSize: '0.72rem', color: 'var(--ink-light)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {words} {words === 1 ? 'word' : 'words'}
               </span>
             )}
           </div>
         )}
 
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 'var(--spacing-sm)',
-          paddingTop: 'var(--spacing-md)',
-          borderTop: '1px solid var(--border)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', fontSize: '0.84rem', color: 'var(--ink-light)', flexWrap: 'wrap' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Calendar size={14} />
-              {formatDate(entry.entryDate || entry.createdAt, 'DISPLAY')}
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span>•</span>
-              {formatRelativeTime(entry.updatedAt || entry.createdAt)}
+        {/* word count when no tags */}
+        {tags.length === 0 && words > 0 && (
+          <div style={{ textAlign: 'right', marginTop: '6px' }}>
+            <span style={{ fontSize: '0.72rem', color: 'var(--ink-light)' }}>
+              {words} {words === 1 ? 'word' : 'words'}
             </span>
           </div>
-
-          {showActions && (
-            <div style={{ position: 'relative' }}>
-              <button
-                ref={btnRef}
-                onClick={openMenu}
-                className="icon-btn"
-                style={{
-                  padding: 'var(--spacing-xs)',
-                  border: 'none',
-                  background: 'transparent',
-                  color: 'var(--ink-light)',
-                  borderRadius: 'var(--radius-md)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-                aria-label="More options"
-                aria-expanded={showMenu}
-              >
-                <MoreVertical size={18} />
-              </button>
-            </div>
-          )}
-        </div>
+        )}
       </article>
 
+      {/* ── Dropdown menu ── */}
       {showMenu && (
         <div style={{
           position: 'absolute',
-          top: openUp ? 'auto' : 'calc(100% + var(--spacing-xs))',
-          bottom: openUp ? 'calc(100% + var(--spacing-xs))' : 'auto',
+          top: openUp ? 'auto' : 'calc(100% + 4px)',
+          bottom: openUp ? 'calc(100% + 4px)' : 'auto',
           right: 0,
           backgroundColor: 'var(--paper)',
           border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-md)',
-          boxShadow: 'var(--shadow-lg)',
-          minWidth: '190px',
-          padding: 'var(--spacing-xs)',
+          borderRadius: '10px',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
+          minWidth: '180px',
+          padding: '5px',
           zIndex: 100,
           animation: 'scaleIn 0.15s ease',
         }}>
-          <button
-            onClick={(e) => { e.stopPropagation(); setShowMenu(false); navigate(`/entries/${entry._id}`); }}
-            className="menu-item"
-            style={menuItemStyle()}
-          >
-            <Eye size={16} /> Open
+          {[
+            { icon: Eye, label: 'Open', action: (e) => { e.stopPropagation(); setShowMenu(false); navigate(`/entries/${entry._id}`); } },
+            { icon: Edit, label: 'Edit', action: (e) => { e.stopPropagation(); setShowMenu(false); onEdit?.(entry); } },
+          ].map(({ icon: Icon, label, action }) => (
+            <button key={label} onClick={action} className="menu-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 12px', border: 'none', background: 'transparent', color: 'var(--ink)', borderRadius: '7px', cursor: 'pointer', fontSize: '0.84rem', fontFamily: 'inherit', textAlign: 'left' }}>
+              <Icon size={14} /> {label}
+            </button>
+          ))}
+
+          <div className="menu-divider" role="separator" />
+
+          <button onClick={handleFavorite} className="menu-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 12px', border: 'none', background: 'transparent', color: fav ? 'var(--gold)' : 'var(--ink)', borderRadius: '7px', cursor: 'pointer', fontSize: '0.84rem', fontFamily: 'inherit', textAlign: 'left' }}>
+            <Star size={14} fill={fav ? 'currentColor' : 'none'} /> {fav ? 'Unfavorite' : 'Favorite'}
           </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); setShowMenu(false); onEdit?.(entry); }}
-            className="menu-item"
-            style={menuItemStyle()}
-          >
-            <Edit size={16} /> Edit
+          <button onClick={handlePin} className="menu-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 12px', border: 'none', background: 'transparent', color: pinned ? 'var(--gold)' : 'var(--ink)', borderRadius: '7px', cursor: 'pointer', fontSize: '0.84rem', fontFamily: 'inherit', textAlign: 'left' }}>
+            <Pin size={14} fill={pinned ? 'currentColor' : 'none'} /> {pinned ? 'Unpin' : 'Pin to top'}
           </button>
 
           <div className="menu-divider" role="separator" />
 
-          <button
-            onClick={handleFavorite}
-            className="menu-item"
-            style={menuItemStyle(fav ? 'var(--gold)' : 'var(--ink)')}
-          >
-            <Star size={16} fill={fav ? 'currentColor' : 'none'} /> {fav ? 'Remove from Favorites' : 'Add to Favorites'}
-          </button>
-          <button
-            onClick={handlePin}
-            className="menu-item"
-            style={menuItemStyle(pinned ? 'var(--gold)' : 'var(--ink)')}
-          >
-            <Pin size={16} fill={pinned ? 'currentColor' : 'none'} /> {pinned ? 'Unpin' : 'Pin to top'}
+          <button onClick={handleVisibility} className="menu-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 12px', border: 'none', background: 'transparent', color: 'var(--ink)', borderRadius: '7px', cursor: 'pointer', fontSize: '0.84rem', fontFamily: 'inherit', textAlign: 'left' }}>
+            {visibility === 'public' ? <Lock size={14} /> : <Globe size={14} />}
+            {visibility === 'public' ? 'Make Private' : 'Make Public'}
           </button>
 
           <div className="menu-divider" role="separator" />
 
-          <button
-            onClick={handleVisibility}
-            className="menu-item"
-            style={menuItemStyle()}
-          >
-            {visibility === 'public' ? <Lock size={16} /> : <Globe size={16} />} {visibility === 'public' ? 'Make Private' : 'Make Public'}
-          </button>
-
-          <div className="menu-divider" role="separator" />
-
-          <button
-            onClick={handleDelete}
-            className="menu-item"
-            style={menuItemStyle('var(--error)')}
-          >
-            <Trash2 size={16} /> Delete
+          <button onClick={handleDelete} className="menu-item" style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 12px', border: 'none', background: 'transparent', color: 'var(--error)', borderRadius: '7px', cursor: 'pointer', fontSize: '0.84rem', fontFamily: 'inherit', textAlign: 'left' }}>
+            <Trash2 size={14} /> Delete
           </button>
         </div>
       )}

@@ -183,7 +183,7 @@ export const MobileNavigation = () => {
                       style={{
                         fontWeight: 500,
                         fontSize: '0.9rem',
-                        fontFamily: 'var(--font-family-body)',
+                        fontFamily: 'var(--font-family-ui)',
                         letterSpacing: '0.02em',
                       }}
                     >

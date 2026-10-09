@@ -27,16 +27,8 @@ export const MainLayout = () => {
       >
         <Navbar />
 
-        <div className="layout-main-row" style={{ flex: 1, display: 'flex', gap: '20px', padding: '0 20px', overflow: 'hidden' }}>
-          <main
-            className="dashboard-main"
-            style={{
-              flex: 1,
-              minWidth: 0,
-              overflowY: 'auto',
-              padding: '26px 0 40px',
-            }}
-          >
+        <div className="layout-main-row">
+          <main className="dashboard-main">
             <Outlet />
           </main>
 

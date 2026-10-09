@@ -1,5 +1,6 @@
 import { Modal, ConfirmDialog } from '../ui/Modal';
 import { Button } from '../ui/Button';
+import { DatePicker } from '../ui/DatePicker';
 import { EXPORT_FORMATS, EXPORT_SCOPES } from '../../constants';
 import { useState, useRef } from 'react';
 import { formatDate, getLocalDateString } from '../../utils/helpers';
@@ -85,17 +86,30 @@ export const ExportDialog = ({ opened, onClose, onExport, exporting = false, ent
 
         {scope === 'custom' && (
           <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <label style={{ display: 'block', marginBottom: 'var(--spacing-xs)', fontSize: '0.85rem', color: 'var(--ink-muted)' }}>
                 Start Date
               </label>
-              <input type="date" value={customRange.start} onChange={e => setCustomRange(prev => ({ ...prev, start: e.target.value }))} max={getLocalDateString()} style={{ width: '100%', padding: 'var(--spacing-sm) var(--spacing-md)', border: '1px solid var(--input-border)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--input-bg)', color: 'var(--ink)', fontFamily: 'inherit' }} />
+              <DatePicker
+                value={customRange.start}
+                onChange={val => setCustomRange(prev => ({ ...prev, start: val }))}
+                maxDate={customRange.end || getLocalDateString()}
+                placeholder="Start Date"
+                ariaLabel="Export start date"
+              />
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <label style={{ display: 'block', marginBottom: 'var(--spacing-xs)', fontSize: '0.85rem', color: 'var(--ink-muted)' }}>
                 End Date
               </label>
-              <input type="date" value={customRange.end} onChange={e => setCustomRange(prev => ({ ...prev, end: e.target.value }))} max={getLocalDateString()} style={{ width: '100%', padding: 'var(--spacing-sm) var(--spacing-md)', border: '1px solid var(--input-border)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--input-bg)', color: 'var(--ink)', fontFamily: 'inherit' }} />
+              <DatePicker
+                value={customRange.end}
+                onChange={val => setCustomRange(prev => ({ ...prev, end: val }))}
+                minDate={customRange.start}
+                maxDate={getLocalDateString()}
+                placeholder="End Date"
+                ariaLabel="Export end date"
+              />
             </div>
           </div>
         )}

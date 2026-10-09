@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSession } from '../../context/SessionContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useFont } from '../../context/FontContext';
 import { useSidebar } from '../../context/SidebarContext';
-import { Menu, Sun, Moon, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, Sun, Moon, LogOut, ChevronDown, Type } from 'lucide-react';
 import favicon from '../../assets/favicon.png';
 import { Link, useLocation } from 'react-router-dom';
 import { getInitials } from '../../utils/helpers';
@@ -10,15 +11,21 @@ import { getInitials } from '../../utils/helpers';
 export const Navbar = () => {
   const { name, deleteSession, isAuthenticated } = useSession();
   const { resolvedTheme, setTheme } = useTheme();
+  const { fontScheme, setFont, schemes } = useFont();
   const { toggle: toggleSidebar } = useSidebar();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showFontMenu, setShowFontMenu] = useState(false);
   const userMenuRef = useRef(null);
+  const fontMenuRef = useRef(null);
   const { pathname } = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
         setShowUserMenu(false);
+      }
+      if (fontMenuRef.current && !fontMenuRef.current.contains(e.target)) {
+        setShowFontMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -83,8 +90,109 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Right: theme toggle + user controls */}
+      {/* Right: font switcher + theme toggle + user controls */}
       <div className="navbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ position: 'relative' }} ref={fontMenuRef}>
+          <button
+            onClick={() => setShowFontMenu(v => !v)}
+            aria-label="Change font style"
+            aria-expanded={showFontMenu}
+            aria-haspopup="true"
+            title="Font style"
+            className="theme-pill"
+            style={{
+              width: '30px',
+              height: '30px',
+              borderRadius: '50%',
+              border: 'none',
+              background: showFontMenu ? 'rgba(216,168,91,0.18)' : 'transparent',
+              color: showFontMenu ? 'var(--gold)' : 'var(--ink-light)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Type size={16} />
+          </button>
+          {showFontMenu && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 'calc(100% + 8px)',
+                right: 0,
+                backgroundColor: 'var(--card-bg)',
+                border: '1px solid var(--border)',
+                borderRadius: '12px',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+                minWidth: '235px',
+                padding: '8px',
+                zIndex: 60,
+                animation: 'scaleIn 0.2s ease',
+              }}
+            >
+              <p style={{ margin: '2px 10px 6px', fontFamily: 'var(--font-family-ui)', fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-light)' }}>
+                Font style
+              </p>
+              {schemes.map(s => {
+                const active = fontScheme === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => { setFont(s.id); setShowFontMenu(false); }}
+                    aria-pressed={active}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      width: '100%',
+                      padding: '7px 8px',
+                      border: 'none',
+                      background: active ? 'var(--hover-bg)' : 'transparent',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        fontFamily: s.heading,
+                        fontSize: '1.1rem',
+                        fontWeight: 600,
+                        color: active ? 'var(--gold)' : 'var(--ink)',
+                        width: '26px',
+                        textAlign: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      Aa
+                    </span>
+                    <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                      <span style={{ fontFamily: 'var(--font-family-ui)', fontSize: '0.84rem', fontWeight: 500, color: 'var(--ink)' }}>
+                        {s.name}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: s.body,
+                          fontSize: '0.72rem',
+                          color: 'var(--ink-muted)',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        Jo keh nahi paaye, likh do.
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         <div
           role="group"
           aria-label="Theme switcher"

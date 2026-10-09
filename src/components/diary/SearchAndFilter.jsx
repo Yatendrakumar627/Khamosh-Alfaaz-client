@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, X, Star, Pin, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 import { debounce } from '../../utils/helpers';
 import { classNames } from '../../utils/helpers';
@@ -107,10 +107,10 @@ export const FilterPopover = ({ filters, onFilterChange }) => {
       style={{
         position: 'absolute',
         top: 'calc(100% + 8px)',
-        left: 0,
+        right: 0,
         zIndex: 1100,
         width: 'min(320px, calc(100vw - 24px))',
-        maxHeight: 'calc(100vh - 120px)',
+        maxHeight: 'calc(100dvh - 120px)',
         overflowY: 'auto',
         borderRadius: '12px',
         backgroundColor: 'var(--paper-dark)',
@@ -118,7 +118,7 @@ export const FilterPopover = ({ filters, onFilterChange }) => {
         boxShadow: 'var(--shadow-lg)',
         padding: 'var(--spacing-md)',
       }}
-      className="paper-texture"
+      className="paper-texture filter-popover"
     >
       <div style={{
         fontFamily: 'var(--font-family-heading)',
@@ -369,10 +369,16 @@ export const FilterBar = ({ filters, onFilterChange, categories = [] }) => {
 };
 
 export const DatePickerPopover = ({ selectedDate, onDateSelect }) => {
+  const popoverRef = useRef(null);
   const [currentMonth, setCurrentMonth] = useState(() => {
     const d = selectedDate ? new Date(selectedDate) : new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
+
+  const todayStr = (() => {
+    const t = new Date();
+    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  })();
 
   const days = generateCalendarDays(
     currentMonth.getFullYear(),
@@ -381,47 +387,137 @@ export const DatePickerPopover = ({ selectedDate, onDateSelect }) => {
 
   const selectedDateStr = selectedDate || '';
 
+  // Prevent popover from spilling outside viewport on small / mobile screens
+  useEffect(() => {
+    if (popoverRef.current) {
+      const rect = popoverRef.current.getBoundingClientRect();
+      const padding = 12;
+      if (rect.right > window.innerWidth - padding) {
+        const overflow = rect.right - (window.innerWidth - padding);
+        popoverRef.current.style.right = `${overflow}px`;
+      } else if (rect.left < padding) {
+        const overflow = padding - rect.left;
+        popoverRef.current.style.right = `-${overflow}px`;
+      }
+    }
+  }, [currentMonth]);
+
   const goToToday = () => {
     const today = new Date();
     setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
   };
 
-  const todayStr = (() => {
-    const t = new Date();
-    return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  const isNextMonthFuture = (() => {
+    const today = new Date();
+    const nextY = currentMonth.getMonth() === 11 ? currentMonth.getFullYear() + 1 : currentMonth.getFullYear();
+    const nextM = (currentMonth.getMonth() + 1) % 12;
+    return nextY > today.getFullYear() || (nextY === today.getFullYear() && nextM > today.getMonth());
   })();
 
   return (
-    <div style={{
-      position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 1100,
-      width: 'min(320px, calc(100vw - 24px))', borderRadius: '12px',
-      backgroundColor: 'var(--paper-dark)', border: '1px solid var(--border-dark)',
-      boxShadow: 'var(--shadow-lg)', padding: 'var(--spacing-md)',
-    }} className="paper-texture">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-sm)' }}>
-        <div style={{ fontFamily: 'var(--font-family-heading)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--ink)' }}>
+    <div
+      ref={popoverRef}
+      style={{
+        position: 'absolute',
+        top: 'calc(100% + 8px)',
+        right: 0,
+        zIndex: 1100,
+        width: 'min(310px, calc(100vw - 24px))',
+        maxWidth: 'calc(100vw - 24px)',
+        borderRadius: '12px',
+        backgroundColor: 'var(--paper-dark)',
+        border: '1px solid var(--border-dark)',
+        boxShadow: 'var(--shadow-lg)',
+        padding: 'var(--spacing-md)',
+        maxHeight: 'calc(100dvh - 120px)',
+        overflowY: 'auto',
+        boxSizing: 'border-box',
+      }}
+      className="paper-texture datepicker-popover"
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-sm)', gap: '4px' }}>
+        <div style={{ fontFamily: 'var(--font-family-heading)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap' }}>
           {getMonthYear(currentMonth)}
         </div>
-        <div style={{ display: 'flex', gap: '2px' }}>
-          <button type="button" onClick={() => setCurrentMonth(prev => { const d = new Date(prev); d.setMonth(d.getMonth() - 1); return new Date(d.getFullYear(), d.getMonth(), 1); })} style={{ padding: '4px', border: 'none', background: 'transparent', color: 'var(--ink-muted)', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '32px', minHeight: '32px' }} aria-label="Previous month"><ChevronLeft size={16} /></button>
-          <button type="button" onClick={goToToday} style={{ padding: '4px 8px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--ink-muted)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontFamily: 'inherit', minHeight: '32px' }}>Today</button>
-          <button type="button" onClick={() => setCurrentMonth(prev => { const d = new Date(prev); d.setMonth(d.getMonth() + 1); return new Date(d.getFullYear(), d.getMonth(), 1); })} style={{ padding: '4px', border: 'none', background: 'transparent', color: 'var(--ink-muted)', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '32px', minHeight: '32px' }} aria-label="Next month"><ChevronRight size={16} /></button>
+        <div style={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
+          <button
+            type="button"
+            onClick={() => setCurrentMonth(prev => { const d = new Date(prev); d.setMonth(d.getMonth() - 1); return new Date(d.getFullYear(), d.getMonth(), 1); })}
+            style={{ padding: '4px', border: 'none', background: 'transparent', color: 'var(--ink-muted)', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '30px', minHeight: '30px' }}
+            aria-label="Previous month"
+          >
+            <ChevronLeft size={16} />
+          </button>
+
+          <button
+            type="button"
+            onClick={goToToday}
+            style={{ padding: '3px 8px', border: '1px solid var(--border)', background: 'var(--paper)', color: 'var(--gold)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.74rem', fontWeight: 600, fontFamily: 'inherit', minHeight: '28px' }}
+          >
+            Today
+          </button>
+
+          {selectedDateStr && (
+            <button
+              type="button"
+              onClick={() => onDateSelect('')}
+              style={{ padding: '3px 8px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--ink-light)', borderRadius: '6px', cursor: 'pointer', fontSize: '0.74rem', fontFamily: 'inherit', minHeight: '28px' }}
+            >
+              Clear
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setCurrentMonth(prev => { const d = new Date(prev); d.setMonth(d.getMonth() + 1); return new Date(d.getFullYear(), d.getMonth(), 1); })}
+            disabled={isNextMonthFuture}
+            style={{ padding: '4px', border: 'none', background: 'transparent', color: isNextMonthFuture ? 'var(--ink-light)' : 'var(--ink-muted)', opacity: isNextMonthFuture ? 0.35 : 1, borderRadius: '6px', cursor: isNextMonthFuture ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '30px', minHeight: '30px' }}
+            aria-label="Next month"
+          >
+            <ChevronRight size={16} />
+          </button>
         </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px', marginBottom: 'var(--spacing-xs)' }}>
         {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
-          <div key={d} style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 600, color: 'var(--ink-light)', padding: '4px', textTransform: 'uppercase' }}>{d}</div>
+          <div key={d} style={{ textAlign: 'center', fontSize: '0.65rem', fontWeight: 600, color: 'var(--ink-light)', padding: '4px 0', textTransform: 'uppercase' }}>{d}</div>
         ))}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px', maxHeight: 'calc(100vh - 280px)', overflowY: 'auto' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px', overflowY: 'auto' }}>
         {days.map((dayInfo, i) => {
-          if (!dayInfo.date) return <div key={`empty-${i}`} style={{ height: '36px' }} />;
+          if (!dayInfo.date) return <div key={`empty-${i}`} style={{ height: '34px' }} />;
           const isSelected = dayInfo.date === selectedDateStr;
           const isToday = dayInfo.date === todayStr;
+          const isFuture = dayInfo.date > todayStr;
           return (
-            <button key={dayInfo.date} type="button" onClick={() => onDateSelect(dayInfo.date)} style={{ height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px', border: 'none', backgroundColor: isSelected ? 'var(--gold)' : 'transparent', color: 'var(--ink)', fontSize: '0.85rem', fontFamily: 'inherit', cursor: 'pointer', fontWeight: isSelected ? 600 : isToday ? 600 : 400, position: 'relative', minWidth: '36px' }} aria-label={`Select ${dayInfo.date}`}>
+            <button
+              key={dayInfo.date}
+              type="button"
+              disabled={isFuture}
+              onClick={() => onDateSelect(dayInfo.date)}
+              style={{
+                height: '34px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '8px',
+                border: isToday && !isSelected ? '1px dashed var(--gold)' : 'none',
+                backgroundColor: isSelected ? 'var(--gold)' : 'transparent',
+                color: isSelected ? 'var(--paper-darker)' : isFuture ? 'var(--ink-light)' : 'var(--ink)',
+                fontSize: '0.84rem',
+                fontFamily: 'inherit',
+                cursor: isFuture ? 'not-allowed' : 'pointer',
+                fontWeight: isSelected ? 700 : isToday ? 600 : 400,
+                opacity: isFuture ? 0.3 : 1,
+                position: 'relative',
+                minWidth: 0,
+                width: '100%',
+                transition: 'background-color 0.12s',
+              }}
+              aria-label={`Select ${dayInfo.date}`}
+            >
               {dayInfo.day}
-              {isToday && !isSelected && <span style={{ position: 'absolute', bottom: '3px', width: '4px', height: '4px', borderRadius: '50%', backgroundColor: 'var(--gold)' }} />}
+              {isToday && !isSelected && <span style={{ position: 'absolute', bottom: '2px', width: '3px', height: '3px', borderRadius: '50%', backgroundColor: 'var(--gold)' }} />}
             </button>
           );
         })}

@@ -75,7 +75,7 @@ export const Explore = () => {
           style={{
             width: '100%', height: '48px', padding: '0 16px 0 44px',
             backgroundColor: 'var(--paper)', border: '1px solid var(--border)', borderRadius: '10px',
-            color: 'var(--ink)', fontSize: '0.92rem', fontFamily: 'var(--font-family-body)', outline: 'none',
+            color: 'var(--ink)', fontSize: '0.92rem', fontFamily: 'var(--font-family-ui)', outline: 'none',
           }}
         />
       </form>
@@ -88,7 +88,7 @@ export const Explore = () => {
             padding: '7px 14px', borderRadius: '20px', border: '1px solid var(--border)', cursor: 'pointer',
             backgroundColor: !params.type ? 'rgba(216,168,91,0.16)' : 'var(--input-bg)',
             color: !params.type ? 'var(--gold)' : 'var(--ink-muted)',
-            fontSize: '0.8rem', fontWeight: 500, fontFamily: 'var(--font-family-body)',
+            fontSize: '0.8rem', fontWeight: 500, fontFamily: 'var(--font-family-ui)',
           }}
         >
           All
@@ -104,7 +104,7 @@ export const Explore = () => {
                 padding: '7px 14px', borderRadius: '20px', border: '1px solid var(--border)', cursor: 'pointer',
                 backgroundColor: active ? 'rgba(216,168,91,0.16)' : 'var(--input-bg)',
                 color: active ? 'var(--gold)' : 'var(--ink-muted)',
-                fontSize: '0.8rem', fontWeight: 500, fontFamily: 'var(--font-family-body)',
+                fontSize: '0.8rem', fontWeight: 500, fontFamily: 'var(--font-family-ui)',
               }}
             >
               {t.label}

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
+import { DatePicker } from '../ui/DatePicker';
 import { ENTRY_TYPES } from '../../constants';
-import { parseTags, formatTags, validateEntry, getLocalDateString, formatDate, classNames } from '../../utils/helpers';
+import { parseTags, formatTags, validateEntry, getLocalDateString, classNames } from '../../utils/helpers';
 import { Tag, X, Plus, Star, Pin, Lock, Globe, BookOpen, Lightbulb, Quote, Sparkles, FileText, Heart, Circle } from 'lucide-react';
 
 const typeIcons = {
@@ -31,9 +31,10 @@ export const EntryEditor = ({
   showVisibility = true,
   showCancel = true,
   submitLabel = 'Save Entry',
-  submitIcon = <Plus size={18} />,
+  submitIcon = <Plus size={17} />,
   submitIconPosition = 'left',
   onChange,
+  statusSlot = null,
 }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -83,10 +84,11 @@ export const EntryEditor = ({
   };
 
   const addTag = (tag) => {
-    const trimmed = tag.trim();
+    const trimmed = tag.trim().replace(/^#+/, '');
     if (trimmed && !tags.includes(trimmed) && tags.length < 20) {
-      setTags(prev => [...prev, trimmed]);
-      handleChange('tags', formatTags([...tags, trimmed]));
+      const nextTags = [...tags, trimmed];
+      setTags(nextTags);
+      handleChange('tags', formatTags(nextTags));
     }
   };
 
@@ -119,189 +121,174 @@ export const EntryEditor = ({
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="entry-form" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
-      {showTitle && (
-        <Input
-          label="Title (optional)"
-          placeholder="Give your entry a title..."
-          value={formData.title}
-          onChange={(e) => handleChange('title', e.target.value)}
-          error={errors.title}
-          maxLength={200}
-        />
-      )}
+  const wordCount = formData.content ? formData.content.trim().split(/\s+/).filter(Boolean).length : 0;
+  const charCount = formData.content ? formData.content.length : 0;
 
-      <div className="entry-form-row" style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '150px' }}>
-          <label style={{ display: 'block', marginBottom: 'var(--spacing-xs)', fontWeight: 500, color: 'var(--ink-muted)' }}>
+  return (
+    <form onSubmit={handleSubmit} className="entry-form">
+      {/* 1. Header row: Title (optional) + Date side by side */}
+      <div className="entry-header-row">
+        {showTitle && (
+          <div className="entry-title-col">
+            <label className="entry-field-label" htmlFor="entry-title-input">
+              Title <span className="entry-label-optional">(optional)</span>
+            </label>
+            <input
+              id="entry-title-input"
+              type="text"
+              className="entry-field entry-title-input"
+              placeholder="Give your entry a title..."
+              value={formData.title}
+              onChange={(e) => handleChange('title', e.target.value)}
+              maxLength={200}
+            />
+            {errors.title && <span className="entry-field-error">{errors.title}</span>}
+          </div>
+        )}
+
+        <div className="entry-date-col">
+          <label className="entry-field-label" htmlFor="entry-date-input">
             Date
           </label>
-          <input
-            type="date"
-            className="entry-field"
+          <DatePicker
+            id="entry-date-input"
             value={formData.entryDate}
-            onChange={(e) => handleChange('entryDate', e.target.value)}
-            style={{
-              width: '100%', padding: 'var(--spacing-sm) var(--spacing-md)',
-              border: '1px solid var(--input-border)', borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--input-bg)', color: 'var(--ink)',
-              fontFamily: 'inherit', fontSize: '0.95rem',
-            }}
-            max={getLocalDateString()}
+            onChange={(dateStr) => handleChange('entryDate', dateStr)}
+            maxDate={getLocalDateString()}
+            ariaLabel="Entry date"
           />
         </div>
       </div>
 
-      <Textarea
-        label="Write your thoughts..."
-        placeholder="Anything on your mind — your day, a thought, a quote, a feeling..."
-        value={formData.content}
-        onChange={(e) => handleChange('content', e.target.value)}
-        error={errors.content}
-        required
-        minRows={12}
-        maxRows={22}
-        className="entry-textarea"
-      />
+      {/* 2. Textarea Canvas */}
+      <div className="entry-content-col">
+        <label className="entry-field-label" htmlFor="entry-content-textarea">
+          Write your thoughts... <span className="entry-label-required">*</span>
+        </label>
+        <Textarea
+          id="entry-content-textarea"
+          placeholder="Anything on your mind — your day, a thought, a quote, a feeling..."
+          value={formData.content}
+          onChange={(e) => handleChange('content', e.target.value)}
+          error={errors.content}
+          required
+          minRows={10}
+          maxRows={22}
+          className="entry-textarea"
+        />
+      </div>
 
+      {/* 3. Tier 1: Attributes & Metadata Strip */}
       {(showType || showTags || showFavorite || showPin || showVisibility) && (
-        <div className="entry-toolbar">
-          <div className="entry-tool-groups">
+        <div className="entry-attributes-bar">
+          <div className="entry-attr-left">
             {showType && (
-              <div className="entry-tool-type">
+              <div className="entry-attr-type">
                 <Select
-                  label="Type"
                   placeholder="Type"
                   data={ENTRY_TYPES.map(t => ({ value: t.value, label: t.label }))}
                   value={formData.type}
                   onChange={(value) => handleChange('type', value)}
                   error={errors.type}
                   required
-                  leftSection={<TypeIcon size={16} />}
+                  leftSection={<TypeIcon size={15} />}
+                  className="entry-type-select"
                 />
               </div>
             )}
 
-            {showType && (showTags || showVisibility) && <div className="entry-tool-divider" aria-hidden="true" />}
+            {showVisibility && (
+              <div
+                className="entry-visibility-toggle"
+                role="group"
+                aria-label="Entry visibility"
+                title={formData.visibility === 'public' ? 'Public — visible in Explore' : 'Private — only you can see'}
+              >
+                <button
+                  type="button"
+                  onClick={() => handleChange('visibility', 'private')}
+                  aria-pressed={formData.visibility === 'private'}
+                  className={classNames('entry-visibility-btn', formData.visibility === 'private' && 'active')}
+                >
+                  <Lock size={13} />
+                  <span>Private</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleChange('visibility', 'public')}
+                  aria-pressed={formData.visibility === 'public'}
+                  className={classNames('entry-visibility-btn', formData.visibility === 'public' && 'active')}
+                >
+                  <Globe size={13} />
+                  <span>Public</span>
+                </button>
+              </div>
+            )}
 
-            {showTags && (
-              <div className="entry-tool-tags">
-                <Tag size={16} className="entry-tool-tags-icon" />
+            {(showFavorite || showPin) && (
+              <div className="entry-flags-group">
+                {showFavorite && (
+                  <button
+                    type="button"
+                    className={classNames('entry-flag-btn', formData.isFavorite && 'active')}
+                    onClick={() => handleChange('isFavorite', !formData.isFavorite)}
+                    aria-label={formData.isFavorite ? 'Remove from favorites' : 'Mark as favorite'}
+                    aria-pressed={formData.isFavorite}
+                    title={formData.isFavorite ? 'Favorited' : 'Add to favorites'}
+                  >
+                    <Star size={16} fill={formData.isFavorite ? 'currentColor' : 'none'} />
+                  </button>
+                )}
+
+                {showPin && (
+                  <button
+                    type="button"
+                    className={classNames('entry-flag-btn', formData.isPinned && 'active')}
+                    onClick={() => handleChange('isPinned', !formData.isPinned)}
+                    aria-label={formData.isPinned ? 'Unpin entry' : 'Pin to top'}
+                    aria-pressed={formData.isPinned}
+                    title={formData.isPinned ? 'Pinned to top' : 'Pin to top'}
+                  >
+                    <Pin size={16} fill={formData.isPinned ? 'currentColor' : 'none'} />
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {showTags && (
+            <div className="entry-attr-right">
+              <div className="entry-tags-input-wrap">
+                <Tag size={14} className="entry-tags-icon" />
                 <input
                   type="text"
-                  className="entry-field entry-tool-tags-input"
-                  placeholder="Add tags…"
+                  className="entry-field entry-tags-input"
+                  placeholder="Add tags (press Enter)..."
                   aria-label="Tags"
                   value={formData.tags}
                   onChange={handleTagInput}
                   onKeyDown={handleKeyDown}
                 />
-                <span className={classNames('entry-tool-tags-count', tags.length >= 20 && 'full')}>
+                <span className={classNames('entry-tags-count', tags.length >= 20 && 'full')}>
                   {tags.length}/20
                 </span>
               </div>
-            )}
-
-            {showTags && showVisibility && <div className="entry-tool-divider" aria-hidden="true" />}
-
-            {showVisibility && (
-              <div className="entry-tool-visibility-wrap">
-                <div className="entry-tool-visibility" role="group" aria-label="Entry visibility" title="Private stays only on your diary; Public can be read by visitors in Explore">
-                  <button
-                    type="button"
-                    onClick={() => handleChange('visibility', 'private')}
-                    aria-pressed={formData.visibility === 'private'}
-                    className={classNames('entry-visibility-pill', formData.visibility === 'private' && 'active')}
-                  >
-                    <Lock size={15} />
-                    <span>Private</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleChange('visibility', 'public')}
-                    aria-pressed={formData.visibility === 'public'}
-                    className={classNames('entry-visibility-pill', formData.visibility === 'public' && 'active')}
-                  >
-                    <Globe size={15} />
-                    <span>Public</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="entry-tool-actions">
-            {showFavorite && (
-              <button
-                type="button"
-                className="entry-tool-toggle"
-                onClick={() => handleChange('isFavorite', !formData.isFavorite)}
-                aria-label={formData.isFavorite ? 'Remove from favorites' : 'Mark as favorite'}
-                aria-pressed={formData.isFavorite}
-                title="Favorite"
-              >
-                <Star size={18} fill={formData.isFavorite ? 'currentColor' : 'none'} />
-              </button>
-            )}
-
-            {showPin && (
-              <button
-                type="button"
-                className="entry-tool-toggle"
-                onClick={() => handleChange('isPinned', !formData.isPinned)}
-                aria-label={formData.isPinned ? 'Unpin entry' : 'Pin to top'}
-                aria-pressed={formData.isPinned}
-                title="Pin to top"
-              >
-                <Pin size={18} fill={formData.isPinned ? 'currentColor' : 'none'} />
-              </button>
-            )}
-
-            {showCancel && (
-              <Button variant="subtle" onClick={onCancel} disabled={saving}>
-                Cancel
-              </Button>
-            )}
-
-            <Button
-              className="btn-primary entry-submit"
-              type="submit"
-              loading={saving}
-              leftIcon={submitIconPosition === 'left' ? submitIcon : null}
-              rightIcon={submitIconPosition === 'right' ? submitIcon : null}
-            >
-              {submitLabel}
-            </Button>
-          </div>
+            </div>
+          )}
         </div>
       )}
 
+      {/* Tag chips */}
       {showTags && tags.length > 0 && (
         <div className="entry-tag-chips">
           {tags.map(tag => (
-            <span key={tag} style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              backgroundColor: 'var(--active-bg)',
-              color: 'var(--ink)',
-              padding: '4px 6px 4px 11px',
-              borderRadius: 'var(--radius-full)',
-              fontSize: '0.82rem',
-              fontWeight: 500,
-              border: '1px solid var(--border)',
-              transition: 'border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease',
-            }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
-            >
-              {tag}
+            <span key={tag} className="entry-tag-chip">
+              #{tag}
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: '2px', display: 'flex', borderRadius: '50%', transition: 'background-color 0.15s ease, color 0.15s ease, transform 0.15s ease' }}
+                className="entry-tag-remove"
                 aria-label={`Remove tag ${tag}`}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--error)'; e.currentTarget.style.color = '#fff'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'inherit'; }}
               >
                 <X size={12} />
               </button>
@@ -310,11 +297,43 @@ export const EntryEditor = ({
         </div>
       )}
 
-      {showTags && (
-        <p className="entry-tags-hint">
-          Press Enter to add tags. Maximum 20 tags.
-        </p>
-      )}
+      {/* 4. Tier 2: Unified Telemetry & Action Footer */}
+      <div className="entry-footer-bar">
+        <div className="entry-footer-telemetry">
+          {statusSlot}
+          {statusSlot && <span className="entry-telemetry-dot" aria-hidden="true">•</span>}
+          <span className="entry-stats">
+            <span className="entry-stats-num">{wordCount}</span> words
+            <span className="entry-stats-divider" aria-hidden="true">•</span>
+            <span className="entry-stats-num">{charCount}</span> characters
+          </span>
+        </div>
+
+        <div className="entry-footer-actions">
+          {showCancel && (
+            <button
+              type="button"
+              className="entry-btn-cancel"
+              onClick={onCancel}
+              disabled={saving}
+            >
+              Cancel
+            </button>
+          )}
+
+          <Button
+            className="btn-primary entry-btn-submit"
+            type="submit"
+            loading={saving}
+            leftIcon={submitIconPosition === 'left' ? submitIcon : null}
+            rightIcon={submitIconPosition === 'right' ? submitIcon : null}
+          >
+            {submitLabel}
+          </Button>
+        </div>
+      </div>
     </form>
   );
 };
+
+export default EntryEditor;

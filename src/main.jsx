@@ -4,6 +4,7 @@ import { MantineProvider } from '@mantine/core';
 import '@mantine/core/styles.css';
 import { createAppTheme } from './utils/theme';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { FontProvider, useFont } from './context/FontContext';
 import { SessionProvider } from './context/SessionContext';
 import { ToastProvider } from './context/ToastContext';
 import { SidebarProvider } from './context/SidebarContext';
@@ -13,9 +14,10 @@ import './assets/global.css';
 
 const ThemedApp = () => {
   const { resolvedTheme } = useTheme();
+  const { fontScheme } = useFont();
 
   return (
-    <MantineProvider theme={createAppTheme(resolvedTheme)}>
+    <MantineProvider theme={createAppTheme(resolvedTheme, fontScheme)}>
       <SessionProvider>
         <ToastProvider>
           <SidebarProvider>
@@ -32,7 +34,9 @@ const ThemedApp = () => {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider>
-      <ThemedApp />
+      <FontProvider>
+        <ThemedApp />
+      </FontProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

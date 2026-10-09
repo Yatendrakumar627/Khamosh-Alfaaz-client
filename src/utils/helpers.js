@@ -85,6 +85,11 @@ export const truncate = (text, length = 150) => {
   return text.substring(0, length).trim() + '...';
 };
 
+export const countWords = (text) => {
+  if (!text || typeof text !== 'string') return 0;
+  return text.trim().split(/\s+/).filter(Boolean).length;
+};
+
 export const generateId = () => {
   return Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 };

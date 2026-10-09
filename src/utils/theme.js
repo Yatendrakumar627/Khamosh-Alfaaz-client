@@ -1,18 +1,20 @@
 import { createTheme, MantineProvider } from '@mantine/core';
 import { colors, spacing, borderRadius, typography, transitions } from '../constants/colors';
+import { getFontStacks, DEFAULT_FONT_SCHEME } from '../constants/fonts';
 
-const getTheme = (resolvedTheme) => {
+const getTheme = (resolvedTheme, fontScheme = DEFAULT_FONT_SCHEME) => {
   const isDark = resolvedTheme === 'dark';
   const c = colors[isDark ? 'dark' : 'light'];
+  const fonts = getFontStacks(fontScheme);
 
   return createTheme({
     primaryColor: 'brown',
     primaryShade: { light: 5, dark: 5 },
     defaultRadius: 'sm',
-    fontFamily: typography.fontFamily.body,
+    fontFamily: fonts.body,
     fontFamilyMonospace: 'monospace',
     headings: {
-      fontFamily: typography.fontFamily.heading,
+      fontFamily: fonts.heading,
       fontWeight: '600',
       sizes: {
         h1: { fontSize: typography.fontSize.display, lineHeight: typography.lineHeight.tight },
@@ -95,7 +97,7 @@ const getTheme = (resolvedTheme) => {
         },
         styles: (theme) => ({
           root: {
-            fontFamily: typography.fontFamily.heading,
+            fontFamily: fonts.ui,
             fontWeight: 500,
             letterSpacing: '0.02em',
             transition: 'background-color 200ms ease, color 200ms ease, border-color 200ms ease, box-shadow 200ms ease',
@@ -109,7 +111,7 @@ const getTheme = (resolvedTheme) => {
         },
         styles: (theme) => ({
           input: {
-            fontFamily: typography.fontFamily.body,
+            fontFamily: fonts.ui,
             backgroundColor: c.inputBg,
             border: `1px solid ${c.inputBorder}`,
             color: c.ink,
@@ -135,10 +137,12 @@ const getTheme = (resolvedTheme) => {
         },
         styles: (theme) => ({
           input: {
-            fontFamily: typography.fontFamily.body,
-            fontSize: '1.05rem',
+            fontFamily: fonts.body,
+            fontSize: '1.1rem',
             lineHeight: 1.5,
             letterSpacing: '0.01em',
+            fontVariantNumeric: 'oldstyle-nums',
+            fontFeatureSettings: '"liga", "kern"',
             textAlign: 'justify',
             textJustify: 'inter-word',
             backgroundColor: c.inputBg,
@@ -209,7 +213,7 @@ const getTheme = (resolvedTheme) => {
         },
         styles: (theme) => ({
           input: {
-            fontFamily: typography.fontFamily.body,
+            fontFamily: fonts.ui,
             backgroundColor: c.inputBg,
             border: `1px solid ${c.inputBorder}`,
             color: c.ink,
@@ -225,7 +229,7 @@ const getTheme = (resolvedTheme) => {
             boxShadow: c.shadowLg,
           },
           item: {
-            fontFamily: typography.fontFamily.body,
+            fontFamily: fonts.ui,
             color: c.ink,
             '&:hover': {
               backgroundColor: c.hoverBg,
@@ -240,7 +244,7 @@ const getTheme = (resolvedTheme) => {
       Tabs: {
         styles: (theme) => ({
           tab: {
-            fontFamily: typography.fontFamily.heading,
+            fontFamily: fonts.ui,
             fontSize: '0.95rem',
             color: c.inkMuted,
             fontWeight: 500,
@@ -259,7 +263,7 @@ const getTheme = (resolvedTheme) => {
       Badge: {
         styles: (theme) => ({
           root: {
-            fontFamily: typography.fontFamily.heading,
+            fontFamily: fonts.ui,
             fontWeight: 500,
             letterSpacing: '0.02em',
             border: `1px solid ${c.border}`,
@@ -275,7 +279,7 @@ const getTheme = (resolvedTheme) => {
             boxShadow: 'none',
           },
           title: {
-            fontFamily: typography.fontFamily.heading,
+            fontFamily: fonts.heading,
             fontWeight: 600,
           },
         }),
@@ -288,6 +292,7 @@ const getTheme = (resolvedTheme) => {
           tooltip: {
             backgroundColor: c.brown,
             color: isDark ? '#221a0f' : '#faf3e3',
+            fontFamily: fonts.ui,
             fontSize: '0.8rem',
           },
           arrow: {

@@ -21,7 +21,7 @@ export const StatisticsCard = ({ title, value, subtitle, icon, trend, color = 'b
           <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 500, color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             {title}
           </p>
-          <p style={{ margin: 'var(--spacing-xs) 0 0', fontFamily: 'var(--font-family-heading)', fontSize: '2.5rem', fontWeight: 700, color: 'var(--ink)', lineHeight: 1.1 }}>
+          <p style={{ margin: 'var(--spacing-xs) 0 0', fontFamily: 'var(--font-family-ui)', fontSize: '2.5rem', fontWeight: 700, color: 'var(--ink)', lineHeight: 1.1 }}>
             {value}
           </p>
         </div>
@@ -102,7 +102,7 @@ export const StreakDisplay = ({ currentStreak, longestStreak }) => (
         <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 500, color: 'var(--ink-muted)', textTransform: 'uppercase' }}>
           Current Streak
         </p>
-        <p style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontSize: '3rem', fontWeight: 700, color: 'var(--ink)' }}>
+        <p style={{ margin: 0, fontFamily: 'var(--font-family-ui)', fontSize: '3rem', fontWeight: 700, color: 'var(--ink)' }}>
           {currentStreak}
         </p>
         <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-muted)' }}>
@@ -119,7 +119,7 @@ export const StreakDisplay = ({ currentStreak, longestStreak }) => (
         <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 500, color: 'var(--ink-muted)', textTransform: 'uppercase' }}>
           Longest Streak
         </p>
-        <p style={{ margin: 'var(--spacing-xs) 0 0', fontFamily: 'var(--font-family-heading)', fontSize: '1.5rem', fontWeight: 600, color: 'var(--ink)' }}>
+        <p style={{ margin: 'var(--spacing-xs) 0 0', fontFamily: 'var(--font-family-ui)', fontSize: '1.5rem', fontWeight: 600, color: 'var(--ink)' }}>
           {longestStreak} days
         </p>
       </div>

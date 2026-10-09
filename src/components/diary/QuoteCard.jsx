@@ -165,7 +165,7 @@ export const DailyQuote = ({ quote, onSaveAsEntry }) => (
               cursor: 'pointer',
               fontSize: '0.74rem',
               fontWeight: 500,
-              fontFamily: 'var(--font-family-body)',
+              fontFamily: 'var(--font-family-ui)',
               transition: 'background-color 0.2s ease',
             }}
           >

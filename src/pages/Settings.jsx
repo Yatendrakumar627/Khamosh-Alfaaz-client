@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import { useFont } from '../context/FontContext';
 import { useSession } from '../context/SessionContext';
 import { useToast } from '../context/ToastContext';
 import { Button } from '../components/ui/Button';
@@ -16,6 +17,7 @@ const themeOptions = [
 
 export const Settings = () => {
   const { theme, setTheme } = useTheme();
+  const { fontScheme, setFont, schemes } = useFont();
   const { name, updateName } = useSession();
   const { success, error } = useToast();
   const [displayName, setDisplayName] = useState(name || '');
@@ -63,7 +65,7 @@ export const Settings = () => {
   };
 
   return (
-    <div style={{ padding: 'var(--spacing-xl)', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="page-container" style={{ maxWidth: '800px', margin: '0 auto' }}>
       <header style={{ marginBottom: 'var(--spacing-xl)' }}>
         <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 600, color: 'var(--ink)', margin: '0 0 var(--spacing-xs)' }}>
           Settings
@@ -96,6 +98,79 @@ export const Settings = () => {
               Save Name
             </Button>
           </form>
+        </section>
+
+        <section style={{ backgroundColor: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'var(--spacing-xl)' }} className="paper-texture diary-page">
+          <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: '1.25rem', fontWeight: 600, color: 'var(--ink)', margin: '0 0 var(--spacing-sm)' }}>
+            Typography
+          </h2>
+          <p style={{ margin: '0 0 var(--spacing-lg)', color: 'var(--ink-muted)', fontSize: '0.95rem' }}>
+            Choose the voice of your diary — titles, writing, and interface each have their own font.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(215px, 1fr))', gap: 'var(--spacing-md)' }}>
+            {schemes.map(scheme => {
+              const isActive = fontScheme === scheme.id;
+              return (
+                <button
+                  key={scheme.id}
+                  onClick={() => setFont(scheme.id)}
+                  type="button"
+                  aria-pressed={isActive}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    gap: 'var(--spacing-sm)',
+                    padding: 'var(--spacing-lg)',
+                    border: `2px solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
+                    borderRadius: 'var(--radius-md)',
+                    backgroundColor: isActive ? 'var(--accent)10' : 'transparent',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    textAlign: 'left',
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', width: '100%', gap: 'var(--spacing-sm)' }}>
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        fontFamily: scheme.heading,
+                        fontSize: '1.7rem',
+                        fontWeight: 600,
+                        lineHeight: 1,
+                        color: isActive ? 'var(--accent)' : 'var(--ink)',
+                      }}
+                    >
+                      Aa
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-family-ui)',
+                        fontSize: '0.66rem',
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        color: isActive ? 'var(--accent)' : 'var(--ink-light)',
+                        paddingTop: '4px',
+                      }}
+                    >
+                      {isActive ? 'Active' : scheme.tagline}
+                    </span>
+                  </div>
+                  <span style={{ fontFamily: 'var(--font-family-ui)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--ink)' }}>
+                    {scheme.name}
+                  </span>
+                  <span style={{ fontFamily: scheme.body, fontSize: '0.98rem', color: 'var(--ink-muted)', lineHeight: 1.45 }}>
+                    Jo keh nahi paaye, likh do.
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-family-ui)', fontSize: '0.72rem', color: 'var(--ink-light)', lineHeight: 1.4 }}>
+                    {scheme.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </section>
 
         <section style={{ backgroundColor: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: 'var(--spacing-xl)' }} className="paper-texture diary-page">

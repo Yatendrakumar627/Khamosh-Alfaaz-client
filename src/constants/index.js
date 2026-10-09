@@ -57,6 +57,7 @@ export const QUOTES = [
 
 export const STORAGE_KEYS = {
   THEME: 'khamosh-theme',
+  FONT: 'khamosh-font',
   DRAFT: 'khamosh-draft',
   NAME: 'khamosh-name',
   SIDEBAR_OPEN: 'khamosh-sidebar-open',

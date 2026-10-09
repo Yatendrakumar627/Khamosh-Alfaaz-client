@@ -5,12 +5,25 @@ import { EntryCard } from '../components/diary/EntryCard';
 import { SearchBar, FilterPopover, DatePickerPopover, EmptyState, ErrorState } from '../components/diary/SearchAndFilter';
 import { LoadingState } from '../components/ui/LoadingState';
 import { Button } from '../components/ui/Button';
-import { Plus, Filter, Calendar } from 'lucide-react';
-import { formatDate } from '../utils/helpers';
+import { Plus, Filter, Calendar, X, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { formatDate, getEntryTypeLabel } from '../utils/helpers';
 import { classNames } from '../utils/helpers';
-import { debounce } from '../utils/helpers';
 import { useDateFilter } from '../context/DateFilterContext';
 import { entriesApi } from '../services/api';
+
+const FilterChip = ({ label, onClear }) => (
+  <span className="filter-chip">
+    <span>{label}</span>
+    <button
+      type="button"
+      className="filter-chip-remove"
+      onClick={onClear}
+      aria-label={`Remove filter: ${label}`}
+    >
+      <X size={11} />
+    </button>
+  </span>
+);
 
 export const Entries = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -66,7 +79,17 @@ export const Entries = () => {
 
   const filterCount = [filters.type, filters.favorite, filters.pinned].filter(Boolean).length;
 
-  const { entries, loading, error, pagination, params, searchEntries, setFilters: setApiFilters, setPage, refresh } = useEntries({
+  const {
+    entries,
+    loading,
+    error,
+    pagination,
+    params,
+    searchEntries,
+    setFilters: setApiFilters,
+    setPage,
+    refresh,
+  } = useEntries({
     page: parseInt(searchParams.get('page')) || 1,
     limit: 20,
     type: filters.type,
@@ -76,34 +99,29 @@ export const Entries = () => {
     date: selectedDate,
   });
 
-  const debouncedSearch = useCallback(
-    debounce((query) => {
-      setPage(1);
-      if (query.trim()) {
-        searchEntries(query, { ...filters, page: 1 });
-      } else {
-        setApiFilters({ ...filters, page: 1 });
-      }
-    }, 300),
-    [searchEntries, filters, setApiFilters, setPage],
-  );
-
-  useEffect(() => {
-    debouncedSearch(searchQuery);
-  }, [debouncedSearch]);
-
-  useEffect(() => {
+  // Unified query updater: synchronizes URL parameters and executes API query
+  const updateEntriesQuery = useCallback((newFilters, newDate, newSearch, newPage = 1) => {
+    // 1. Synchronize URL search params
     const newParams = new URLSearchParams();
-    if (searchQuery) newParams.set('q', searchQuery);
-    if (filters.type) newParams.set('type', filters.type);
-    if (filters.sort && filters.sort !== 'newest') newParams.set('sort', filters.sort);
-    if (filters.favorite) newParams.set('favorite', 'true');
-    if (filters.pinned) newParams.set('pinned', 'true');
-    if (selectedDate) newParams.set('date', selectedDate);
-    if (params.page > 1) newParams.set('page', params.page.toString());
+    if (newSearch) newParams.set('q', newSearch);
+    if (newFilters.type) newParams.set('type', newFilters.type);
+    if (newFilters.sort && newFilters.sort !== 'newest') newParams.set('sort', newFilters.sort);
+    if (newFilters.favorite) newParams.set('favorite', 'true');
+    if (newFilters.pinned) newParams.set('pinned', 'true');
+    if (newDate) newParams.set('date', newDate);
+    if (newPage > 1) newParams.set('page', newPage.toString());
     setSearchParams(newParams, { replace: true });
-  }, [searchQuery, filters, selectedDate, params.page, searchParams, setSearchParams]);
 
+    // 2. Fetch from API
+    setPage(newPage);
+    if (newSearch && newSearch.trim()) {
+      searchEntries(newSearch.trim(), { ...newFilters, date: newDate, page: newPage });
+    } else {
+      setApiFilters({ ...newFilters, date: newDate, page: newPage });
+    }
+  }, [setSearchParams, setPage, searchEntries, setApiFilters]);
+
+  // Synchronize state when browser back/forward navigation occurs
   useEffect(() => {
     const nextQuery = searchParams.get('q') || '';
     const nextDate = searchParams.get('date') || '';
@@ -112,64 +130,60 @@ export const Entries = () => {
       sort: searchParams.get('sort') || 'newest',
       favorite: searchParams.get('favorite') === 'true',
       pinned: searchParams.get('pinned') === 'true',
+      publicOnly: false,
     };
-
-    setSearchQuery(value => value === nextQuery ? value : nextQuery);
-    setFilters(value => {
-      const unchanged = value.type === nextFilters.type
-        && value.sort === nextFilters.sort
-        && value.favorite === nextFilters.favorite
-        && value.pinned === nextFilters.pinned;
-      return unchanged ? value : nextFilters;
+    setSearchQuery(prev => prev === nextQuery ? prev : nextQuery);
+    setSelectedDate(prev => prev === nextDate ? prev : nextDate);
+    setFilters(prev => {
+      const unchanged = prev.type === nextFilters.type
+        && prev.sort === nextFilters.sort
+        && prev.favorite === nextFilters.favorite
+        && prev.pinned === nextFilters.pinned;
+      return unchanged ? prev : nextFilters;
     });
-    setSelectedDate(value => value === nextDate ? value : nextDate);
-  }, [searchParams]);
+  }, [searchParams, setSelectedDate]);
 
-  useEffect(() => {
-    setApiFilters({
-      type: filters.type,
-      sort: filters.sort,
-      favorite: filters.favorite,
-      pinned: filters.pinned,
-      date: selectedDate,
-      page: params.page,
-    });
-  }, [filters, selectedDate, params.page, setApiFilters]);
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+  };
+
+  const handleSearchSubmit = (query) => {
+    setSearchQuery(query);
+    updateEntriesQuery(filters, selectedDate, query, 1);
+  };
 
   const handleFilterChange = (newFilters) => {
     const nextFilters = { ...filters, ...newFilters };
     setFilters(nextFilters);
-    setApiFilters({ ...nextFilters, page: 1 });
-  };
-
-  const handleFilterToggle = () => {
-    setShowFilters(prev => !prev);
-  };
-
-  const handleCalendarToggle = () => {
-    setShowCalendar(prev => !prev);
+    updateEntriesQuery(nextFilters, selectedDate, searchQuery, 1);
   };
 
   const handleDateSelect = (date) => {
-    setSelectedDate(prev => (prev === date ? '' : date));
-    setPage(1);
+    const nextDate = selectedDate === date ? '' : date;
+    setSelectedDate(nextDate);
     setShowCalendar(false);
+    updateEntriesQuery(filters, nextDate, searchQuery, 1);
+  };
+
+  const handleClearDate = () => {
+    setSelectedDate('');
+    updateEntriesQuery(filters, '', searchQuery, 1);
   };
 
   const handlePageChange = (page) => {
     setPage(page);
+    updateEntriesQuery(filters, selectedDate, searchQuery, page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const clearAllFilters = () => {
-    const nextFilters = { type: null, sort: 'newest', favorite: false, pinned: false, publicOnly: false };
-    setFilters(nextFilters);
-    setApiFilters({ ...nextFilters, date: null, page: 1 });
-    setSearchQuery('');
+    const resetFilters = { type: null, sort: 'newest', favorite: false, pinned: false, publicOnly: false };
+    setFilters(resetFilters);
     setSelectedDate('');
+    setSearchQuery('');
     setShowFilters(false);
     setShowCalendar(false);
-    setSearchParams(new URLSearchParams(), { replace: true });
+    updateEntriesQuery(resetFilters, '', '', 1);
   };
 
   const hasActiveFilters = filters.type || filters.favorite || filters.pinned || filters.publicOnly || searchQuery || selectedDate;
@@ -183,92 +197,119 @@ export const Entries = () => {
   }
 
   return (
-    <div style={{ padding: 'var(--spacing-xl)', maxWidth: '1000px', margin: '0 auto' }}>
-      <header style={{ marginBottom: 'var(--spacing-xl)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-lg)' }}>
-          <div>
-            <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 600, color: 'var(--ink)', margin: '0 0 var(--spacing-xs)' }}>
-              All Entries
-            </h1>
-            <p style={{ margin: 0, color: 'var(--ink-muted)' }}>
-              {pagination.total} {pagination.total === 1 ? 'entry' : 'entries'}{hasActiveFilters ? ' (filtered)' : ''}
-            </p>
+    <div className="entries-page">
+      {/* ── Page Header ── */}
+      <header className="entries-page-header">
+        <div className="entries-page-title-row">
+          <div className="entries-title-group" style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: '1 1 auto' }}>
+            <div className="entries-page-icon">
+              <BookOpen size={17} />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <h1 className="entries-page-title">All Entries</h1>
+              <p className="entries-page-meta">
+                {pagination.total ?? entries.length} {(pagination.total ?? entries.length) === 1 ? 'entry' : 'entries'}
+                {hasActiveFilters && <span className="entries-filter-indicator"> · filtered</span>}
+              </p>
+            </div>
           </div>
-          <Link to="/dashboard" style={{ textDecoration: 'none' }}>
-            <Button className="btn-primary" leftIcon={<Plus size={18} />}>New Entry</Button>
+          <Link to="/dashboard" style={{ textDecoration: 'none', flexShrink: 0 }}>
+            <button className="entries-new-btn" type="button">
+              <Plus size={16} />
+              <span>New Entry</span>
+            </button>
           </Link>
         </div>
 
-        <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap', alignItems: 'center' }}>
-          <SearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSearch={debouncedSearch}
-            placeholder="Search entries..."
-            loading={loading}
-          />
-          <div style={{ position: 'relative', display: 'inline-block' }} ref={filterButtonRef}>
-            <Button
-              variant={showFilters ? 'filled' : 'outline'}
-              onClick={handleFilterToggle}
-              leftIcon={<Filter size={18} />}
-              style={filterCount > 0 ? { borderColor: 'var(--gold)', color: 'var(--gold)' } : {}}
-            >
-              Filter
-              {filterCount > 0 && (
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minWidth: '18px',
-                    height: '18px',
-                    padding: '0 5px',
-                    marginLeft: '6px',
-                    borderRadius: '9999px',
-                    backgroundColor: 'var(--gold)',
-                    color: 'var(--ink)',
-                    fontSize: '0.7rem',
-                    fontWeight: 600,
-                    lineHeight: 1,
-                  }}
-                >
-                  {filterCount}
-                </span>
+        {/* ── Toolbar: search + filter + calendar in one row ── */}
+        <div className="entries-toolbar-row">
+          {/* Search */}
+          <div className="entries-search-wrap">
+            <SearchBar
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onSearch={handleSearchSubmit}
+              placeholder="Search entries..."
+              loading={loading}
+            />
+          </div>
+
+          {/* Controls */}
+          <div className="entries-controls">
+            {/* Filter */}
+            <div className="entries-ctrl-anchor" ref={filterButtonRef}>
+              <button
+                type="button"
+                className={`entries-ctrl-btn${showFilters ? ' active' : ''}${filterCount > 0 ? ' has-badge' : ''}`}
+                onClick={() => setShowFilters(p => !p)}
+                aria-label="Filter entries"
+              >
+                <Filter size={15} />
+                <span>Filter</span>
+                {filterCount > 0 && <span className="entries-ctrl-badge">{filterCount}</span>}
+              </button>
+              {showFilters && (
+                <div ref={popoverRef}>
+                  <FilterPopover filters={filters} onFilterChange={handleFilterChange} />
+                </div>
               )}
-            </Button>
-            {showFilters && (
-              <div ref={popoverRef}>
-                <FilterPopover
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                />
-              </div>
+            </div>
+
+            {/* Calendar */}
+            <div className="entries-ctrl-anchor" ref={calendarButtonRef}>
+              <button
+                type="button"
+                className={`entries-ctrl-btn${showCalendar ? ' active' : ''}${selectedDate ? ' has-badge' : ''}`}
+                onClick={() => setShowCalendar(p => !p)}
+                aria-label="Filter by date"
+              >
+                <Calendar size={15} />
+                <span>{selectedDate ? formatDate(selectedDate, 'SHORT') : 'Date'}</span>
+              </button>
+              {showCalendar && (
+                <div ref={datePopoverRef}>
+                  <DatePickerPopover selectedDate={selectedDate} onDateSelect={handleDateSelect} />
+                </div>
+              )}
+            </div>
+
+            {/* Clear */}
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="entries-ctrl-btn entries-ctrl-clear"
+                onClick={clearAllFilters}
+                aria-label="Clear all filters"
+              >
+                <X size={14} />
+              </button>
             )}
           </div>
-          <div style={{ position: 'relative', display: 'inline-block' }} ref={calendarButtonRef}>
-            <Button
-              variant={showCalendar ? 'filled' : 'outline'}
-              onClick={handleCalendarToggle}
-              leftIcon={<Calendar size={18} />}
-              style={selectedDate ? { borderColor: 'var(--gold)', color: 'var(--gold)' } : {}}
-            >
-              {selectedDate ? formatDate(`${selectedDate}T00:00:00`, 'SHORT') : 'Calendar'}
-            </Button>
-            {showCalendar && (
-              <div ref={datePopoverRef}>
-                <DatePickerPopover selectedDate={selectedDate} onDateSelect={handleDateSelect} />
-              </div>
-            )}
-          </div>
-          {hasActiveFilters && (
-            <Button variant="subtle" size="sm" onClick={clearAllFilters}>
-              Clear filters
-            </Button>
-          )}
         </div>
+
+        {/* ── Active filter chips ── */}
+        {hasActiveFilters && (
+          <div className="active-filters" role="group" aria-label="Active filters">
+            {searchQuery && (
+              <FilterChip label={`"${searchQuery}"`} onClear={() => handleSearchSubmit('')} />
+            )}
+            {filters.type && (
+              <FilterChip label={getEntryTypeLabel(filters.type)} onClear={() => handleFilterChange({ type: null })} />
+            )}
+            {filters.favorite && (
+              <FilterChip label="Favorites" onClear={() => handleFilterChange({ favorite: false })} />
+            )}
+            {filters.pinned && (
+              <FilterChip label="Pinned" onClear={() => handleFilterChange({ pinned: false })} />
+            )}
+            {selectedDate && (
+              <FilterChip label={formatDate(selectedDate, 'SHORT')} onClear={handleClearDate} />
+            )}
+          </div>
+        )}
       </header>
 
+      {/* ── Entry list ── */}
       {entries.length === 0 ? (
         <EmptyState
           icon={Filter}
@@ -279,74 +320,83 @@ export const Entries = () => {
         />
       ) : (
         <>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-            {entries.map(entry => (
-              <EntryCard
+          <div className="entries-list">
+            {entries.map((entry, index) => (
+              <div
                 key={entry._id}
-                entry={entry}
-                onEdit={(e) => window.location.href = `/entries/${e._id}/edit?from=${encodeURIComponent('/entries')}`}
-                onDelete={async (id) => {
-                  await entriesApi.delete(id);
-                  refresh();
+                style={{
+                  animation: `dashCardIn 0.3s var(--ease-out) ${Math.min(index * 0.04, 0.3)}s both`,
+                  position: 'relative',
                 }}
-                onFavorite={async (e, next) => {
-                  await entriesApi.toggleFavorite(e._id, next);
-                  refresh();
-                }}
-                onPin={async (e, next) => {
-                  await entriesApi.togglePin(e._id, next);
-                  refresh();
-                }}
-                onVisibility={async (e, next) => {
-                  await entriesApi.update(e._id, { visibility: next });
-                  refresh();
-                }}
-              />
+              >
+                <EntryCard
+                  entry={entry}
+                  index={index}
+                  onEdit={(e) => window.location.href = `/entries/${e._id}/edit?from=${encodeURIComponent('/entries')}`}
+                  onDelete={async (id) => {
+                    await entriesApi.delete(id);
+                    refresh();
+                  }}
+                  onFavorite={async (e, next) => {
+                    await entriesApi.toggleFavorite(e._id, next);
+                    refresh();
+                  }}
+                  onPin={async (e, next) => {
+                    await entriesApi.togglePin(e._id, next);
+                    refresh();
+                  }}
+                  onVisibility={async (e, next) => {
+                    await entriesApi.update(e._id, { visibility: next });
+                    refresh();
+                  }}
+                />
+              </div>
             ))}
           </div>
 
+          {/* ── Pagination ── */}
           {pagination.totalPages > 1 && (
-            <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-xl)', paddingTop: 'var(--spacing-lg)', borderTop: '1px solid var(--border)' }}>
-              <Button
-                variant="subtle"
-                size="sm"
+            <nav className="entries-pagination" aria-label="Pagination">
+              <button
+                className="entries-pg-btn"
                 onClick={() => handlePageChange(params.page - 1)}
                 disabled={params.page <= 1}
+                aria-label="Previous page"
               >
-                Previous
-              </Button>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+                <ChevronLeft size={16} />
+                <span>Prev</span>
+              </button>
+
+              <div className="entries-pg-pages">
                 {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                   let pageNum;
-                  if (pagination.totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (params.page <= 3) {
-                    pageNum = i + 1;
-                  } else if (params.page >= pagination.totalPages - 2) {
-                    pageNum = pagination.totalPages - 4 + i;
-                  } else {
-                    pageNum = params.page - 2 + i;
-                  }
+                  if (pagination.totalPages <= 5) pageNum = i + 1;
+                  else if (params.page <= 3) pageNum = i + 1;
+                  else if (params.page >= pagination.totalPages - 2) pageNum = pagination.totalPages - 4 + i;
+                  else pageNum = params.page - 2 + i;
                   return (
-                    <Button
+                    <button
                       key={pageNum}
-                      variant={params.page === pageNum ? 'filled' : 'subtle'}
-                      size="sm"
+                      className={`entries-pg-num${params.page === pageNum ? ' active' : ''}`}
                       onClick={() => handlePageChange(pageNum)}
+                      aria-label={`Page ${pageNum}`}
+                      aria-current={params.page === pageNum ? 'page' : undefined}
                     >
                       {pageNum}
-                    </Button>
+                    </button>
                   );
                 })}
-              </span>
-              <Button
-                variant="subtle"
-                size="sm"
+              </div>
+
+              <button
+                className="entries-pg-btn"
                 onClick={() => handlePageChange(params.page + 1)}
                 disabled={params.page >= pagination.totalPages}
+                aria-label="Next page"
               >
-                Next
-              </Button>
+                <span>Next</span>
+                <ChevronRight size={16} />
+              </button>
             </nav>
           )}
         </>

@@ -5,7 +5,7 @@ import { entriesApi } from '../../services/api';
 import { useToast } from '../../context';
 import { ConfirmDialog } from '../ui/Modal';
 
-export const DashboardEntryCard = ({ entry, onDelete, style }) => {
+export const DashboardEntryCard = ({ entry, onDelete }) => {
   const navigate = useNavigate();
   const { success, error: showError } = useToast();
   const [showMenu, setShowMenu] = useState(false);
@@ -108,8 +108,7 @@ export const DashboardEntryCard = ({ entry, onDelete, style }) => {
       className={showMenu ? 'menu-open' : undefined}
       style={{
         position: 'relative',
-        ...style,
-        ...(showMenu ? { zIndex: 100, transform: 'none' } : {}),
+        zIndex: showMenu ? 10 : 'auto',
       }}
     >
       <article
@@ -149,7 +148,7 @@ export const DashboardEntryCard = ({ entry, onDelete, style }) => {
           }}
         >
           <span style={{
-            fontFamily: 'var(--font-family-heading)',
+            fontFamily: 'var(--font-family-ui)',
             fontSize: '1.6rem',
             fontWeight: 600,
             lineHeight: 1,

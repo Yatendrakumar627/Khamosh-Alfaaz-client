@@ -42,7 +42,7 @@ export const BottomNavigation = () => {
                 fontSize: '0.58rem',
                 fontWeight: 500,
                 padding: '5px 0 3px',
-                fontFamily: 'var(--font-family-body)',
+                fontFamily: 'var(--font-family-ui)',
               }}
               aria-label="More options"
             >

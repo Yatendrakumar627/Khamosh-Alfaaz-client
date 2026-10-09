@@ -10,7 +10,10 @@ const api = axios.create({
   timeout: 30000,
 });
 
-const isSessionRequest = (url) => url === API_ENDPOINTS.SESSION || url === API_ENDPOINTS.SESSION_LOGIN;
+const isSessionRequest = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  return url === API_ENDPOINTS.SESSION || url === API_ENDPOINTS.SESSION_LOGIN || url.includes('/api/session');
+};
 
 api.interceptors.response.use(
   response => response,
