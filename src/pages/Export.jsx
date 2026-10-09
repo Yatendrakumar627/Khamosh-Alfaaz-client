@@ -60,7 +60,7 @@ export const Export = () => {
               Export Diary
             </h2>
           </div>
-          <p style={{ margin: '0 0 var(--spacing-lg)', color: 'var(--ink-muted)', fontSize: '0.95rem', lineHeight: 1.6 }}>
+          <p style={{ margin: '0 0 var(--spacing-lg)', color: 'var(--ink-muted)', fontSize: '0.95rem', lineHeight: 1.45 }}>
             Download your entries as Word, PDF, or plain text — everything, a month, a year, or just a few you pick.
           </p>
           <Button onClick={() => setShowExport(true)} leftIcon={<Download size={18} />} fullWidth>
@@ -77,7 +77,7 @@ export const Export = () => {
               Backup & Restore
             </h2>
           </div>
-          <p style={{ margin: '0 0 var(--spacing-lg)', color: 'var(--ink-muted)', fontSize: '0.95rem', lineHeight: 1.6 }}>
+          <p style={{ margin: '0 0 var(--spacing-lg)', color: 'var(--ink-muted)', fontSize: '0.95rem', lineHeight: 1.45 }}>
             Export a complete JSON backup of everything, or restore your diary from a previous backup.
           </p>
           <Button variant="outline" onClick={() => setShowBackup(true)} leftIcon={<Save size={18} />} fullWidth>

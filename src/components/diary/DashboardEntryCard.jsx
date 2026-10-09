@@ -165,15 +165,16 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
         </div>
 
         {/* Content */}
-        <div className="dash-content" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', padding: '2px 0' }}>
+        <div className="dash-content" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '3px', padding: '2px 0' }}>
           {entry.title ? (
             <h3 style={{
               fontFamily: 'var(--font-family-heading)',
-              fontSize: '1rem',
+              fontSize: '0.98rem',
               fontWeight: 600,
               color: 'var(--ink)',
               margin: 0,
               lineHeight: 1.35,
+              letterSpacing: '-0.01em',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
@@ -183,7 +184,7 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
           ) : (
             <p style={{
               fontFamily: 'var(--font-family-heading)',
-              fontSize: '0.95rem',
+              fontSize: '0.92rem',
               fontWeight: 500,
               fontStyle: 'italic',
               color: 'var(--ink)',
@@ -199,10 +200,10 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
           )}
 
           <p style={{
-            margin: '3px 0 0',
-            fontSize: '0.82rem',
+            margin: 0,
+            fontSize: '0.8rem',
             color: 'var(--ink-muted)',
-            lineHeight: 1.5,
+            lineHeight: 1.45,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -286,7 +287,7 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
           </button>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); navigate(`/entries/${entry._id}/edit`); }}
+            onClick={(e) => { e.stopPropagation(); navigate(`/entries/${entry._id}/edit?from=${encodeURIComponent('/dashboard')}`); }}
             className="menu-item"
             style={{
               display: 'flex', alignItems: 'center', gap: '8px',

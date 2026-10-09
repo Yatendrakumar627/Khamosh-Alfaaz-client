@@ -142,9 +142,11 @@ export const EntryDetail = () => {
         <div className="entry-content" style={{
           whiteSpace: 'pre-wrap',
           wordWrap: 'break-word',
-          lineHeight: 1.8,
+          lineHeight: 1.55,
           fontSize: '1.1rem',
           color: 'var(--ink)',
+          textAlign: 'justify',
+          textJustify: 'inter-word',
         }}>
           {entry.content}
         </div>

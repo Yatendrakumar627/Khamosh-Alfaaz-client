@@ -94,7 +94,7 @@ export const VisitorHome = () => {
           margin: '0 auto',
           fontSize: '0.98rem',
           color: 'var(--ink-muted)',
-          lineHeight: 1.85,
+          lineHeight: 1.55,
           maxWidth: '620px',
         }}>
           This is a quiet corner of the internet where words that were never spoken
@@ -153,7 +153,7 @@ export const VisitorHome = () => {
             }}>
               {title}
             </h3>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-muted)', lineHeight: 1.7 }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
               {text}
             </p>
           </div>
@@ -236,7 +236,7 @@ export const VisitorHome = () => {
           <div className="gold-rule" style={{ margin: '0 auto 18px', maxWidth: '140px' }}>
             <span className="diamond" />
           </div>
-          <p style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: 'clamp(1.25rem, 3vw, 1.55rem)', lineHeight: 1.6, color: 'var(--ink)' }}>
+          <p style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: 'clamp(1.25rem, 3vw, 1.55rem)', lineHeight: 1.45, color: 'var(--ink)' }}>
             Maybe there is a story inside you
             <br />
             that has been waiting to be written.

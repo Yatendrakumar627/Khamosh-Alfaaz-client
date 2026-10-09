@@ -1,5 +1,4 @@
 import { Select as MantineSelect } from '@mantine/core';
-import { classNames } from '../../utils/helpers';
 
 const Select = ({ label, error, hint, required, placeholder = 'Select...', data = [], className, ...props }) => {
   return (
@@ -11,35 +10,12 @@ const Select = ({ label, error, hint, required, placeholder = 'Select...', data 
       placeholder={placeholder}
       data={data}
       className={className}
-      styles={(theme) => ({
-        input: {
-          backgroundColor: 'var(--input-bg)',
-          borderColor: 'var(--input-border)',
-          color: 'var(--ink)',
-          '&:focus': {
-            borderColor: 'var(--input-focus-border)',
-          },
-        },
-        dropdown: {
-          backgroundColor: 'var(--paper)',
-          borderColor: 'var(--border)',
-        },
-        item: {
-          color: 'var(--ink)',
-          '&:hover': {
-            backgroundColor: 'var(--hover-bg)',
-          },
-          '&[data-selected]': {
-            backgroundColor: 'var(--active-bg)',
-            color: 'var(--ink)',
-            fontWeight: 500,
-          },
-        },
-      })}
       {...props}
     />
   );
 };
+
+Select.displayName = 'Select';
 
 export { Select };
 export default Select;

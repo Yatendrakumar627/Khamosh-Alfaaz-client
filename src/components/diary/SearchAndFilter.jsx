@@ -462,7 +462,7 @@ export const EmptyState = ({ icon, title, message, actionLabel, onAction, childr
       }}>
         {title}
       </h3>
-      <p style={{ margin: '0 0 var(--spacing-lg)', maxWidth: '300px', lineHeight: 1.6 }}>
+      <p style={{ margin: '0 0 var(--spacing-lg)', maxWidth: '300px', lineHeight: 1.45 }}>
         {message}
       </p>
       {actionLabel && onAction && (

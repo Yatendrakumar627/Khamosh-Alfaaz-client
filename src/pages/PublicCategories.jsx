@@ -18,7 +18,7 @@ export const PublicCategories = () => {
           <Tag size={22} style={{ color: 'var(--gold)' }} />
           Browse by category
         </h1>
-        <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--ink-muted)', lineHeight: 1.7 }}>
+        <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
           Public entries, grouped by the kind of words they hold. {total > 0 && `${total} shared in total.`}
         </p>
       </header>

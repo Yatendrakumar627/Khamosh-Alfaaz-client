@@ -62,7 +62,7 @@ export const PublicEntry = () => {
             <p
               key={i}
               style={{
-                margin: 0, fontSize: '1rem', lineHeight: 1.85, color: 'var(--ink)',
+                margin: 0, fontSize: '1rem', lineHeight: 1.55, color: 'var(--ink)',
                 fontStyle: entry.type === 'quote' ? 'italic' : 'normal',
                 fontFamily: entry.type === 'quote' ? 'var(--font-family-heading)' : 'var(--font-family-body)',
               }}
@@ -83,7 +83,7 @@ export const PublicEntry = () => {
         )}
 
         <div style={{ marginTop: '28px', paddingTop: '18px', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '10px' }}>
-          <p style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: '0.98rem', color: 'var(--ink-muted)', lineHeight: 1.7 }}>
+          <p style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: '0.98rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
             A stranger left these words here. When you are ready,
             <br />
             you can begin your own quiet page.

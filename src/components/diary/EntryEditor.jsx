@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
@@ -49,6 +49,22 @@ export const EntryEditor = ({
   const [errors, setErrors] = useState({});
   const [tags, setTags] = useState(Array.isArray(initialData.tags) ? initialData.tags : []);
   const TypeIcon = typeIcons[formData.type] || BookOpen;
+
+  useEffect(() => {
+    setFormData({
+      title: '',
+      content: '',
+      type: 'diary',
+      isFavorite: false,
+      isPinned: false,
+      visibility: 'private',
+      entryDate: getLocalDateString(),
+      ...initialData,
+      tags: Array.isArray(initialData.tags) ? formatTags(initialData.tags) : (initialData.tags || ''),
+    });
+    setTags(Array.isArray(initialData.tags) ? initialData.tags : []);
+    setErrors({});
+  }, [initialData]);
 
   const handleChange = (field, value) => {
     const next = { ...formData, [field]: value };
@@ -145,6 +161,7 @@ export const EntryEditor = ({
         error={errors.content}
         required
         minRows={12}
+        maxRows={22}
         className="entry-textarea"
       />
 
@@ -264,17 +281,27 @@ export const EntryEditor = ({
         <div className="entry-tag-chips">
           {tags.map(tag => (
             <span key={tag} style={{
-              display: 'flex', alignItems: 'center', gap: '4px',
-              backgroundColor: 'var(--accent)', color: 'var(--paper)',
-              padding: '4px 10px', borderRadius: 'var(--radius-full)',
-              fontSize: '0.82rem', fontWeight: 500,
-            }}>
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              backgroundColor: 'var(--active-bg)',
+              color: 'var(--ink)',
+              padding: '4px 6px 4px 11px',
+              borderRadius: 'var(--radius-full)',
+              fontSize: '0.82rem',
+              fontWeight: 500,
+              border: '1px solid var(--border)',
+              transition: 'border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease',
+            }}
+              onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--gold)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+            >
               {tag}
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, display: 'flex' }}
+                style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: '2px', display: 'flex', borderRadius: '50%', transition: 'background-color 0.15s ease, color 0.15s ease, transform 0.15s ease' }}
                 aria-label={`Remove tag ${tag}`}
+                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--error)'; e.currentTarget.style.color = '#fff'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = 'inherit'; }}
               >
                 <X size={12} />
               </button>

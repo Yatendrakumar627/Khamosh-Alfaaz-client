@@ -59,7 +59,7 @@ export const Explore = () => {
           <Compass size={22} style={{ color: 'var(--gold)' }} />
           Explore the public diary
         </h1>
-        <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--ink-muted)', lineHeight: 1.7 }}>
+        <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
           Quiet thoughts, anonymous strangers. Every entry here was shared openly by its writer.
         </p>
       </header>

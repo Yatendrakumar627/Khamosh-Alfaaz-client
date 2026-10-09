@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useEntry } from '../hooks/useEntries';
 import { entriesApi } from '../services/api';
 import { EntryEditor } from '../components/diary/EntryEditor';
@@ -7,12 +7,21 @@ import { Button } from '../components/ui/Button';
 import { ArrowLeft, Save } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
 
+const isSafePath = (path) => {
+  if (!path || typeof path !== 'string') return false;
+  return /^\/[a-zA-Z0-9]/.test(path) && !path.includes('://') && !path.startsWith('//');
+};
+
 export const EditEntry = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { entry, loading, error, refresh } = useEntry(id);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const from = searchParams.get('from');
+  const returnTo = isSafePath(from) ? from : `/entries/${id}`;
 
   const handleSave = async (data) => {
     setSaving(true);
@@ -23,7 +32,7 @@ export const EditEntry = () => {
         entryDate: data.entryDate || entry.entryDate,
       });
       setSaved(true);
-      setTimeout(() => navigate(`/entries/${id}`), 1000);
+      setTimeout(() => navigate(returnTo), 1000);
     } catch (err) {
       console.error('Update failed:', err);
       alert('Failed to update entry. Please try again.');
@@ -33,7 +42,7 @@ export const EditEntry = () => {
   };
 
   const handleCancel = () => {
-    navigate(`/entries/${id}`);
+    navigate(returnTo);
   };
 
   if (loading) {

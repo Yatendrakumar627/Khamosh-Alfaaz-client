@@ -171,7 +171,7 @@ export const Welcome = () => {
           <p style={{ margin: '0 0 var(--spacing-md)', fontSize: '1rem', fontFamily: 'var(--font-family-heading)' }}>
             Your diary, protected by your private username and PIN.
           </p>
-          <p style={{ margin: 0, fontSize: '0.95rem', fontStyle: 'italic', fontFamily: 'var(--font-family-heading)', lineHeight: 1.7 }}>
+          <p style={{ margin: 0, fontSize: '0.95rem', fontStyle: 'italic', fontFamily: 'var(--font-family-heading)', lineHeight: 1.5 }}>
             The public site stays open. Your entries stay private.
           </p>
         </div>

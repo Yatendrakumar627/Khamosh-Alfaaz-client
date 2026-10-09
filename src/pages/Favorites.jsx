@@ -157,17 +157,21 @@ export const Favorites = () => {
               <EntryCard
                 key={entry._id}
                 entry={entry}
-                onEdit={(e) => window.location.href = `/entries/${e._id}/edit`}
+                onEdit={(e) => window.location.href = `/entries/${e._id}/edit?from=${encodeURIComponent('/favorites')}`}
                 onDelete={async (id) => {
                   await entriesApi.delete(id);
                   refresh();
                 }}
-                onFavorite={async (e) => {
-                  await entriesApi.toggleFavorite(e._id, !e.isFavorite);
+                onFavorite={async (e, next) => {
+                  await entriesApi.toggleFavorite(e._id, next);
                   refresh();
                 }}
-                onPin={async (e) => {
-                  await entriesApi.togglePin(e._id, !e.isPinned);
+                onPin={async (e, next) => {
+                  await entriesApi.togglePin(e._id, next);
+                  refresh();
+                }}
+                onVisibility={async (e, next) => {
+                  await entriesApi.update(e._id, { visibility: next });
                   refresh();
                 }}
               />

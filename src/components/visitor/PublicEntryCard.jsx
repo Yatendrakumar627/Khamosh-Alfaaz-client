@@ -70,7 +70,7 @@ export const PublicEntryCard = ({ entry }) => {
             margin: 0,
             fontSize: '0.92rem',
             color: 'var(--ink-muted)',
-            lineHeight: 1.7,
+            lineHeight: 1.5,
             display: '-webkit-box',
             WebkitLineClamp: 4,
             WebkitBoxOrient: 'vertical',

@@ -537,7 +537,7 @@ const RecentMemoriesContent = ({
                       <p style={{
                         margin: 0,
                         color: 'var(--ink-muted)',
-                        lineHeight: 1.55,
+                        lineHeight: 1.45,
                         fontSize: '0.86rem',
                         display: '-webkit-box',
                         WebkitLineClamp: isMobile ? 2 : 3,

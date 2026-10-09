@@ -129,7 +129,7 @@ export const Statistics = () => {
         <h3 style={{ fontFamily: 'var(--font-family-heading)', fontSize: '1.25rem', fontWeight: 600, margin: '0 0 var(--spacing-lg)', color: 'var(--ink)' }}>
           Your Story So Far
         </h3>
-        <p style={{ margin: 0, color: 'var(--ink-muted)', lineHeight: 1.7, fontSize: '1.05rem' }}>
+        <p style={{ margin: 0, color: 'var(--ink-muted)', lineHeight: 1.5, fontSize: '1.05rem' }}>
           You&apos;ve written <strong>{stats.totalEntries}</strong> {stats.totalEntries === 1 ? 'entry' : 'entries'} in your diary.
           {stats.totalQuotes > 0 && ` ${stats.totalQuotes} of them are quotes you wanted to remember.`}
           {stats.totalFavorites > 0 && ` ${stats.totalFavorites} are marked as favorites.`}

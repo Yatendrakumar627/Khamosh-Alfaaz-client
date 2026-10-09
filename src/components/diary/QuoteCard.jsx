@@ -44,7 +44,7 @@ export const QuoteCard = ({ quote, onSaveAsEntry, index }) => {
         </button>
       </div>
 
-      <blockquote style={{ margin: 0, fontStyle: 'italic', lineHeight: 1.7 }}>
+      <blockquote style={{ margin: 0, fontStyle: 'italic', lineHeight: 1.5 }}>
         <p style={{
           fontFamily: 'var(--font-family-heading)',
           fontSize: '1.25rem',

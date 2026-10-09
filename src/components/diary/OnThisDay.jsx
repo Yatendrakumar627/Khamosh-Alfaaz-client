@@ -102,7 +102,7 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
             fontFamily: 'var(--font-family-heading)',
             fontStyle: 'italic',
             fontSize: '0.95rem',
-            lineHeight: 1.6,
+            lineHeight: 1.45,
             color: 'var(--ink)',
             maxWidth: '220px',
           }}>
@@ -151,7 +151,7 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
               </h4>
             )}
             <p style={{
-              margin: 0, color: 'var(--ink-muted)', lineHeight: 1.6, fontSize: '0.88rem',
+              margin: 0, color: 'var(--ink-muted)', lineHeight: 1.45, fontSize: '0.88rem',
               display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden',
             }}>
               {entry.content}

@@ -1,17 +1,28 @@
-import { formatDate, formatRelativeTime, getEntryTypeLabel, truncate } from '../../utils/helpers';
+import { formatDate, formatRelativeTime, truncate } from '../../utils/helpers';
 import { TypeBadge, FavoriteBadge, PinBadge, VisibilityBadge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { Calendar, Star, MapPin, MoreVertical, Edit, Trash2 } from 'lucide-react';
-import { classNames } from '../../utils/helpers';
-import { Modal, ConfirmDialog } from '../ui/Modal';
+import { Calendar, Star, MoreVertical, Edit, Trash2, Globe, Lock, Eye, Pin } from 'lucide-react';
+import { ConfirmDialog } from '../ui/Modal';
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../context';
 
-export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActions = true }) => {
+export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibility, showActions = true }) => {
+  const navigate = useNavigate();
+  const { error: showError } = useToast();
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [openUp, setOpenUp] = useState(false);
+  const [fav, setFav] = useState(entry.isFavorite);
+  const [pinned, setPinned] = useState(entry.isPinned);
+  const [visibility, setVisibility] = useState(entry.visibility || 'private');
   const menuRef = useRef(null);
   const btnRef = useRef(null);
+
+  useEffect(() => {
+    setFav(entry.isFavorite);
+    setPinned(entry.isPinned);
+    setVisibility(entry.visibility || 'private');
+  }, [entry.isFavorite, entry.isPinned, entry.visibility]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -28,7 +39,49 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
     setShowMenu(false);
   };
 
-  const POPUP_HEIGHT = 130;
+  const handleFavorite = async (e) => {
+    e.stopPropagation();
+    const prev = fav;
+    const next = !prev;
+    setFav(next);
+    setShowMenu(false);
+    try {
+      await onFavorite?.(entry, next);
+    } catch (err) {
+      setFav(prev);
+      showError('Failed to update favorite');
+    }
+  };
+
+  const handlePin = async (e) => {
+    e.stopPropagation();
+    const prev = pinned;
+    const next = !prev;
+    setPinned(next);
+    setShowMenu(false);
+    try {
+      await onPin?.(entry, next);
+    } catch (err) {
+      setPinned(prev);
+      showError('Failed to update pin');
+    }
+  };
+
+  const handleVisibility = async (e) => {
+    e.stopPropagation();
+    const prev = visibility;
+    const next = prev === 'public' ? 'private' : 'public';
+    setVisibility(next);
+    setShowMenu(false);
+    try {
+      await onVisibility?.(entry, next);
+    } catch (err) {
+      setVisibility(prev);
+      showError('Failed to update visibility');
+    }
+  };
+
+  const POPUP_HEIGHT = 390;
 
   const openMenu = (e) => {
     e.stopPropagation();
@@ -45,6 +98,14 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
     setShowMenu(true);
   };
 
+  const menuItemStyle = (color) => ({
+    display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)',
+    width: '100%', padding: 'var(--spacing-sm) var(--spacing-md)',
+    border: 'none', background: 'transparent', color: color || 'var(--ink)',
+    borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+    fontSize: '0.9rem', fontFamily: 'inherit', textAlign: 'left',
+  });
+
   return (
     <div ref={menuRef} style={{ position: 'relative' }}>
       <article
@@ -58,7 +119,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
         }}
         className="paper-texture diary-page fade-in entry-card"
       >
-        <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-md)' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)', alignItems: 'center' }}>
           <TypeBadge type={entry.type} />
           {entry.isPinned && <PinBadge isPinned={entry.isPinned} />}
           {entry.isFavorite && <FavoriteBadge isFavorite={entry.isFavorite} />}
@@ -68,11 +129,12 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
         {entry.title && (
           <h3 style={{
             fontFamily: 'var(--font-family-heading)',
-            fontSize: '1.15rem',
+            fontSize: '1.12rem',
             fontWeight: 600,
             color: 'var(--ink)',
             margin: '0 0 var(--spacing-sm)',
-            lineHeight: 1.3,
+            lineHeight: 1.35,
+            letterSpacing: '-0.01em',
           }}>
             {entry.title}
           </h3>
@@ -80,8 +142,8 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
 
         <div style={{
           color: 'var(--ink-muted)',
-          fontSize: '0.95rem',
-          lineHeight: 1.7,
+          fontSize: '0.92rem',
+          lineHeight: 1.5,
           marginBottom: 'var(--spacing-md)',
           display: '-webkit-box',
           WebkitLineClamp: 3,
@@ -92,7 +154,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
         </div>
 
         {entry.tags && entry.tags.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-xs)', marginBottom: 'var(--spacing-md)' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-xs)', marginBottom: 'var(--spacing-md)', alignItems: 'center' }}>
             {entry.tags.slice(0, 5).map(tag => (
               <span key={tag} className="tag-chip">#{tag}</span>
             ))}
@@ -116,7 +178,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
           paddingTop: 'var(--spacing-md)',
           borderTop: '1px solid var(--border)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', fontSize: '0.85rem', color: 'var(--ink-light)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', fontSize: '0.84rem', color: 'var(--ink-light)', flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Calendar size={14} />
               {formatDate(entry.entryDate || entry.createdAt, 'DISPLAY')}
@@ -145,6 +207,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
                   justifyContent: 'center',
                 }}
                 aria-label="More options"
+                aria-expanded={showMenu}
               >
                 <MoreVertical size={18} />
               </button>
@@ -163,34 +226,59 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
           border: '1px solid var(--border)',
           borderRadius: 'var(--radius-md)',
           boxShadow: 'var(--shadow-lg)',
-          minWidth: '160px',
+          minWidth: '190px',
           padding: 'var(--spacing-xs)',
           zIndex: 'calc(var(--z-sticky) - 1)',
           animation: 'scaleIn 0.15s ease',
         }}>
           <button
-            onClick={() => { onEdit(entry); setShowMenu(false); }}
+            onClick={(e) => { e.stopPropagation(); setShowMenu(false); navigate(`/entries/${entry._id}`); }}
             className="menu-item"
-            style={{
-              display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)',
-              width: '100%', padding: 'var(--spacing-sm) var(--spacing-md)',
-              border: 'none', background: 'transparent', color: 'var(--ink)',
-              borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-              fontSize: '0.9rem', fontFamily: 'inherit', textAlign: 'left',
-            }}
+            style={menuItemStyle()}
+          >
+            <Eye size={16} /> Open
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowMenu(false); onEdit?.(entry); }}
+            className="menu-item"
+            style={menuItemStyle()}
           >
             <Edit size={16} /> Edit
           </button>
+
+          <div className="menu-divider" role="separator" />
+
+          <button
+            onClick={handleFavorite}
+            className="menu-item"
+            style={menuItemStyle(fav ? 'var(--gold)' : 'var(--ink)')}
+          >
+            <Star size={16} fill={fav ? 'currentColor' : 'none'} /> {fav ? 'Remove from Favorites' : 'Add to Favorites'}
+          </button>
+          <button
+            onClick={handlePin}
+            className="menu-item"
+            style={menuItemStyle(pinned ? 'var(--gold)' : 'var(--ink)')}
+          >
+            <Pin size={16} fill={pinned ? 'currentColor' : 'none'} /> {pinned ? 'Unpin' : 'Pin to top'}
+          </button>
+
+          <div className="menu-divider" role="separator" />
+
+          <button
+            onClick={handleVisibility}
+            className="menu-item"
+            style={menuItemStyle()}
+          >
+            {visibility === 'public' ? <Lock size={16} /> : <Globe size={16} />} {visibility === 'public' ? 'Make Private' : 'Make Public'}
+          </button>
+
+          <div className="menu-divider" role="separator" />
+
           <button
             onClick={handleDelete}
             className="menu-item"
-            style={{
-              display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)',
-              width: '100%', padding: 'var(--spacing-sm) var(--spacing-md)',
-              border: 'none', background: 'transparent', color: 'var(--error)',
-              borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-              fontSize: '0.9rem', fontFamily: 'inherit', textAlign: 'left',
-            }}
+            style={menuItemStyle('var(--error)')}
           >
             <Trash2 size={16} /> Delete
           </button>
@@ -200,7 +288,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, showActi
       <ConfirmDialog
         opened={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={() => { onDelete(entry._id); setShowDeleteConfirm(false); }}
+        onConfirm={() => { onDelete?.(entry._id); setShowDeleteConfirm(false); }}
         title="Delete Entry"
         message="Are you sure you want to delete this entry? This action cannot be undone."
         confirmLabel="Delete"

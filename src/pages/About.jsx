@@ -35,7 +35,7 @@ export const About = () => (
       <div className="gold-rule" style={{ margin: '0 auto 16px', maxWidth: '160px' }}>
         <span className="diamond" />
       </div>
-      <p style={{ margin: 0, fontSize: '0.98rem', color: 'var(--ink-muted)', lineHeight: 1.85 }}>
+      <p style={{ margin: 0, fontSize: '0.98rem', color: 'var(--ink-muted)', lineHeight: 1.55 }}>
         "Khamosh Alfaaz" means silent words. This space is built on one small idea:
         anyone can come here and quietly read what others couldn't say.
         And when they're ready, they can start writing their own story.
@@ -51,7 +51,7 @@ export const About = () => (
             <h2 style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontSize: '1.12rem', fontWeight: 600, color: 'var(--ink)' }}>
               {pillar.title}
             </h2>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-muted)', lineHeight: 1.7 }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
               {pillar.text}
             </p>
           </div>
@@ -60,7 +60,7 @@ export const About = () => (
     </section>
 
     <section style={{ textAlign: 'center', padding: '30px 0 10px' }}>
-      <p style={{ margin: '0 0 16px', fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: '1.15rem', lineHeight: 1.7, color: 'var(--ink)' }}>
+      <p style={{ margin: '0 0 16px', fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: '1.15rem', lineHeight: 1.5, color: 'var(--ink)' }}>
         Your story starts with a single line.
         <br />
         No one else has to know it — unless you decide.

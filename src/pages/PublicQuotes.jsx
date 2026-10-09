@@ -16,7 +16,7 @@ export const PublicQuotes = () => {
           <QuoteIcon size={22} style={{ color: 'var(--gold)' }} />
           Words worth keeping
         </h1>
-        <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--ink-muted)', lineHeight: 1.7 }}>
+        <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--ink-muted)', lineHeight: 1.5 }}>
           A little light for a quiet day — along with quotes shared openly by other writers.
         </p>
       </header>
@@ -33,7 +33,7 @@ export const PublicQuotes = () => {
             }}
           >
             <QuoteIcon size={18} style={{ color: 'var(--gold)', opacity: 0.7 }} />
-            <p style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: '1.05rem', lineHeight: 1.7, color: 'var(--ink)' }}>
+            <p style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: '1.05rem', lineHeight: 1.5, color: 'var(--ink)' }}>
               {q.text}
             </p>
             <footer style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

@@ -137,8 +137,10 @@ const getTheme = (resolvedTheme) => {
           input: {
             fontFamily: typography.fontFamily.body,
             fontSize: '1.05rem',
-            lineHeight: 1.9,
+            lineHeight: 1.5,
             letterSpacing: '0.01em',
+            textAlign: 'justify',
+            textJustify: 'inter-word',
             backgroundColor: c.inputBg,
             border: `1px solid ${c.inputBorder}`,
             color: c.ink,

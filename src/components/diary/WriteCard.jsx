@@ -41,9 +41,28 @@ const loadStoredDraft = () => {
   return emptyDraft();
 };
 
+const StatusPill = ({ saving, lastSaved }) => {
+  const state = saving ? 'saving' : lastSaved ? 'saved' : 'idle';
+  return (
+    <span className={`write-status ${state}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
+      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '18px', height: '18px' }}>
+        {state === 'saving' ? (
+          <Cloud size={13} style={{ animation: 'pulseGentle 1.4s ease-in-out infinite' }} />
+        ) : state === 'saved' ? (
+          <Check size={13} />
+        ) : (
+          <span className="dot" />
+        )}
+      </span>
+      <span>
+        {state === 'saving' ? 'Saving…' : state === 'saved' ? `Saved ${formatDate(lastSaved, 'TIME')}` : 'Ready to write'}
+      </span>
+    </span>
+  );
+};
+
 export const WriteCard = ({ onSaved }) => {
   const { success, error: showError } = useToast();
-  const [edition, setEdition] = useState(0);
   const [saving, setSaving] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const hydratedRef = useRef(false);
@@ -56,7 +75,6 @@ export const WriteCard = ({ onSaved }) => {
     if (!isFreshDraft(draft) && !hydratedRef.current) {
       hydratedRef.current = true;
       setHydrated(true);
-      setEdition(e => e + 1);
     }
   }, [draft, editorInitial]);
 
@@ -80,7 +98,6 @@ export const WriteCard = ({ onSaved }) => {
       });
       success('Saved. You can breathe now.');
       clearDraft();
-      setEdition(e => e + 1);
       onSaved?.();
     } catch (err) {
       console.error('Save failed:', err);
@@ -93,7 +110,6 @@ export const WriteCard = ({ onSaved }) => {
   const handleCancel = () => {
     if (!isFreshDraft(draft) && !window.confirm('Clear this unsaved draft?')) return;
     clearDraft();
-    setEdition(e => e + 1);
   };
 
   const wordCount = draft.content ? draft.content.trim().split(/\s+/).filter(Boolean).length : 0;
@@ -113,21 +129,22 @@ export const WriteCard = ({ onSaved }) => {
       <div className="write-card-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
           <div style={{
-            width: '44px',
-            height: '44px',
-            borderRadius: '8px',
-            backgroundColor: 'var(--active-bg)',
+            width: '46px',
+            height: '46px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, var(--gold-muted) 0%, var(--gold) 55%, var(--gold-dark) 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
+            boxShadow: '0 4px 12px rgba(122, 92, 52, 0.28)',
           }}>
-            <Pen size={20} style={{ color: 'var(--gold)' }} />
+            <Pen size={20} style={{ color: 'var(--paper)' }} />
           </div>
           <div style={{ minWidth: 0 }}>
             <h2 style={{
               fontFamily: 'var(--font-family-heading)',
-              fontSize: '1.12rem',
+              fontSize: '1.14rem',
               fontWeight: 600,
               color: 'var(--ink)',
               margin: 0,
@@ -141,7 +158,7 @@ export const WriteCard = ({ onSaved }) => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--ink-muted)', fontSize: '0.8rem', fontWeight: 500, paddingTop: '4px' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', color: 'var(--ink-muted)', fontSize: '0.8rem', fontWeight: 500, paddingTop: '5px', padding: '5px 12px', borderRadius: 'var(--radius-full)', backgroundColor: 'var(--paper-dark)', border: '1px solid var(--border)' }}>
           <CalendarDays size={14} style={{ color: 'var(--gold)' }} />
           <span>{formatDate(draft.entryDate || getLocalDateString(), 'SHORT')}</span>
         </div>
@@ -150,7 +167,6 @@ export const WriteCard = ({ onSaved }) => {
       {/* Full editor */}
       <div style={{ marginTop: '14px' }}>
         <EntryEditor
-          key={edition}
           initialData={hydrated ? draft : editorInitial}
           onSave={handleSave}
           onCancel={handleCancel}
@@ -182,12 +198,11 @@ export const WriteCard = ({ onSaved }) => {
           color: 'var(--ink-light)',
         }}
       >
-        <span className={draftSaving ? 'write-status saving' : lastSaved ? 'write-status saved' : 'write-status'}>
-          {draftSaving ? <Cloud size={13} /> : lastSaved ? <Check size={13} /> : <span className="dot" />}
-          {draftSaving ? 'Saving…' : lastSaved ? `Saved ${formatDate(lastSaved, 'TIME')}` : 'Ready to write'}
-        </span>
-        <span>
-          {wordCount} words • {draft.content.length} characters
+        <StatusPill saving={draftSaving} lastSaved={lastSaved} />
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontVariantNumeric: 'tabular-nums' }}>
+          <span style={{ fontWeight: 600, color: 'var(--ink-muted)' }}>{wordCount}</span> words
+          <span style={{ color: 'var(--border-dark)' }}>•</span>
+          <span style={{ fontWeight: 600, color: 'var(--ink-muted)' }}>{draft.content.length}</span> characters
         </span>
       </div>
     </section>
