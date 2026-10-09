@@ -643,6 +643,22 @@ main,
   box-shadow: var(--shadow-lg);
 }
 
+/* When a card's dropdown is open, flatten the card so the menu stacks above it.
+   The hover transform otherwise promotes the card to a compositor layer that can
+   paint above the absolutely-positioned sibling menu. */
+.menu-open,
+.menu-open:hover {
+  z-index: 50;
+}
+
+.menu-open > .dashboard-entry-card,
+.menu-open:hover > .dashboard-entry-card,
+.menu-open > .entry-card,
+.menu-open:hover > .entry-card {
+  transform: none !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
 /* Quick actions (right rail) */
 .quick-action-link {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;

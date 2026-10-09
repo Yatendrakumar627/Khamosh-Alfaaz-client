@@ -103,7 +103,7 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
   };
 
   return (
-    <div ref={menuRef} style={{ position: 'relative', zIndex: showMenu ? 50 : 'auto' }}>
+    <div ref={menuRef} className={showMenu ? 'menu-open' : undefined} style={{ position: 'relative' }}>
       <article
         className="dashboard-entry-card paper-texture"
         onClick={() => navigate(`/entries/${entry._id}`)}
@@ -268,7 +268,7 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
           boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
           minWidth: '180px',
           padding: '6px',
-          zIndex: 'calc(var(--z-sticky) - 1)',
+          zIndex: 10,
           animation: 'scaleIn 0.15s ease',
         }}>
           <button

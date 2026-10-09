@@ -107,7 +107,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
   });
 
   return (
-    <div ref={menuRef} style={{ position: 'relative', zIndex: showMenu ? 50 : 'auto' }}>
+    <div ref={menuRef} className={showMenu ? 'menu-open' : undefined} style={{ position: 'relative' }}>
       <article
         style={{
           backgroundColor: 'var(--paper)',
@@ -228,7 +228,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
           boxShadow: 'var(--shadow-lg)',
           minWidth: '190px',
           padding: 'var(--spacing-xs)',
-          zIndex: 'calc(var(--z-sticky) - 1)',
+          zIndex: 10,
           animation: 'scaleIn 0.15s ease',
         }}>
           <button
