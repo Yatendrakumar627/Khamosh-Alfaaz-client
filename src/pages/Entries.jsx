@@ -322,35 +322,28 @@ export const Entries = () => {
         <>
           <div className="entries-list">
             {entries.map((entry, index) => (
-              <div
+              <EntryCard
                 key={entry._id}
-                style={{
-                  animation: `dashCardIn 0.3s var(--ease-out) ${Math.min(index * 0.04, 0.3)}s both`,
-                  position: 'relative',
+                entry={entry}
+                index={index}
+                onEdit={(e) => window.location.href = `/entries/${e._id}/edit?from=${encodeURIComponent('/entries')}`}
+                onDelete={async (id) => {
+                  await entriesApi.delete(id);
+                  refresh();
                 }}
-              >
-                <EntryCard
-                  entry={entry}
-                  index={index}
-                  onEdit={(e) => window.location.href = `/entries/${e._id}/edit?from=${encodeURIComponent('/entries')}`}
-                  onDelete={async (id) => {
-                    await entriesApi.delete(id);
-                    refresh();
-                  }}
-                  onFavorite={async (e, next) => {
-                    await entriesApi.toggleFavorite(e._id, next);
-                    refresh();
-                  }}
-                  onPin={async (e, next) => {
-                    await entriesApi.togglePin(e._id, next);
-                    refresh();
-                  }}
-                  onVisibility={async (e, next) => {
-                    await entriesApi.update(e._id, { visibility: next });
-                    refresh();
-                  }}
-                />
-              </div>
+                onFavorite={async (e, next) => {
+                  await entriesApi.toggleFavorite(e._id, next);
+                  refresh();
+                }}
+                onPin={async (e, next) => {
+                  await entriesApi.togglePin(e._id, next);
+                  refresh();
+                }}
+                onVisibility={async (e, next) => {
+                  await entriesApi.update(e._id, { visibility: next });
+                  refresh();
+                }}
+              />
             ))}
           </div>
 

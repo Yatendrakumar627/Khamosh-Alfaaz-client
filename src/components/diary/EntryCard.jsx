@@ -31,7 +31,11 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   const handleDelete = () => {
@@ -87,8 +91,9 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
     const rect = btnRef.current.getBoundingClientRect();
     const container = menuRef.current && menuRef.current.closest('.dashboard-main');
     const cRect = container ? container.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
-    const belowSpace = cRect.bottom - rect.bottom;
-    const aboveSpace = rect.top - cRect.top;
+    const viewportBottom = window.innerHeight;
+    const belowSpace = Math.min(viewportBottom, cRect.bottom) - rect.bottom;
+    const aboveSpace = rect.top - Math.max(0, cRect.top);
     setOpenUp(belowSpace < 360 && aboveSpace > belowSpace);
     setShowMenu(true);
   };
@@ -102,7 +107,8 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
       className={showMenu ? 'menu-open' : undefined}
       style={{
         position: 'relative',
-        zIndex: showMenu ? 10 : 'auto',
+        zIndex: showMenu ? 50 : 1,
+        animation: index !== undefined ? `dashCardIn 0.3s var(--ease-out) ${Math.min(index * 0.04, 0.3)}s both` : undefined,
       }}
     >
       <article

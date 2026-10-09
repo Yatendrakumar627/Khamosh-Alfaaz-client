@@ -5,7 +5,7 @@ import { entriesApi } from '../../services/api';
 import { useToast } from '../../context';
 import { ConfirmDialog } from '../ui/Modal';
 
-export const DashboardEntryCard = ({ entry, onDelete }) => {
+export const DashboardEntryCard = ({ entry, onDelete, index }) => {
   const navigate = useNavigate();
   const { success, error: showError } = useToast();
   const [showMenu, setShowMenu] = useState(false);
@@ -24,7 +24,11 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
   }, []);
 
   const raw = entry.entryDate || entry.createdAt;
@@ -96,8 +100,9 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
     const rect = btnRef.current.getBoundingClientRect();
     const container = menuRef.current && menuRef.current.closest('.dashboard-main');
     const cRect = container ? container.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
-    const belowSpace = cRect.bottom - rect.bottom;
-    const aboveSpace = rect.top - cRect.top;
+    const viewportBottom = window.innerHeight;
+    const belowSpace = Math.min(viewportBottom, cRect.bottom) - rect.bottom;
+    const aboveSpace = rect.top - Math.max(0, cRect.top);
     setOpenUp(belowSpace < POPUP_HEIGHT && aboveSpace > belowSpace);
     setShowMenu(true);
   };
@@ -108,7 +113,8 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
       className={showMenu ? 'menu-open' : undefined}
       style={{
         position: 'relative',
-        zIndex: showMenu ? 10 : 'auto',
+        zIndex: showMenu ? 50 : 1,
+        animation: index !== undefined ? `dashCardIn 0.35s var(--ease-out) ${index * 0.06}s both` : undefined,
       }}
     >
       <article
@@ -266,8 +272,8 @@ export const DashboardEntryCard = ({ entry, onDelete }) => {
       {showMenu && (
         <div style={{
           position: 'absolute',
-          top: openUp ? 'auto' : 'calc(100% - 8px)',
-          bottom: openUp ? 'calc(100% - 8px)' : 'auto',
+          top: openUp ? 'auto' : 'calc(100% + 4px)',
+          bottom: openUp ? 'calc(100% + 4px)' : 'auto',
           right: '8px',
           backgroundColor: 'var(--paper)',
           border: '1px solid var(--border)',

@@ -210,18 +210,12 @@ export const Dashboard = () => {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {entries.map((entry, index) => (
-              <div
+              <DashboardEntryCard
                 key={entry._id}
-                style={{
-                  animation: `dashCardIn 0.35s var(--ease-out) ${index * 0.06}s both`,
-                  position: 'relative',
-                }}
-              >
-                <DashboardEntryCard
-                  entry={entry}
-                  onDelete={() => refresh()}
-                />
-              </div>
+                entry={entry}
+                index={index}
+                onDelete={() => refresh()}
+              />
             ))}
           </div>
         )}
