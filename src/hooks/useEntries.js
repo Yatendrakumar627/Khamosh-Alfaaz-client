@@ -11,6 +11,26 @@ export const useEntries = (initialParams = {}) => {
   const abortRef = useRef(null);
   const { error: showError } = useToast();
 
+  // Reactive state management: Keep params synchronized whenever caller's params (e.g. category type, filters) change
+  const initialParamsKey = JSON.stringify(initialParams);
+  useEffect(() => {
+    setParams(prev => {
+      const next = { page: 1, limit: 1000, ...initialParams };
+      const keys = new Set([...Object.keys(prev), ...Object.keys(next)]);
+      const unchanged = [...keys].every(k => prev[k] === next[k]);
+      return unchanged ? prev : next;
+    });
+  }, [initialParamsKey]);
+
+  // Immediately clear entries on category change to prevent cross-category entry contamination
+  const prevTypeRef = useRef(initialParams.type);
+  useEffect(() => {
+    if (prevTypeRef.current !== initialParams.type) {
+      prevTypeRef.current = initialParams.type;
+      setEntries([]);
+    }
+  }, [initialParams.type]);
+
   const fetchEntries = useCallback(async (fetchParams = params, append = false) => {
     if (abortRef.current) abortRef.current.abort();
     abortRef.current = new AbortController();

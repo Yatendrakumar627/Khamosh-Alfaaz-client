@@ -188,7 +188,7 @@ export const EditEntry = () => {
   }
 
   return (
-    <div style={{ padding: 'var(--spacing-xl)', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="edit-entry-page-container">
       <header style={{ marginBottom: 'var(--spacing-xl)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
         <div>
           <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 600, color: 'var(--ink)', margin: '0 0 var(--spacing-xs)' }}>

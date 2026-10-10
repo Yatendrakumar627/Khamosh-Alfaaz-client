@@ -1,4 +1,4 @@
-import { Zap, BookOpen, Download } from 'lucide-react';
+import { Zap, BookOpen, Download, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { OnThisDay } from '../diary/OnThisDay';
 import { RecentMemories } from '../diary/RecentMemories';
@@ -39,6 +39,7 @@ export const RightPanel = () => {
 const QuickActions = () => {
   const actions = [
     { icon: BookOpen, label: 'View All', to: '/entries' },
+    { icon: Star, label: 'Favorites', to: '/favorites' },
     { icon: Download, label: 'Export', to: '/export' },
   ];
 

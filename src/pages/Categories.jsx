@@ -85,7 +85,7 @@ export const Categories = () => {
           <span>Dedicated Sections</span>
         </h2>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: '18px' }}>
+        <div className="category-sections-grid">
           {CATEGORY_SECTIONS.map((section) => {
             const Icon = section.icon;
             return (
@@ -228,7 +228,7 @@ export const Categories = () => {
             No custom categories yet. Add custom tags like &ldquo;Travel&rdquo;, &ldquo;Dreams&rdquo;, or &ldquo;Reading&rdquo; anytime.
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
+          <div className="custom-categories-grid">
             {customCategories.map(category => (
               <div
                 key={category._id}

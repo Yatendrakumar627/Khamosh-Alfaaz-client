@@ -17,8 +17,9 @@ import {
   PenLine,
   BookMarked,
   Heart,
+  ChevronUp,
 } from 'lucide-react';
-import { getLocalDateString } from '../utils/helpers';
+import { getLocalDateString, classNames } from '../utils/helpers';
 
 export const Quotes = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ export const Quotes = () => {
     deleteEntry,
   } = useEntries({
     type: 'quote',
-    limit: 50,
+    limit: 1000,
   });
 
   const dailyQuote = quotes[dailyQuoteIndex];
@@ -106,95 +107,46 @@ export const Quotes = () => {
       </nav>
 
       {/* Hero Header */}
-      <header
-        className="paper-texture"
-        style={{
-          backgroundColor: 'var(--paper)',
-          border: '1px solid var(--border)',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '24px',
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', minWidth: 0, flex: 1 }}>
-            <div
-              style={{
-                width: '54px',
-                height: '54px',
-                borderRadius: '14px',
-                background: 'linear-gradient(135deg, var(--gold-muted) 0%, var(--gold) 55%, var(--gold-dark) 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--paper)',
-                flexShrink: 0,
-                boxShadow: '0 6px 18px rgba(122, 92, 52, 0.25)',
-              }}
-            >
-              <QuoteIcon size={26} strokeWidth={2.1} />
+      <header className="category-hero paper-texture">
+        <div className="category-hero-top">
+          <div className="category-hero-identity">
+            <div className="category-hero-icon">
+              <QuoteIcon size={24} strokeWidth={2.1} />
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <h1
-                  style={{
-                    fontFamily: 'var(--font-family-heading)',
-                    fontSize: 'clamp(1.5rem, 3.5vw, 2.1rem)',
-                    fontWeight: 600,
-                    color: 'var(--ink)',
-                    margin: 0,
-                  }}
-                >
-                  Quotes & Verses
+
+            <div className="category-hero-headings">
+              <div className="category-hero-title-row">
+                <h1 className="category-hero-title">
+                  Quotes &amp; Verses
                 </h1>
-                <span
-                  style={{
-                    fontSize: '0.74rem',
-                    fontWeight: 600,
-                    padding: '3px 10px',
-                    borderRadius: 'var(--radius-full)',
-                    backgroundColor: 'var(--paper-dark)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--gold)',
-                  }}
-                >
+                <span className="category-hero-badge">
                   {userQuotes.length} Saved in Diary
                 </span>
               </div>
-              <p style={{ margin: '6px 0 0', color: 'var(--ink-muted)', fontSize: '0.92rem' }}>
-                Words that resonate, inspire, and stay with you. Collect them or pen your own.
-              </p>
             </div>
           </div>
 
-          <Button
-            onClick={() => setIsComposing(prev => !prev)}
-            leftIcon={isComposing ? null : <PenLine size={16} />}
-            className="btn-primary"
-          >
-            {isComposing ? 'Close Editor' : 'Write a Quote'}
-          </Button>
+          <div className="category-hero-cta">
+            <Button
+              onClick={() => setIsComposing(prev => !prev)}
+              leftIcon={isComposing ? <ChevronUp size={15} /> : <PenLine size={15} />}
+              className="btn-primary category-hero-btn"
+            >
+              {isComposing ? 'Close Editor' : 'Write a Quote'}
+            </Button>
+          </div>
         </div>
 
+        <p className="category-hero-subtitle">
+          Words that resonate, inspire, and stay with you. Collect them or pen your own.
+        </p>
+
         {/* Tab Buttons */}
-        <div style={{ display: 'flex', gap: '10px', marginTop: '20px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+        <div className="quotes-tabs-row">
           <button
             type="button"
             onClick={() => setActiveTab('library')}
-            style={{
-              padding: '8px 18px',
-              borderRadius: 'var(--radius-full)',
-              border: activeTab === 'library' ? '1px solid var(--gold)' : '1px solid var(--border)',
-              backgroundColor: activeTab === 'library' ? 'var(--paper-dark)' : 'transparent',
-              color: activeTab === 'library' ? 'var(--gold)' : 'var(--ink)',
-              fontWeight: 600,
-              fontSize: '0.86rem',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
+            className={classNames('quotes-tab-btn', activeTab === 'library' && 'active')}
           >
             <Sparkles size={14} />
             <span>Inspiration Vault ({quotes.length})</span>
@@ -203,19 +155,7 @@ export const Quotes = () => {
           <button
             type="button"
             onClick={() => setActiveTab('my-quotes')}
-            style={{
-              padding: '8px 18px',
-              borderRadius: 'var(--radius-full)',
-              border: activeTab === 'my-quotes' ? '1px solid var(--gold)' : '1px solid var(--border)',
-              backgroundColor: activeTab === 'my-quotes' ? 'var(--paper-dark)' : 'transparent',
-              color: activeTab === 'my-quotes' ? 'var(--gold)' : 'var(--ink)',
-              fontWeight: 600,
-              fontSize: '0.86rem',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
+            className={classNames('quotes-tab-btn', activeTab === 'my-quotes' && 'active')}
           >
             <BookMarked size={14} />
             <span>My Saved Quotes ({userQuotes.length})</span>

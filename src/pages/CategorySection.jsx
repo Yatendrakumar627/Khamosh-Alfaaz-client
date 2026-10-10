@@ -121,12 +121,16 @@ export const CategorySection = ({ type: propType }) => {
   // Handle Search
   const handleSearch = (query) => {
     setSearchQuery(query);
-    searchEntries(query, {
-      type: categoryConfig.type,
-      sort: sortOrder,
-      favorite: favoritesOnly,
-      pinned: pinnedOnly,
-    });
+    if (!query || !query.trim()) {
+      refresh();
+    } else {
+      searchEntries(query.trim(), {
+        type: categoryConfig.type,
+        sort: sortOrder,
+        favorite: favoritesOnly,
+        pinned: pinnedOnly,
+      });
+    }
   };
 
   // Use Prompt into Compose Box
@@ -205,7 +209,7 @@ export const CategorySection = ({ type: propType }) => {
   };
 
   return (
-    <div className="page-container category-section-page" style={{ maxWidth: '1080px', margin: '0 auto', paddingBottom: '60px' }}>
+    <div key={categoryConfig.type} className="page-container category-section-page" style={{ maxWidth: '1080px', margin: '0 auto', paddingBottom: '60px' }}>
       {/* Top Breadcrumb navigation */}
       <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px', fontSize: '0.84rem', color: 'var(--ink-muted)' }}>
         <Link to="/categories" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: 'var(--ink-muted)', textDecoration: 'none' }}>
@@ -217,158 +221,68 @@ export const CategorySection = ({ type: propType }) => {
       </nav>
 
       {/* Category Hero Banner */}
-      <header
-        className="category-hero paper-texture"
-        style={{
-          backgroundColor: 'var(--paper)',
-          border: '1px solid var(--border)',
-          borderRadius: '16px',
-          padding: '24px 24px',
-          marginBottom: '24px',
-          position: 'relative',
-          overflow: 'hidden',
-          boxShadow: 'var(--shadow-sm)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '18px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', minWidth: 0, flex: 1 }}>
-            <div
-              className="category-hero-icon"
-              style={{
-                width: '54px',
-                height: '54px',
-                borderRadius: '14px',
-                background: `linear-gradient(135deg, var(--gold-muted) 0%, var(--gold) 55%, var(--gold-dark) 100%)`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--paper)',
-                flexShrink: 0,
-                boxShadow: '0 6px 18px rgba(122, 92, 52, 0.25)',
-              }}
-            >
-              <CategoryIcon size={26} strokeWidth={2.1} />
+      <header className="category-hero paper-texture">
+        {/* Top Header Row: Identity (Left) + Action (Right) */}
+        <div className="category-hero-top">
+          <div className="category-hero-identity">
+            <div className="category-hero-icon">
+              <CategoryIcon size={22} strokeWidth={2.2} />
             </div>
 
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <h1
-                  style={{
-                    fontFamily: 'var(--font-family-heading)',
-                    fontSize: 'clamp(1.5rem, 3.5vw, 2.1rem)',
-                    fontWeight: 600,
-                    color: 'var(--ink)',
-                    margin: 0,
-                    lineHeight: 1.2,
-                  }}
-                >
+            <div className="category-hero-headings">
+              <div className="category-hero-title-row">
+                <h1 className="category-hero-title">
                   {categoryConfig.title}
                 </h1>
-                <span
-                  style={{
-                    fontSize: '0.74rem',
-                    fontWeight: 600,
-                    padding: '3px 10px',
-                    borderRadius: 'var(--radius-full)',
-                    backgroundColor: 'var(--paper-dark)',
-                    border: '1px solid var(--border)',
-                    color: 'var(--gold)',
-                    letterSpacing: '0.02em',
-                  }}
-                >
+                <span className="category-hero-badge">
                   {pagination?.total || entries.length} {categoryConfig.pluralLabel}
                 </span>
               </div>
-
-              <p
-                style={{
-                  margin: '6px 0 0',
-                  fontSize: '0.92rem',
-                  color: 'var(--ink-muted)',
-                  lineHeight: 1.5,
-                }}
-              >
-                {categoryConfig.tagline}
-              </p>
             </div>
           </div>
 
           {/* Quick Write Toggle Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="category-hero-cta">
             <Button
               onClick={() => setIsComposing(prev => !prev)}
-              leftIcon={isComposing ? <ChevronUp size={16} /> : <PenLine size={16} />}
-              className="btn-primary"
+              leftIcon={isComposing ? <ChevronUp size={15} /> : <PenLine size={15} />}
+              className="btn-primary category-hero-btn"
             >
-              {isComposing ? 'Close Editor' : `Write ${categoryConfig.label}`}
+              {isComposing ? 'Close' : `Write ${categoryConfig.label}`}
             </Button>
           </div>
         </div>
 
+        {/* Tagline / Subtitle: Clean Full Width */}
+        <p className="category-hero-subtitle">
+          {categoryConfig.tagline}
+        </p>
+
         {/* Inspirational Prompt Bar */}
         {currentPrompt && (
-          <div
-            style={{
-              marginTop: '18px',
-              paddingTop: '16px',
-              borderTop: '1px solid var(--border)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '12px',
-              flexWrap: 'wrap',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-              <Sparkles size={16} style={{ color: 'var(--gold)', flexShrink: 0 }} />
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: '0.86rem',
-                  color: 'var(--ink)',
-                  fontStyle: 'italic',
-                  lineHeight: 1.45,
-                }}
-              >
+          <div className="category-prompt-box">
+            <div className="category-prompt-text-wrap">
+              <Sparkles size={15} className="category-prompt-icon" />
+              <p className="category-prompt-quote">
                 &ldquo;{currentPrompt}&rdquo;
               </p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="category-prompt-actions">
               <button
                 type="button"
                 onClick={handleNextPrompt}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '4px 10px',
-                  fontSize: '0.76rem',
-                  color: 'var(--ink-muted)',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}
+                className="category-prompt-btn-next"
                 title="Next prompt"
               >
                 <RefreshCw size={12} />
-                <span>Next Prompt</span>
+                <span>Another</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleUsePrompt(currentPrompt)}
-                style={{
-                  background: 'var(--paper-dark)',
-                  border: '1px solid var(--gold)',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '4px 12px',
-                  fontSize: '0.76rem',
-                  color: 'var(--gold)',
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                }}
+                className="category-prompt-btn-use"
               >
-                Use this prompt
+                Use prompt
               </button>
             </div>
           </div>

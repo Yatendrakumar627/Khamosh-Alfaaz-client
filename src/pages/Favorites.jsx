@@ -90,35 +90,32 @@ export const Favorites = () => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap', alignItems: 'center' }}>
-          <input
-            type="search"
-            placeholder="Search favorites..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              flex: 1, minWidth: '200px', maxWidth: '400px',
-              padding: 'var(--spacing-sm) var(--spacing-md)',
-              border: '1px solid var(--input-border)', borderRadius: 'var(--radius-full)',
-              backgroundColor: 'var(--input-bg)', color: 'var(--ink)',
-              fontFamily: 'inherit', fontSize: '0.95rem',
-            }}
-          />
-          <Button variant={showFilters ? 'filled' : 'outline'} onClick={() => setShowFilters(!showFilters)} leftIcon={<Filter size={18} />}>
-            Filter by Type
+        <div className="favorites-toolbar">
+          <div className="favorites-search-wrap">
+            <input
+              type="search"
+              placeholder="Search favorites..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="favorites-search-input"
+            />
+          </div>
+          <Button
+            variant={showFilters ? 'filled' : 'outline'}
+            onClick={() => setShowFilters(!showFilters)}
+            leftIcon={<Filter size={16} />}
+            className="favorites-filter-btn"
+          >
+            Filter
           </Button>
         </div>
 
         {showFilters && (
-          <div style={{ marginTop: 'var(--spacing-md)', padding: 'var(--spacing-md)', backgroundColor: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }} className="paper-texture">
+          <div className="favorites-filter-panel paper-texture">
             <select
               value={filters.type || 'all'}
               onChange={(e) => handleFilterChange({ type: e.target.value || null })}
-              style={{
-                padding: 'var(--spacing-sm) var(--spacing-md)', border: '1px solid var(--input-border)',
-                borderRadius: 'var(--radius-md)', backgroundColor: 'var(--input-bg)', color: 'var(--ink)',
-                fontFamily: 'inherit', fontSize: '0.9rem',
-              }}
+              className="favorites-select"
             >
               <option value="all">All Types</option>
               <option value="diary">Diary</option>
@@ -133,7 +130,7 @@ export const Favorites = () => {
             <select
               value={filters.sort || 'newest'}
               onChange={(e) => handleFilterChange({ sort: e.target.value })}
-              style={{ marginLeft: 'var(--spacing-md)', padding: 'var(--spacing-sm) var(--spacing-md)', border: '1px solid var(--input-border)', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--input-bg)', color: 'var(--ink)', fontFamily: 'inherit', fontSize: '0.9rem' }}
+              className="favorites-select"
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>

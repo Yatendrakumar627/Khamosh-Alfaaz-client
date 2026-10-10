@@ -132,7 +132,7 @@ export const Calendar = () => {
   }
 
   return (
-    <div style={{ padding: 'var(--spacing-xl)', maxWidth: '1000px', margin: '0 auto' }}>
+    <div className="calendar-page-container">
       <header style={{ marginBottom: 'var(--spacing-xl)' }}>
         <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 600, color: 'var(--ink)', margin: '0 0 var(--spacing-xs)' }}>
           Calendar

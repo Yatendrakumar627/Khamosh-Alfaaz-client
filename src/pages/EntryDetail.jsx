@@ -86,7 +86,7 @@ export const EntryDetail = () => {
   }
 
   return (
-    <div style={{ padding: 'var(--spacing-xl)', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="entry-detail-page-container">
       <header style={{ marginBottom: 'var(--spacing-xl)', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
           <Button variant="subtle" onClick={() => navigate(-1)} leftIcon={<ArrowLeft size={18} />}>
