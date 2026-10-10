@@ -3,7 +3,7 @@ import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getLocalDateString, getMonthYear, generateCalendarDays, classNames } from '../../utils/helpers';
 
 /**
- * Formats YYYY-MM-DD into DD-MMM-YYYY (e.g. 09-Oct-2026)
+ * Formats YYYY-MM-DD into DD-MMM-YYYY (e.g. 10-Oct-YYYY)
  */
 export const formatDisplayDate = (dateStr) => {
   if (!dateStr) return '';

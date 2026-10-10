@@ -97,6 +97,7 @@ export const CategorySection = ({ type: propType }) => {
       content: '',
       type: categoryConfig.type,
       tags: [categoryConfig.type],
+      entryDate: getLocalDateString(),
     });
     setPromptIndex(0);
   }, [categoryConfig.type]);
@@ -161,6 +162,7 @@ export const CategorySection = ({ type: propType }) => {
         content: '',
         type: categoryConfig.type,
         tags: [categoryConfig.type],
+        entryDate: getLocalDateString(),
       });
       refresh();
     } catch (err) {

@@ -32,7 +32,11 @@ const loadStoredDraft = () => {
     if (stored) {
       const parsed = JSON.parse(stored);
       if (parsed && typeof parsed === 'object') {
-        return { ...emptyDraft(), ...parsed };
+        const today = getLocalDateString();
+        if (isFreshDraft(parsed)) {
+          return { ...emptyDraft(), entryDate: today };
+        }
+        return { ...emptyDraft(), ...parsed, entryDate: parsed.entryDate || today };
       }
     }
   } catch (e) {

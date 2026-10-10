@@ -26,16 +26,19 @@ export const EntryEditor = ({
   onChange,
   statusSlot = null,
 }) => {
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    type: 'diary',
-    isFavorite: false,
-    isPinned: false,
-    visibility: 'private',
-    entryDate: getLocalDateString(),
-    ...initialData,
-    tags: Array.isArray(initialData.tags) ? formatTags(initialData.tags) : (initialData.tags || ''),
+  const [formData, setFormData] = useState(() => {
+    const today = getLocalDateString();
+    return {
+      title: '',
+      content: '',
+      type: 'diary',
+      isFavorite: false,
+      isPinned: false,
+      visibility: 'private',
+      ...initialData,
+      entryDate: initialData?.entryDate || today,
+      tags: Array.isArray(initialData.tags) ? formatTags(initialData.tags) : (initialData.tags || ''),
+    };
   });
   const [tags, setTags] = useState(() => {
     if (Array.isArray(initialData.tags)) return initialData.tags;
@@ -54,6 +57,7 @@ export const EntryEditor = ({
       const parsedTags = Array.isArray(initialData.tags)
         ? initialData.tags
         : (typeof initialData.tags === 'string' ? parseTags(initialData.tags) : []);
+      const today = getLocalDateString();
       setFormData({
         title: '',
         content: '',
@@ -61,8 +65,8 @@ export const EntryEditor = ({
         isFavorite: false,
         isPinned: false,
         visibility: 'private',
-        entryDate: getLocalDateString(),
         ...initialData,
+        entryDate: initialData?.entryDate || today,
         tags: Array.isArray(initialData.tags) ? formatTags(initialData.tags) : (initialData.tags || ''),
       });
       setTags(parsedTags);
@@ -157,8 +161,8 @@ export const EntryEditor = ({
           </label>
           <DatePicker
             id="entry-date-input"
-            value={formData.entryDate}
-            onChange={(dateStr) => handleChange('entryDate', dateStr)}
+            value={formData.entryDate || getLocalDateString()}
+            onChange={(dateStr) => handleChange('entryDate', dateStr || getLocalDateString())}
             maxDate={getLocalDateString()}
             ariaLabel="Entry date"
           />
