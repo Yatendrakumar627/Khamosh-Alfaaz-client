@@ -1,14 +1,29 @@
 import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useSidebar } from '../../context/SidebarContext';
-import { NAV_ITEMS } from '../../routes';
-import { Home, PenLine, BookOpen, Quote, Star, Calendar, Tag, BarChart3, Download, Settings, X } from 'lucide-react';
+import { MAIN_NAV_ITEMS, CATEGORY_NAV_ITEMS, TOOL_NAV_ITEMS } from '../../routes';
+import {
+  Home,
+  BookOpen,
+  Quote,
+  Star,
+  Calendar,
+  Tag,
+  BarChart3,
+  Download,
+  Settings,
+  X,
+  Lightbulb,
+  Sparkles,
+  FileText,
+  Heart,
+  Circle,
+} from 'lucide-react';
 import favicon from '../../assets/favicon.png';
 import { classNames } from '../../utils/helpers';
 
 const navIcons = {
   home: Home,
-  pen: PenLine,
   bookOpen: BookOpen,
   quote: Quote,
   star: Star,
@@ -17,6 +32,11 @@ const navIcons = {
   barChart: BarChart3,
   download: Download,
   settings: Settings,
+  lightbulb: Lightbulb,
+  sparkles: Sparkles,
+  fileText: FileText,
+  heart: Heart,
+  circle: Circle,
 };
 
 export const MobileNavigation = () => {
@@ -48,6 +68,73 @@ export const MobileNavigation = () => {
   if (typeof window !== 'undefined' && window.innerWidth >= 1200) return null;
   if (!isOpen) return null;
 
+  const renderNavGroup = (items, groupLabel = null) => (
+    <div style={{ marginBottom: '14px' }}>
+      {groupLabel && (
+        <div
+          style={{
+            padding: '4px 14px 6px',
+            fontSize: '0.7rem',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--ink-light)',
+          }}
+        >
+          {groupLabel}
+        </div>
+      )}
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {items.map(item => {
+          const Icon = navIcons[item.icon] || BookOpen;
+          const isActive = location.pathname === item.path;
+          return (
+            <li key={item.path} style={{ marginBottom: '2px' }}>
+              <NavLink
+                to={item.path}
+                onClick={close}
+                style={() => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '10px 14px',
+                  borderRadius: '10px',
+                  color: isActive ? 'var(--gold-light)' : 'var(--ink-muted)',
+                  backgroundColor: isActive ? 'rgba(216,168,91,0.12)' : 'transparent',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  border: '1px solid transparent',
+                })}
+                className={() => classNames('sidebar-item', isActive && 'active')}
+                aria-label={item.label}
+              >
+                <Icon
+                  size={18}
+                  style={{
+                    flexShrink: 0,
+                    color: isActive ? 'var(--gold)' : 'var(--ink-light)',
+                  }}
+                />
+                <span
+                  style={{
+                    fontWeight: 500,
+                    fontSize: '0.88rem',
+                    fontFamily: 'var(--font-family-ui)',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  {item.label}
+                </span>
+              </NavLink>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+
   return (
     <>
       <div
@@ -71,7 +158,7 @@ export const MobileNavigation = () => {
           top: 0,
           left: 0,
           bottom: 0,
-          width: '260px',
+          width: '275px',
           maxWidth: '85vw',
           backgroundColor: 'var(--sidebar-bg)',
           borderRight: '1px solid var(--border)',
@@ -145,55 +232,10 @@ export const MobileNavigation = () => {
         </div>
 
         {/* Navigation */}
-        <nav style={{ flex: 1, padding: '10px', overflowY: 'auto' }}>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {NAV_ITEMS.map(item => {
-              const Icon = navIcons[item.icon];
-              const isActive = location.pathname === item.path;
-              return (
-                <li key={item.icon} style={{ marginBottom: '2px' }}>
-                  <NavLink
-                    to={item.path}
-                    onClick={close}
-                    style={() => ({
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      padding: '11px 14px',
-                      borderRadius: '10px',
-                      color: isActive ? 'var(--gold-light)' : 'var(--ink-muted)',
-                      backgroundColor: isActive ? 'rgba(216,168,91,0.12)' : 'transparent',
-                      textDecoration: 'none',
-                      transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      border: '1px solid transparent',
-                    })}
-                    className={() => classNames('sidebar-item', isActive && 'active')}
-                    aria-label={item.label}
-                  >
-                    <Icon
-                      size={19}
-                      style={{
-                        flexShrink: 0,
-                        color: isActive ? 'var(--gold)' : 'var(--ink-light)',
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontWeight: 500,
-                        fontSize: '0.9rem',
-                        fontFamily: 'var(--font-family-ui)',
-                        letterSpacing: '0.02em',
-                      }}
-                    >
-                      {item.label}
-                    </span>
-                  </NavLink>
-                </li>
-              );
-            })}
-          </ul>
+        <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
+          {renderNavGroup(MAIN_NAV_ITEMS, null)}
+          {renderNavGroup(CATEGORY_NAV_ITEMS, 'Categories & Spaces')}
+          {renderNavGroup(TOOL_NAV_ITEMS, 'Tools')}
         </nav>
 
         {/* Bottom inspirational section */}
@@ -242,3 +284,5 @@ export const MobileNavigation = () => {
     </>
   );
 };
+
+export default MobileNavigation;

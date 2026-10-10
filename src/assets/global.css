@@ -2170,33 +2170,9 @@ main,
     align-items: center !important;
   }
 
-  /* Calendar date pill — never squeeze out of frame; let the title column absorb the pressure */
-  .write-card-date-badge {
-    flex-shrink: 0 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-  }
-
-  .write-card-header > div:first-child {
-    flex: 1;
-    min-width: 0;
-  }
-
   .write-card-header .mantine-TextInput-label,
   .write-card-header h2 {
     font-size: 1.02rem !important;
-  }
-
-  /* Date pill in write card header — compact on mobile */
-  .write-card-header > div:last-child {
-    padding: 4px 10px !important;
-    font-size: 0.74rem !important;
-    gap: 5px !important;
-  }
-
-  .write-card-header > div:last-child svg {
-    width: 13px !important;
-    height: 13px !important;
   }
 
   /* Entry form — every field full-width stacked */
@@ -2248,16 +2224,12 @@ main,
   }
 
   .write-card-subtitle {
-    font-size: 0.76rem !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 175px !important;
-  }
-
-  .write-card-date-badge {
-    font-size: 0.74rem !important;
-    padding: 4px 10px !important;
+    font-size: 0.8rem !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: 100% !important;
+    line-height: 1.4 !important;
   }
 
   /* Compact side-by-side Title & Date row on mobile */
@@ -2701,18 +2673,6 @@ main,
     gap: 6px;
   }
 
-  /* Write card header wraps instead of pushing the calendar pill out of frame */
-  .write-card-header {
-    flex-wrap: wrap !important;
-  }
-
-  .write-card-header > div:first-child {
-    flex: 1 1 100%;
-  }
-
-  .write-card-header > div:last-child {
-    margin-left: auto;
-  }
 
   /* Calendar page — tighter day cells on small phones */
   .cal-day-cell {
@@ -3067,4 +3027,30 @@ main,
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+/* Category Hub & Section styles */
+.category-hub-card {
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.category-hub-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold) !important;
+  box-shadow: 0 8px 24px rgba(122, 92, 52, 0.12) !important;
+}
+
+.category-hero {
+  position: relative;
+}
+
+.category-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle at 100% 0%, rgba(216, 168, 91, 0.08) 0%, transparent 70%);
+  pointer-events: none;
 }

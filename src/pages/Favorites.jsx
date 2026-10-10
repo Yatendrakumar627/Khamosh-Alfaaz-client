@@ -21,7 +21,7 @@ export const Favorites = () => {
 
   const { entries, loading, error, pagination, params, searchEntries, setFilters: setApiFilters, setPage, refresh } = useEntries({
     page: parseInt(searchParams.get('page')) || 1,
-    limit: 20,
+    limit: 1000,
     type: filters.type,
     sort: filters.sort,
     favorite: true,

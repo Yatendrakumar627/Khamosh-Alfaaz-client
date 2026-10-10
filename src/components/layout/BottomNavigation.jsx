@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { MOBILE_NAV_ITEMS } from '../../routes';
-import { Home, PenLine, BookOpen, Quote, Star, MoreHorizontal } from 'lucide-react';
+import { Home, PenLine, BookOpen, Quote, Star, Lightbulb, MoreHorizontal } from 'lucide-react';
 import { useSidebar } from '../../context/SidebarContext';
 import { classNames } from '../../utils/helpers';
 
@@ -10,10 +10,23 @@ const navIcons = {
   bookOpen: BookOpen,
   quote: Quote,
   star: Star,
+  lightbulb: Lightbulb,
   more: MoreHorizontal,
 };
 
-const MORE_ROUTES = ['/favorites', '/calendar', '/categories', '/statistics', '/export', '/settings'];
+const MORE_ROUTES = [
+  '/favorites',
+  '/calendar',
+  '/categories',
+  '/statistics',
+  '/export',
+  '/settings',
+  '/diary',
+  '/ideas',
+  '/notes',
+  '/personal',
+  '/gratitude',
+];
 
 export const BottomNavigation = () => {
   const { open } = useSidebar();
@@ -25,13 +38,13 @@ export const BottomNavigation = () => {
       className="bottom-nav"
     >
       {MOBILE_NAV_ITEMS.map(item => {
-        const Icon = navIcons[item.icon];
+        const Icon = navIcons[item.icon] || BookOpen;
 
         if (!item.path) {
           const active = MORE_ROUTES.some(route => pathname.startsWith(route));
           return (
             <button
-              key={item.icon}
+              key={item.icon || item.label}
               type="button"
               onClick={open}
               className={classNames('bottom-nav-item', active && 'active')}
@@ -54,7 +67,7 @@ export const BottomNavigation = () => {
 
         return (
           <NavLink
-            key={item.icon}
+            key={item.icon || item.path}
             to={item.path}
             className={({ isActive }) => classNames('bottom-nav-item', isActive && !item.noActive && 'active')}
             style={{

@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useSidebar } from '../../context/SidebarContext';
-import { NAV_ITEMS } from '../../routes';
+import { MAIN_NAV_ITEMS, CATEGORY_NAV_ITEMS, TOOL_NAV_ITEMS } from '../../routes';
 import {
   Home,
   BookOpen,
@@ -12,6 +12,11 @@ import {
   Download,
   Settings,
   Feather,
+  Lightbulb,
+  Sparkles,
+  FileText,
+  Heart,
+  Circle,
 } from 'lucide-react';
 import favicon from '../../assets/favicon.png';
 import { classNames } from '../../utils/helpers';
@@ -26,6 +31,11 @@ const navIcons = {
   barChart: ChartNoAxesColumn,
   download: Download,
   settings: Settings,
+  lightbulb: Lightbulb,
+  sparkles: Sparkles,
+  fileText: FileText,
+  heart: Heart,
+  circle: Circle,
 };
 
 export const Sidebar = () => {
@@ -33,6 +43,86 @@ export const Sidebar = () => {
   const location = useLocation();
 
   const sidebarWidth = expanded ? '260px' : '60px';
+
+  const renderNavGroup = (items, groupLabel = null) => (
+    <div style={{ marginBottom: expanded ? '14px' : '8px' }}>
+      {expanded && groupLabel && (
+        <div
+          style={{
+            padding: '4px 12px 6px',
+            fontSize: '0.68rem',
+            fontWeight: 600,
+            textTransform: 'uppercase',
+            letterSpacing: '0.08em',
+            color: 'var(--ink-light)',
+          }}
+        >
+          {groupLabel}
+        </div>
+      )}
+      {!expanded && groupLabel && (
+        <div
+          style={{
+            height: '1px',
+            backgroundColor: 'var(--border)',
+            margin: '6px 8px',
+            opacity: 0.6,
+          }}
+        />
+      )}
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {items.map(item => {
+          const Icon = navIcons[item.icon] || BookOpen;
+          const isActive = !item.noActive && location.pathname === item.path;
+          return (
+            <li key={item.path} style={{ marginBottom: '2px' }}>
+              <NavLink
+                to={item.path}
+                style={() => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: expanded ? '10px' : 0,
+                  padding: '8px 12px',
+                  borderRadius: '10px',
+                  color: isActive ? 'var(--gold-light)' : 'var(--ink-muted)',
+                  backgroundColor: isActive ? 'rgba(216,168,91,0.12)' : 'transparent',
+                  textDecoration: 'none',
+                  transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
+                  justifyContent: expanded ? 'flex-start' : 'center',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  border: '1px solid transparent',
+                })}
+                className={() => classNames('sidebar-item', isActive && 'active')}
+                aria-label={item.label}
+                title={expanded ? undefined : item.label}
+              >
+                <Icon
+                  size={18}
+                  style={{
+                    flexShrink: 0,
+                    color: isActive ? 'var(--gold)' : 'var(--ink-light)',
+                  }}
+                />
+                {expanded && (
+                  <span
+                    style={{
+                      fontWeight: 500,
+                      fontSize: '0.88rem',
+                      fontFamily: 'var(--font-family-ui)',
+                      letterSpacing: '0.01em',
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                )}
+              </NavLink>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
 
   return (
     <aside
@@ -117,58 +207,10 @@ export const Sidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav style={{ flex: 1, padding: '10px 10px', overflowY: 'auto' }}>
-        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {NAV_ITEMS.map(item => {
-            const Icon = navIcons[item.icon];
-            const isActive = !item.noActive && location.pathname === item.path;
-            return (
-              <li key={item.icon} style={{ marginBottom: '2px' }}>
-                <NavLink
-                  to={item.path}
-                  style={() => ({
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: expanded ? '10px' : 0,
-                    padding: '9px 12px',
-                    borderRadius: '10px',
-                    color: isActive ? 'var(--gold-light)' : 'var(--ink-muted)',
-                    backgroundColor: isActive ? 'rgba(216,168,91,0.12)' : 'transparent',
-                    textDecoration: 'none',
-                    transition: 'background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease',
-                    justifyContent: expanded ? 'flex-start' : 'center',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    border: '1px solid transparent',
-                  })}
-                  className={() => classNames('sidebar-item', isActive && 'active')}
-                  aria-label={item.label}
-                  title={expanded ? undefined : item.label}
-                >
-                  <Icon
-                    size={19}
-                    style={{
-                      flexShrink: 0,
-                      color: isActive ? 'var(--gold)' : 'var(--ink-light)',
-                    }}
-                  />
-                  {expanded && (
-                    <span
-                      style={{
-                        fontWeight: 500,
-                        fontSize: '0.9rem',
-                        fontFamily: 'var(--font-family-ui)',
-                        letterSpacing: '0.02em',
-                      }}
-                    >
-                      {item.label}
-                    </span>
-                  )}
-                </NavLink>
-              </li>
-            );
-          })}
-        </ul>
+      <nav style={{ flex: 1, padding: '10px 8px', overflowY: 'auto' }}>
+        {renderNavGroup(MAIN_NAV_ITEMS, null)}
+        {renderNavGroup(CATEGORY_NAV_ITEMS, 'Categories & Spaces')}
+        {renderNavGroup(TOOL_NAV_ITEMS, 'Tools')}
       </nav>
 
       {/* Bottom inspirational section */}
@@ -236,3 +278,5 @@ export const Sidebar = () => {
     </aside>
   );
 };
+
+export default Sidebar;

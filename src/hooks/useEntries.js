@@ -6,8 +6,8 @@ export const useEntries = (initialParams = {}) => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0, totalPages: 0 });
-  const [params, setParams] = useState({ page: 1, limit: 100, ...initialParams });
+  const [pagination, setPagination] = useState({ page: 1, limit: 1000, total: 0, totalPages: 0 });
+  const [params, setParams] = useState({ page: 1, limit: 1000, ...initialParams });
   const abortRef = useRef(null);
   const { error: showError } = useToast();
 

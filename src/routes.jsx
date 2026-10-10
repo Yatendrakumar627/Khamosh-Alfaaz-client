@@ -9,6 +9,7 @@ const Quotes = lazy(() => import('./pages/Quotes').then(m => ({ default: m.Quote
 const Favorites = lazy(() => import('./pages/Favorites').then(m => ({ default: m.Favorites })));
 const Calendar = lazy(() => import('./pages/Calendar').then(m => ({ default: m.Calendar })));
 const Categories = lazy(() => import('./pages/Categories').then(m => ({ default: m.Categories })));
+const CategorySection = lazy(() => import('./pages/CategorySection').then(m => ({ default: m.CategorySection })));
 const Statistics = lazy(() => import('./pages/Statistics').then(m => ({ default: m.Statistics })));
 const Export = lazy(() => import('./pages/Export').then(m => ({ default: m.Export })));
 const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
@@ -24,7 +25,16 @@ export const routes = [
   { path: 'entries', element: <PageWrapper><Entries /></PageWrapper> },
   { path: 'entries/:id', element: <PageWrapper><EntryDetail /></PageWrapper> },
   { path: 'entries/:id/edit', element: <PageWrapper><EditEntry /></PageWrapper> },
+  // Dedicated Category Sections
+  { path: 'diary', element: <PageWrapper><CategorySection type="diary" /></PageWrapper> },
+  { path: 'thoughts', element: <PageWrapper><CategorySection type="thought" /></PageWrapper> },
   { path: 'quotes', element: <PageWrapper><Quotes /></PageWrapper> },
+  { path: 'ideas', element: <PageWrapper><CategorySection type="idea" /></PageWrapper> },
+  { path: 'notes', element: <PageWrapper><CategorySection type="note" /></PageWrapper> },
+  { path: 'personal', element: <PageWrapper><CategorySection type="personal" /></PageWrapper> },
+  { path: 'gratitude', element: <PageWrapper><CategorySection type="gratitude" /></PageWrapper> },
+  { path: 'category/:type', element: <PageWrapper><CategorySection /></PageWrapper> },
+  // Other app pages
   { path: 'favorites', element: <PageWrapper><Favorites /></PageWrapper> },
   { path: 'calendar', element: <PageWrapper><Calendar /></PageWrapper> },
   { path: 'categories', element: <PageWrapper><Categories /></PageWrapper> },
@@ -33,22 +43,41 @@ export const routes = [
   { path: 'settings', element: <PageWrapper><Settings /></PageWrapper> },
 ];
 
-export const NAV_ITEMS = [
+export const MAIN_NAV_ITEMS = [
   { path: '/dashboard', label: 'Home', icon: 'home' },
-  { path: '/entries', label: 'Entries', icon: 'bookOpen' },
-  { path: '/quotes', label: 'Quotes', icon: 'quote' },
+  { path: '/entries', label: 'All Entries', icon: 'bookOpen' },
   { path: '/favorites', label: 'Favorites', icon: 'star' },
   { path: '/calendar', label: 'Calendar', icon: 'calendar' },
-  { path: '/categories', label: 'Categories', icon: 'tag' },
+];
+
+export const CATEGORY_NAV_ITEMS = [
+  { path: '/diary', label: 'Diary', icon: 'bookOpen', type: 'diary' },
+  { path: '/thoughts', label: 'Thoughts', icon: 'lightbulb', type: 'thought' },
+  { path: '/quotes', label: 'Quotes', icon: 'quote', type: 'quote' },
+  { path: '/ideas', label: 'Ideas', icon: 'sparkles', type: 'idea' },
+  { path: '/notes', label: 'Notes', icon: 'fileText', type: 'note' },
+  { path: '/personal', label: 'Personal', icon: 'heart', type: 'personal' },
+  { path: '/gratitude', label: 'Gratitude', icon: 'star', type: 'gratitude' },
+];
+
+export const TOOL_NAV_ITEMS = [
+  { path: '/categories', label: 'Categories Hub', icon: 'tag' },
   { path: '/statistics', label: 'Statistics', icon: 'barChart' },
   { path: '/export', label: 'Export', icon: 'download' },
   { path: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
+// Flat list for any consumers that expect NAV_ITEMS
+export const NAV_ITEMS = [
+  ...MAIN_NAV_ITEMS,
+  ...CATEGORY_NAV_ITEMS,
+  ...TOOL_NAV_ITEMS,
+];
+
 export const MOBILE_NAV_ITEMS = [
   { path: '/dashboard', label: 'Home', icon: 'home' },
   { path: '/entries', label: 'Entries', icon: 'bookOpen' },
+  { path: '/thoughts', label: 'Thoughts', icon: 'lightbulb' },
   { path: '/quotes', label: 'Quotes', icon: 'quote' },
-  { path: '/favorites', label: 'Favorites', icon: 'star' },
   { path: null, label: 'More', icon: 'more' },
 ];

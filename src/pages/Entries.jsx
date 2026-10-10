@@ -10,6 +10,7 @@ import { formatDate, getEntryTypeLabel } from '../utils/helpers';
 import { classNames } from '../utils/helpers';
 import { useDateFilter } from '../context/DateFilterContext';
 import { entriesApi } from '../services/api';
+import { CATEGORY_SECTIONS } from '../constants/categorySections';
 
 const FilterChip = ({ label, onClear }) => (
   <span className="filter-chip">
@@ -91,7 +92,7 @@ export const Entries = () => {
     refresh,
   } = useEntries({
     page: parseInt(searchParams.get('page')) || 1,
-    limit: 20,
+    limit: 1000,
     type: filters.type,
     sort: filters.sort,
     favorite: filters.favorite,
@@ -285,6 +286,68 @@ export const Entries = () => {
               </button>
             )}
           </div>
+        </div>
+
+        {/* ── Category Quick-Switcher Tabs ── */}
+        <div
+          className="entries-category-tabs"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            overflowX: 'auto',
+            padding: '4px 0 6px',
+            marginTop: '12px',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => handleFilterChange({ type: null })}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 'var(--radius-full)',
+              border: !filters.type ? '1px solid var(--gold)' : '1px solid var(--border)',
+              backgroundColor: !filters.type ? 'var(--paper-dark)' : 'var(--paper)',
+              color: !filters.type ? 'var(--gold)' : 'var(--ink-muted)',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              transition: 'all 0.18s ease',
+            }}
+          >
+            All Spaces
+          </button>
+          {CATEGORY_SECTIONS.map(cat => {
+            const isSelected = filters.type === cat.type;
+            const CatIcon = cat.icon;
+            return (
+              <button
+                key={cat.type}
+                type="button"
+                onClick={() => handleFilterChange({ type: isSelected ? null : cat.type })}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 'var(--radius-full)',
+                  border: isSelected ? '1px solid var(--gold)' : '1px solid var(--border)',
+                  backgroundColor: isSelected ? 'var(--paper-dark)' : 'var(--paper)',
+                  color: isSelected ? 'var(--gold)' : 'var(--ink-muted)',
+                  fontSize: '0.8rem',
+                  fontWeight: isSelected ? 600 : 500,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'all 0.18s ease',
+                }}
+              >
+                <CatIcon size={13} style={{ color: isSelected ? 'var(--gold)' : 'currentColor' }} />
+                <span>{cat.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* ── Active filter chips ── */}

@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { Pen, CalendarDays, Cloud, Check, ArrowRight } from 'lucide-react';
+import { Pen, Cloud, Check, ArrowRight } from 'lucide-react';
 import { STORAGE_KEYS } from '../../constants';
 import { entriesApi } from '../../services/api';
 import { useToast } from '../../context';
-import { getLocalDateString, formatDate } from '../../utils/helpers';
+import { getLocalDateString } from '../../utils/helpers';
 import { useDraft } from '../../hooks/useDraft';
 import { EntryEditor } from './EntryEditor';
 
@@ -124,54 +124,35 @@ export const WriteCard = ({ onSaved }) => {
       aria-label="Write your thoughts"
     >
       {/* Header */}
-      <div className="write-card-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-          <div className="write-card-pen-badge" style={{
-            width: '42px',
-            height: '42px',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, var(--gold-muted) 0%, var(--gold) 55%, var(--gold-dark) 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: '0 4px 14px rgba(122, 92, 52, 0.28)',
-          }}>
-            <Pen size={18} style={{ color: 'var(--paper)' }} />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <h2 className="write-card-title" style={{
-              fontFamily: 'var(--font-family-heading)',
-              fontSize: '1.18rem',
-              fontWeight: 600,
-              color: 'var(--ink)',
-              margin: 0,
-              lineHeight: 1.25,
-              letterSpacing: '-0.01em',
-            }}>
-              Write Your Thoughts
-            </h2>
-            <p className="write-card-subtitle" style={{ margin: '2px 0 0', fontSize: '0.84rem', color: 'var(--ink-muted)', lineHeight: 1.45 }}>
-              Anything on your mind — your day, a thought, a quote, a feeling...
-            </p>
-          </div>
-        </div>
-
-        <div className="write-card-date-badge" style={{
-          display: 'inline-flex',
+      <div className="write-card-header" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px', width: '100%' }}>
+        <div className="write-card-pen-badge" style={{
+          width: '42px',
+          height: '42px',
+          borderRadius: '10px',
+          background: 'linear-gradient(135deg, var(--gold-muted) 0%, var(--gold) 55%, var(--gold-dark) 100%)',
+          display: 'flex',
           alignItems: 'center',
-          gap: '7px',
-          color: 'var(--gold)',
-          fontSize: '0.8rem',
-          fontWeight: 600,
-          padding: '5px 13px',
-          borderRadius: 'var(--radius-full)',
-          backgroundColor: 'var(--paper-dark)',
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-xs)',
+          justifyContent: 'center',
+          flexShrink: 0,
+          boxShadow: '0 4px 14px rgba(122, 92, 52, 0.28)',
         }}>
-          <CalendarDays size={14} />
-          <span>{formatDate(draft.entryDate || getLocalDateString(), 'SHORT')}</span>
+          <Pen size={18} style={{ color: 'var(--paper)' }} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h2 className="write-card-title" style={{
+            fontFamily: 'var(--font-family-heading)',
+            fontSize: '1.18rem',
+            fontWeight: 600,
+            color: 'var(--ink)',
+            margin: 0,
+            lineHeight: 1.25,
+            letterSpacing: '-0.01em',
+          }}>
+            Write Your Thoughts
+          </h2>
+          <p className="write-card-subtitle" style={{ margin: '2px 0 0', fontSize: '0.84rem', color: 'var(--ink-muted)', lineHeight: 1.45 }}>
+            Anything on your mind — your day, a thought, a quote, a feeling...
+          </p>
         </div>
       </div>
 
