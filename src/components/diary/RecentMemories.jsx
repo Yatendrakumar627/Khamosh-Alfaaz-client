@@ -167,8 +167,9 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
         style={{
           backgroundColor: 'var(--paper)',
           border: '1px solid var(--border)',
-          borderRadius: '12px',
+          borderRadius: '16px',
           overflow: 'hidden',
+          boxShadow: '0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 6px 20px -4px rgba(0, 0, 0, 0.3)',
         }}
         className="paper-texture"
       >
@@ -176,25 +177,26 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          padding: '11px 14px',
+          padding: '12px 14px',
           borderBottom: '1px solid var(--border)',
         }}>
           <div style={{
-            width: '28px',
-            height: '28px',
-            borderRadius: '8px',
-            backgroundColor: 'var(--active-bg)',
+            width: '30px',
+            height: '30px',
+            borderRadius: '9px',
+            backgroundColor: 'rgba(223, 178, 100, 0.12)',
+            border: '1px solid rgba(223, 178, 100, 0.2)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
           }}>
-            <CalendarClock size={15} style={{ color: 'var(--gold)' }} />
+            <CalendarClock size={16} style={{ color: 'var(--gold)' }} />
           </div>
           <div style={{ minWidth: 0, flex: 1 }}>
             <h3 style={{
               fontFamily: 'var(--font-family-heading)',
-              fontSize: '0.92rem',
+              fontSize: '0.94rem',
               fontWeight: 600,
               margin: 0,
               color: 'var(--ink)',
@@ -227,7 +229,7 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
           </button>
         </header>
 
-        <div style={{ padding: '10px' }}>
+        <div style={{ padding: '12px 12px 8px' }}>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
             {BUCKETS.map(bucket => {
               const count = grouped[bucket.key].length;
@@ -237,28 +239,41 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
                   key={bucket.key}
                   type="button"
                   onClick={() => openModal(bucket.key)}
+                  className="recent-mem-pill"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '5px',
+                    gap: '6px',
                     padding: '4px 10px',
                     borderRadius: '9999px',
                     border: '1px solid var(--border)',
                     background: 'var(--paper-dark)',
-                    color: 'var(--ink-muted)',
-                    fontSize: '0.7rem',
-                    fontWeight: 600,
+                    color: 'var(--ink)',
+                    fontSize: '0.73rem',
+                    fontWeight: 500,
                     cursor: 'pointer',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.4)';
+                    e.currentTarget.style.backgroundColor = 'var(--active-bg)';
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.backgroundColor = 'var(--paper-dark)';
+                    e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >
-                  {bucket.label}
+                  <span>{bucket.label}</span>
                   <span style={{
                     fontSize: '0.66rem',
-                    fontWeight: 600,
-                    padding: '0 6px',
+                    fontWeight: 700,
+                    padding: '1px 6px',
                     borderRadius: '9999px',
-                    background: 'var(--active-bg)',
+                    background: 'rgba(223, 178, 100, 0.16)',
                     color: 'var(--gold)',
+                    fontVariantNumeric: 'tabular-nums',
                   }}>
                     {count}
                   </span>
@@ -269,17 +284,31 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {topEntries.map(entry => (
-              <div key={entry._id} style={{
-                padding: '8px 10px',
-                backgroundColor: 'var(--paper-dark)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-              }}>
+              <div
+                key={entry._id}
+                onClick={() => navigate(`/entries/${entry._id}`)}
+                style={{
+                  padding: '9px 11px',
+                  backgroundColor: 'var(--paper-dark)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.35)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px', flexWrap: 'wrap' }}>
                   <span style={{
                     fontSize: '0.62rem', fontWeight: 600, textTransform: 'uppercase',
-                    color: 'var(--gold)', backgroundColor: 'var(--active-bg)',
-                    padding: '1px 6px', borderRadius: '9999px',
+                    color: 'var(--gold)', backgroundColor: 'rgba(223, 178, 100, 0.14)',
+                    padding: '1px 7px', borderRadius: '9999px',
                   }}>
                     {entry.type}
                   </span>
@@ -290,7 +319,7 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
                 {entry.title && (
                   <h4 style={{
                     fontFamily: 'var(--font-family-heading)',
-                    fontSize: '0.85rem', fontWeight: 600,
+                    fontSize: '0.88rem', fontWeight: 600,
                     margin: '0 0 2px', color: 'var(--ink)',
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                   }}>
@@ -322,15 +351,18 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
             padding: '10px 14px',
             border: 'none',
             borderTop: '1px solid var(--border)',
-            background: 'transparent',
+            background: 'var(--paper-darker)',
             color: 'var(--gold)',
-            fontSize: '0.8rem',
+            fontSize: '0.78rem',
             fontWeight: 600,
             cursor: 'pointer',
+            transition: 'all 0.2s ease',
           }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--hover-bg)'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--paper-darker)'; }}
         >
-          View all memories
-          <ChevronRight size={15} />
+          <span>View all memories</span>
+          <ChevronRight size={14} />
         </button>
       </div>
 

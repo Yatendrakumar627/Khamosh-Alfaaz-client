@@ -95,22 +95,24 @@ export const DailyQuote = ({ quote, onSaveAsEntry }) => (
   <div style={{
     backgroundColor: 'var(--paper)',
     border: '1px solid var(--border)',
-    borderRadius: '12px',
+    borderRadius: '16px',
     overflow: 'hidden',
     position: 'relative',
+    boxShadow: '0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 6px 20px -4px rgba(0, 0, 0, 0.3)',
   }} className="paper-texture diary-page">
     <header style={{
       display: 'flex',
       alignItems: 'center',
       gap: '10px',
-      padding: '11px 14px',
+      padding: '12px 14px',
       borderBottom: '1px solid var(--border)',
     }}>
       <div style={{
-        width: '28px',
-        height: '28px',
-        borderRadius: '8px',
-        backgroundColor: 'var(--active-bg)',
+        width: '30px',
+        height: '30px',
+        borderRadius: '9px',
+        backgroundColor: 'rgba(223, 178, 100, 0.12)',
+        border: '1px solid rgba(223, 178, 100, 0.2)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -120,7 +122,7 @@ export const DailyQuote = ({ quote, onSaveAsEntry }) => (
       </div>
       <h3 style={{
         fontFamily: 'var(--font-family-heading)',
-        fontSize: '0.92rem',
+        fontSize: '0.94rem',
         fontWeight: 600,
         margin: 0,
         color: 'var(--ink)',

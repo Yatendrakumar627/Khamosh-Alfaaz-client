@@ -5,18 +5,8 @@ import { Button } from '../ui/Button';
 import { DatePicker } from '../ui/DatePicker';
 import { ENTRY_TYPES } from '../../constants';
 import { parseTags, formatTags, validateEntry, getLocalDateString, classNames } from '../../utils/helpers';
-import { Tag, X, Plus, Star, Pin, Lock, Globe, BookOpen, Lightbulb, Quote, Sparkles, FileText, Heart, Circle } from 'lucide-react';
-
-const typeIcons = {
-  diary: BookOpen,
-  thought: Lightbulb,
-  quote: Quote,
-  idea: Sparkles,
-  note: FileText,
-  personal: Heart,
-  gratitude: Star,
-  other: Circle,
-};
+import { Tag, X, Plus, Star, Pin, Lock, Globe, BookOpen } from 'lucide-react';
+import { getNavIcon } from '../../constants/navIcons';
 
 export const EntryEditor = ({
   initialData = {},
@@ -47,9 +37,13 @@ export const EntryEditor = ({
     ...initialData,
     tags: Array.isArray(initialData.tags) ? formatTags(initialData.tags) : (initialData.tags || ''),
   });
+  const [tags, setTags] = useState(() => {
+    if (Array.isArray(initialData.tags)) return initialData.tags;
+    if (typeof initialData.tags === 'string' && initialData.tags) return parseTags(initialData.tags);
+    return [];
+  });
   const [errors, setErrors] = useState({});
-  const [tags, setTags] = useState(Array.isArray(initialData.tags) ? initialData.tags : []);
-  const TypeIcon = typeIcons[formData.type] || BookOpen;
+  const TypeIcon = getNavIcon(formData.type, BookOpen);
   const prevInitialKeyRef = useRef(null);
 
   useEffect(() => {
@@ -57,6 +51,9 @@ export const EntryEditor = ({
     // Only re-initialize if the underlying entry actually changed, preventing parent re-renders from wiping edits
     if (prevInitialKeyRef.current !== currentKey) {
       prevInitialKeyRef.current = currentKey;
+      const parsedTags = Array.isArray(initialData.tags)
+        ? initialData.tags
+        : (typeof initialData.tags === 'string' ? parseTags(initialData.tags) : []);
       setFormData({
         title: '',
         content: '',
@@ -68,7 +65,7 @@ export const EntryEditor = ({
         ...initialData,
         tags: Array.isArray(initialData.tags) ? formatTags(initialData.tags) : (initialData.tags || ''),
       });
-      setTags(Array.isArray(initialData.tags) ? initialData.tags : []);
+      setTags(parsedTags);
       setErrors({});
     }
   }, [initialData]);
@@ -106,24 +103,26 @@ export const EntryEditor = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const validation = validateEntry(formData);
-    if (!validation.isValid) {
-      setErrors(validation.errors);
-      return;
-    }
     const submitData = {
       ...formData,
       tags,
       entryDate: formData.entryDate || getLocalDateString(),
     };
+    const validation = validateEntry(submitData);
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      return;
+    }
     onSave(submitData);
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && e.target.value.trim()) {
+    if (e.key === 'Enter') {
       e.preventDefault();
-      addTag(e.target.value);
-      e.target.value = '';
+      const current = (formData.tags || '').trim();
+      if (current && !current.endsWith(',')) {
+        handleChange('tags', current + ', ');
+      }
     }
   };
 
@@ -275,8 +274,8 @@ export const EntryEditor = ({
                   onChange={handleTagInput}
                   onKeyDown={handleKeyDown}
                 />
-                <span className={classNames('entry-tags-count', tags.length >= 20 && 'full')}>
-                  {tags.length}/20
+                <span className={classNames('entry-tags-count', (tags?.length || 0) >= 20 && 'full')}>
+                  {tags?.length || 0}/20
                 </span>
               </div>
             </div>
@@ -285,7 +284,7 @@ export const EntryEditor = ({
       )}
 
       {/* Tag chips */}
-      {showTags && tags.length > 0 && (
+      {showTags && tags && tags.length > 0 && (
         <div className="entry-tag-chips">
           {tags.map(tag => (
             <span key={tag} className="entry-tag-chip">

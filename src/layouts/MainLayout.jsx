@@ -15,14 +15,12 @@ export const MainLayout = () => {
       <Sidebar />
 
       <div
-        className="layout-body"
+        className={`layout-body ${expanded ? 'sidebar-expanded' : 'sidebar-collapsed'}`}
         style={{
           flex: 1,
           minWidth: 0,
           display: 'flex',
           flexDirection: 'column',
-          paddingLeft: expanded ? '260px' : '60px',
-          transition: 'padding-left 0.3s ease',
         }}
       >
         <Navbar />

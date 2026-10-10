@@ -48,8 +48,9 @@ const QuickActions = () => {
       style={{
         backgroundColor: 'var(--paper)',
         border: '1px solid var(--border)',
-        borderRadius: '12px',
+        borderRadius: '16px',
         overflow: 'hidden',
+        boxShadow: '0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 6px 20px -4px rgba(0, 0, 0, 0.3)',
       }}
       className="paper-texture"
     >
@@ -57,14 +58,15 @@ const QuickActions = () => {
         display: 'flex',
         alignItems: 'center',
         gap: '10px',
-        padding: '11px 14px',
+        padding: '12px 14px',
         borderBottom: '1px solid var(--border)',
       }}>
         <div style={{
-          width: '28px',
-          height: '28px',
-          borderRadius: '8px',
-          backgroundColor: 'var(--active-bg)',
+          width: '30px',
+          height: '30px',
+          borderRadius: '9px',
+          backgroundColor: 'rgba(223, 178, 100, 0.12)',
+          border: '1px solid rgba(223, 178, 100, 0.2)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -75,7 +77,7 @@ const QuickActions = () => {
         <h3
           style={{
             fontFamily: 'var(--font-family-heading)',
-            fontSize: '0.9rem',
+            fontSize: '0.94rem',
             fontWeight: 600,
             color: 'var(--ink)',
             margin: 0,
@@ -99,13 +101,24 @@ const QuickActions = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
-                height: '64px',
+                height: '66px',
                 backgroundColor: 'var(--paper-dark)',
                 border: '1px solid var(--border)',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 color: 'var(--ink-muted)',
                 textDecoration: 'none',
                 cursor: 'pointer',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.35)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.color = 'var(--ink)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.color = 'var(--ink-muted)';
               }}
             >
               <span style={{

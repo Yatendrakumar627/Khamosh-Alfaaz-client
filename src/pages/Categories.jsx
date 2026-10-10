@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCategories } from '../hooks/useEntries';
 import { CATEGORY_SECTIONS } from '../constants/categorySections';
@@ -7,15 +7,33 @@ import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
 import { Plus, Edit, Trash2, Tag, ArrowRight, Sparkles, Layers } from 'lucide-react';
 import { DEFAULT_CATEGORIES } from '../constants';
+import { statisticsApi } from '../services/api';
 
 export const Categories = () => {
   const { categories, loading, error, createCategory, updateCategory, deleteCategory } = useCategories();
+  const [statsByType, setStatsByType] = useState({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [editCategoryName, setEditCategoryName] = useState('');
   const [createError, setCreateError] = useState('');
   const [editError, setEditError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    statisticsApi.get()
+      .then(res => {
+        if (!active) return;
+        const byType = res.data?.statistics?.byType || [];
+        const map = {};
+        byType.forEach(item => {
+          if (item.type) map[item.type.toLowerCase()] = item.count;
+        });
+        setStatsByType(map);
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
 
   const handleCreate = async () => {
     if (!newCategoryName.trim()) { setCreateError('Category name is required'); return; }
@@ -128,21 +146,26 @@ export const Categories = () => {
                         <Icon size={22} strokeWidth={2.1} />
                       </div>
 
-                      <span
-                        style={{
-                          fontSize: '0.72rem',
-                          fontWeight: 600,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.04em',
-                          color: 'var(--gold)',
-                          backgroundColor: 'var(--paper-dark)',
-                          padding: '3px 9px',
-                          borderRadius: 'var(--radius-full)',
-                          border: '1px solid var(--border)',
-                        }}
-                      >
-                        Section
-                      </span>
+                      {(() => {
+                        const count = statsByType[section.type.toLowerCase()] || 0;
+                        return (
+                          <span
+                            style={{
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.04em',
+                              color: count > 0 ? 'var(--gold)' : 'var(--ink-muted)',
+                              backgroundColor: count > 0 ? 'rgba(216, 168, 91, 0.12)' : 'var(--paper-dark)',
+                              padding: '3px 9px',
+                              borderRadius: 'var(--radius-full)',
+                              border: `1px solid ${count > 0 ? 'rgba(216, 168, 91, 0.25)' : 'var(--border)'}`,
+                            }}
+                          >
+                            {count} {count === 1 ? section.label : section.pluralLabel}
+                          </span>
+                        );
+                      })()}
                     </div>
 
                     <h3
@@ -181,7 +204,9 @@ export const Categories = () => {
                       color: 'var(--gold)',
                     }}
                   >
-                    <span>Open {section.label}</span>
+                    <span>
+                      Open {section.label} {statsByType[section.type.toLowerCase()] > 0 ? `(${statsByType[section.type.toLowerCase()]})` : ''}
+                    </span>
                     <ArrowRight size={15} />
                   </div>
                 </div>

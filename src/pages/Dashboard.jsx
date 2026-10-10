@@ -50,47 +50,65 @@ export const Dashboard = () => {
       className="dash-root"
       style={{ display: 'flex', flexDirection: 'column', gap: '18px', animation: 'fadeIn 0.4s var(--ease-out)' }}
     >
-      {/* ── Compact welcome banner ── */}
-      <header className="dash-welcome" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-        {/* Left: greeting pill + name */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: '1 1 auto' }}>
-          {/* Feather avatar */}
+      {/* ── Editorial welcome banner ── */}
+      <header
+        className="dash-welcome"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+          flexWrap: 'wrap',
+          padding: '6px 2px 2px',
+        }}
+      >
+        <div className="dash-welcome-user" style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
           <div
             className="dash-avatar"
             style={{
-              width: '38px', height: '38px', flexShrink: 0,
-              borderRadius: '10px',
-              background: 'linear-gradient(135deg, var(--gold-muted) 0%, var(--gold) 60%, var(--gold-dark) 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 3px 10px rgba(122,92,52,0.22)',
+              width: '42px',
+              height: '42px',
+              flexShrink: 0,
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, rgba(223, 178, 100, 0.22) 0%, rgba(223, 178, 100, 0.06) 100%)',
+              border: '1px solid rgba(223, 178, 100, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
             }}
           >
-            <Feather size={17} style={{ color: 'var(--paper)' }} />
+            <Feather size={19} style={{ color: 'var(--gold)' }} />
           </div>
 
-          {/* Name + greeting */}
-          <div style={{ minWidth: 0 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              fontSize: '0.66rem', fontWeight: 600, letterSpacing: '0.1em',
-              textTransform: 'uppercase', color: 'var(--gold)',
-              marginBottom: '1px',
-            }}>
+          <div className="dash-greeting-wrap" style={{ minWidth: 0 }}>
+            <div
+              className="dash-greeting-time"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'var(--gold)',
+                marginBottom: '2px',
+              }}
+            >
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--gold)' }} />
               {getGreeting()}
             </div>
             <h1
               className="dash-greeting"
               style={{
                 fontFamily: 'var(--font-family-heading)',
-                fontSize: 'clamp(1.25rem, 2.2vw, 1.6rem)',
+                fontSize: 'clamp(1.35rem, 2.4vw, 1.8rem)',
                 fontWeight: 600,
                 color: 'var(--ink)',
                 margin: 0,
-                lineHeight: 1.2,
+                lineHeight: 1.15,
                 letterSpacing: '-0.02em',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
               }}
             >
               {displayName}
@@ -99,38 +117,42 @@ export const Dashboard = () => {
         </div>
 
         {/* Right: stat chips */}
-        <div className="dash-stat-chips" style={{ display: 'flex', gap: '8px', flexShrink: 0, flexWrap: 'wrap' }}>
+        <div className="dash-stat-chips" style={{ display: 'flex', gap: '10px', flexShrink: 0, alignItems: 'center', flexWrap: 'wrap' }}>
           {[
-            { Icon: FileText, value: stats.todayCount, label: 'today' },
-            { Icon: TrendingUp, value: stats.words,    label: 'words' },
+            { Icon: FileText, value: stats.todayCount, label: stats.todayCount === 1 ? 'entry today' : 'entries today' },
+            { Icon: TrendingUp, value: stats.words.toLocaleString(), label: 'total words' },
           ].map(({ Icon, value, label }) => (
             <div
               key={label}
               className="dash-stat-chip"
               style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                padding: '5px 12px',
-                borderRadius: 'var(--radius-full)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 14px',
+                borderRadius: '9999px',
                 backgroundColor: 'var(--paper)',
                 border: '1px solid var(--border)',
-                fontSize: '0.78rem', color: 'var(--ink-muted)',
-                transition: 'border-color 0.2s, transform 0.2s, box-shadow 0.2s',
+                fontSize: '0.8rem',
+                color: 'var(--ink-muted)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                 cursor: 'default',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'var(--gold)';
+                e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.4)';
                 e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(0, 0, 0, 0.25)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.borderColor = 'var(--border)';
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
               }}
             >
-              <Icon size={12} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+              <Icon size={14} style={{ color: 'var(--gold)', flexShrink: 0 }} />
               <span style={{ fontWeight: 700, color: 'var(--ink)', fontVariantNumeric: 'tabular-nums' }}>{value}</span>
-              <span>{label}</span>
+              <span style={{ fontSize: '0.76rem', color: 'var(--ink-muted)' }}>{label}</span>
             </div>
           ))}
         </div>

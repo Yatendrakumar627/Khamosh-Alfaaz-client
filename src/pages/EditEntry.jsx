@@ -7,6 +7,7 @@ import { Button } from '../components/ui/Button';
 import { useToast } from '../context/ToastContext';
 import { ArrowLeft, Save, AlertCircle, RefreshCw, CheckCircle } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
+import { STORAGE_KEYS } from '../constants';
 
 const isSafePath = (path) => {
   if (!path || typeof path !== 'string') return false;
@@ -28,7 +29,7 @@ export const EditEntry = () => {
 
   const from = searchParams.get('from');
   const returnTo = isSafePath(from) ? from : `/entries/${id}`;
-  const draftKey = `khamosh_alfaaz_edit_draft_${id}`;
+  const draftKey = STORAGE_KEYS.EDIT_DRAFT(id);
   const draftSaveTimeoutRef = useRef(null);
   const currentFormDataRef = useRef(null);
 

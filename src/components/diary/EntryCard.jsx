@@ -214,11 +214,13 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
 
         {/* ── Content preview ── */}
         <div style={{
-          color: 'var(--ink-muted)',
-          fontSize: '0.875rem',
-          lineHeight: 1.55,
+          color: entry.type === 'quote' ? 'var(--ink)' : 'var(--ink-muted)',
+          fontSize: entry.type === 'quote' ? '0.96rem' : '0.875rem',
+          fontFamily: entry.type === 'quote' ? 'var(--font-family-heading)' : 'inherit',
+          fontStyle: entry.type === 'quote' ? 'italic' : 'normal',
+          lineHeight: entry.type === 'quote' ? 1.5 : 1.55,
           display: '-webkit-box',
-          WebkitLineClamp: 2,
+          WebkitLineClamp: entry.type === 'quote' ? 3 : 2,
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
           marginBottom: tags.length > 0 ? '10px' : '0',

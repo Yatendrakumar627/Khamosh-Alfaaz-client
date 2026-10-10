@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { LoadingState } from './components/ui/LoadingState';
+import { CATEGORY_SECTIONS } from './constants/categorySections';
 
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
 const Entries = lazy(() => import('./pages/Entries').then(m => ({ default: m.Entries })));
@@ -28,7 +29,7 @@ export const routes = [
   // Dedicated Category Sections
   { path: 'diary', element: <PageWrapper><CategorySection key="diary" type="diary" /></PageWrapper> },
   { path: 'thoughts', element: <PageWrapper><CategorySection key="thoughts" type="thought" /></PageWrapper> },
-  { path: 'quotes', element: <PageWrapper><Quotes key="quotes" /></PageWrapper> },
+  { path: 'quotes', element: <PageWrapper><CategorySection key="quotes" type="quote" /></PageWrapper> },
   { path: 'ideas', element: <PageWrapper><CategorySection key="ideas" type="idea" /></PageWrapper> },
   { path: 'notes', element: <PageWrapper><CategorySection key="notes" type="note" /></PageWrapper> },
   { path: 'personal', element: <PageWrapper><CategorySection key="personal" type="personal" /></PageWrapper> },
@@ -50,15 +51,24 @@ export const MAIN_NAV_ITEMS = [
   { path: '/calendar', label: 'Calendar', icon: 'calendar' },
 ];
 
-export const CATEGORY_NAV_ITEMS = [
-  { path: '/diary', label: 'Diary', icon: 'bookOpen', type: 'diary' },
-  { path: '/thoughts', label: 'Thoughts', icon: 'lightbulb', type: 'thought' },
-  { path: '/quotes', label: 'Quotes', icon: 'quote', type: 'quote' },
-  { path: '/ideas', label: 'Ideas', icon: 'sparkles', type: 'idea' },
-  { path: '/notes', label: 'Notes', icon: 'fileText', type: 'note' },
-  { path: '/personal', label: 'Personal', icon: 'heart', type: 'personal' },
-  { path: '/gratitude', label: 'Gratitude', icon: 'star', type: 'gratitude' },
-];
+const CATEGORY_ICON_MAP = {
+  diary: 'bookOpen',
+  thought: 'lightbulb',
+  quote: 'quote',
+  idea: 'sparkles',
+  note: 'fileText',
+  personal: 'heart',
+  gratitude: 'star',
+};
+
+export const CATEGORY_NAV_ITEMS = CATEGORY_SECTIONS
+  .filter(c => c.type !== 'other')
+  .map(c => ({
+    path: c.path,
+    label: c.label,
+    icon: CATEGORY_ICON_MAP[c.type] || 'circle',
+    type: c.type,
+  }));
 
 export const TOOL_NAV_ITEMS = [
   { path: '/categories', label: 'Categories Hub', icon: 'tag' },

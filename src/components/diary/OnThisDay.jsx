@@ -18,25 +18,26 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
       display: 'flex',
       alignItems: 'center',
       gap: '10px',
-      padding: '11px 14px',
+      padding: '12px 14px',
       borderBottom: '1px solid var(--border)',
     }}>
       <div style={{
-        width: '28px',
-        height: '28px',
-        borderRadius: '8px',
-        backgroundColor: 'var(--active-bg)',
+        width: '30px',
+        height: '30px',
+        borderRadius: '9px',
+        backgroundColor: 'rgba(223, 178, 100, 0.12)',
+        border: '1px solid rgba(223, 178, 100, 0.2)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
       }}>
-        <Clock size={15} style={{ color: 'var(--gold)' }} />
+        <Clock size={16} style={{ color: 'var(--gold)' }} />
       </div>
       <div style={{ minWidth: 0, flex: 1 }}>
         <h3 style={{
           fontFamily: 'var(--font-family-heading)',
-          fontSize: '0.92rem',
+          fontSize: '0.94rem',
           fontWeight: 600,
           margin: 0,
           color: 'var(--ink)',
@@ -56,13 +57,14 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
       <div style={{
         backgroundColor: 'var(--paper)',
         border: '1px solid var(--border)',
-        borderRadius: '12px',
+        borderRadius: '16px',
         overflow: 'hidden',
+        boxShadow: '0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 6px 20px -4px rgba(0, 0, 0, 0.3)',
       }} className="paper-texture">
         {renderHeader(refDateDisplay)}
-        <div style={{ padding: '22px', textAlign: 'center' }}>
-          <div style={{ width: '18px', height: '18px', margin: '0 auto', border: '2px solid var(--border)', borderTopColor: 'var(--gold)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-          <p style={{ margin: '10px 0 0', fontSize: '0.82rem', color: 'var(--ink-muted)' }}>Finding memories...</p>
+        <div style={{ padding: '24px', textAlign: 'center' }}>
+          <div style={{ width: '20px', height: '20px', margin: '0 auto', border: '2px solid var(--border)', borderTopColor: 'var(--gold)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <p style={{ margin: '10px 0 0', fontSize: '0.80rem', color: 'var(--ink-muted)' }}>Finding memories...</p>
         </div>
       </div>
     );
@@ -73,8 +75,9 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
       <div style={{
         backgroundColor: 'var(--paper)',
         border: '1px solid var(--border)',
-        borderRadius: '12px',
+        borderRadius: '16px',
         overflow: 'hidden',
+        boxShadow: '0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 6px 20px -4px rgba(0, 0, 0, 0.3)',
       }} className="paper-texture">
         {renderHeader(refDateDisplay)}
         <div style={{
@@ -83,32 +86,39 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
           alignItems: 'center',
           justifyContent: 'center',
           textAlign: 'center',
-          padding: '24px 18px',
+          padding: '28px 18px',
         }}>
           <div style={{
-            width: '38px',
-            height: '38px',
+            width: '42px',
+            height: '42px',
             borderRadius: '50%',
-            backgroundColor: 'var(--active-bg)',
+            backgroundColor: 'rgba(223, 178, 100, 0.08)',
+            border: '1px solid rgba(223, 178, 100, 0.16)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: '10px',
+            marginBottom: '12px',
           }}>
-            <Clock size={18} style={{ color: 'var(--gold)', opacity: 0.8 }} />
+            <Clock size={19} style={{ color: 'var(--gold)', opacity: 0.9 }} />
           </div>
           <p style={{
-            margin: 0,
+            margin: '0 0 4px',
             fontFamily: 'var(--font-family-heading)',
             fontStyle: 'italic',
-            fontSize: '0.95rem',
-            lineHeight: 1.45,
+            fontSize: '1.02rem',
+            lineHeight: 1.4,
             color: 'var(--ink)',
             maxWidth: '220px',
           }}>
             Nothing from this day yet.
-            <br />
-            Maybe today is the first page.
+          </p>
+          <p style={{
+            margin: 0,
+            fontSize: '0.78rem',
+            color: 'var(--ink-muted)',
+            lineHeight: 1.45,
+          }}>
+            Maybe today is where your story begins.
           </p>
         </div>
       </div>
@@ -119,8 +129,9 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
     <div style={{
       backgroundColor: 'var(--paper)',
       border: '1px solid var(--border)',
-      borderRadius: '12px',
+      borderRadius: '16px',
       overflow: 'hidden',
+      boxShadow: '0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 6px 20px -4px rgba(0, 0, 0, 0.3)',
     }} className="paper-texture">
       {renderHeader(`${refDateDisplay} • ${pastEntries.length} memor${pastEntries.length === 1 ? 'y' : 'ies'}`)}
 

@@ -3,6 +3,7 @@ import { Search, X, Star, Pin, Globe, ChevronLeft, ChevronRight } from 'lucide-r
 import { debounce } from '../../utils/helpers';
 import { classNames } from '../../utils/helpers';
 import { getMonthYear, generateCalendarDays } from '../../utils/helpers';
+import { ENTRY_TYPES, SORT_OPTIONS } from '../../constants';
 
 export const SearchBar = ({ value, onChange, onSearch, placeholder = 'Search entries...', loading = false }) => {
   const [localValue, setLocalValue] = useState(value);
@@ -172,8 +173,8 @@ export const FilterPopover = ({ filters, onFilterChange }) => {
           }}
         >
           <option value="all">All Types</option>
-          {['diary', 'thought', 'quote', 'idea', 'note', 'personal', 'gratitude', 'other'].map(t => (
-            <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+          {ENTRY_TYPES.map(t => (
+            <option key={t.value} value={t.value}>{t.label}</option>
           ))}
         </select>
 
@@ -194,10 +195,9 @@ export const FilterPopover = ({ filters, onFilterChange }) => {
             boxSizing: 'border-box',
           }}
         >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="recentlyUpdated">Recently Updated</option>
-          <option value="az">A to Z</option>
+          {SORT_OPTIONS.map(s => (
+            <option key={s.value} value={s.value}>{s.label}</option>
+          ))}
         </select>
       </div>
 

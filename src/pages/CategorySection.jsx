@@ -7,6 +7,7 @@ import { EntryEditor } from '../components/diary/EntryEditor';
 import { SearchBar, FilterPopover, EmptyState, ErrorState } from '../components/diary/SearchAndFilter';
 import { LoadingState } from '../components/ui/LoadingState';
 import { Button } from '../components/ui/Button';
+import { CategoryHero } from '../components/ui/CategoryHero';
 import { useToast } from '../context';
 import { entriesApi } from '../services/api';
 import {
@@ -221,73 +222,18 @@ export const CategorySection = ({ type: propType }) => {
       </nav>
 
       {/* Category Hero Banner */}
-      <header className="category-hero paper-texture">
-        {/* Top Header Row: Identity (Left) + Action (Right) */}
-        <div className="category-hero-top">
-          <div className="category-hero-identity">
-            <div className="category-hero-icon">
-              <CategoryIcon size={22} strokeWidth={2.2} />
-            </div>
-
-            <div className="category-hero-headings">
-              <div className="category-hero-title-row">
-                <h1 className="category-hero-title">
-                  {categoryConfig.title}
-                </h1>
-                <span className="category-hero-badge">
-                  {pagination?.total || entries.length} {categoryConfig.pluralLabel}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Write Toggle Button */}
-          <div className="category-hero-cta">
-            <Button
-              onClick={() => setIsComposing(prev => !prev)}
-              leftIcon={isComposing ? <ChevronUp size={15} /> : <PenLine size={15} />}
-              className="btn-primary category-hero-btn"
-            >
-              {isComposing ? 'Close' : `Write ${categoryConfig.label}`}
-            </Button>
-          </div>
-        </div>
-
-        {/* Tagline / Subtitle: Clean Full Width */}
-        <p className="category-hero-subtitle">
-          {categoryConfig.tagline}
-        </p>
-
-        {/* Inspirational Prompt Bar */}
-        {currentPrompt && (
-          <div className="category-prompt-box">
-            <div className="category-prompt-text-wrap">
-              <Sparkles size={15} className="category-prompt-icon" />
-              <p className="category-prompt-quote">
-                &ldquo;{currentPrompt}&rdquo;
-              </p>
-            </div>
-            <div className="category-prompt-actions">
-              <button
-                type="button"
-                onClick={handleNextPrompt}
-                className="category-prompt-btn-next"
-                title="Next prompt"
-              >
-                <RefreshCw size={12} />
-                <span>Another</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleUsePrompt(currentPrompt)}
-                className="category-prompt-btn-use"
-              >
-                Use prompt
-              </button>
-            </div>
-          </div>
-        )}
-      </header>
+      <CategoryHero
+        icon={CategoryIcon}
+        title={categoryConfig.title}
+        badge={`${pagination?.total || entries.length} ${categoryConfig.pluralLabel}`}
+        tagline={categoryConfig.tagline}
+        isComposing={isComposing}
+        onToggleCompose={() => setIsComposing(prev => !prev)}
+        composeLabel={`Write ${categoryConfig.label}`}
+        prompt={currentPrompt}
+        onNextPrompt={handleNextPrompt}
+        onUsePrompt={handleUsePrompt}
+      />
 
       {/* Category Composer Card (Collapsible) */}
       {isComposing && (

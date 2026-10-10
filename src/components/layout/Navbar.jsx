@@ -257,31 +257,40 @@ export const Navbar = () => {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '3px 6px 3px 3px',
-                border: 'none',
-                background: 'transparent',
+                gap: '8px',
+                padding: '4px 10px 4px 4px',
+                border: '1px solid var(--border)',
+                background: 'rgba(255, 255, 255, 0.03)',
                 color: 'var(--ink)',
-                borderRadius: '20px',
+                borderRadius: '9999px',
                 cursor: 'pointer',
-                transition: 'background-color 0.2s ease',
+                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.35)';
+                e.currentTarget.style.backgroundColor = 'var(--hover-bg)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
               }}
               aria-expanded={showUserMenu}
               aria-haspopup="true"
             >
               <div
                 style={{
-                  width: '34px',
-                  height: '34px',
+                  width: '30px',
+                  height: '30px',
                   borderRadius: '50%',
-                  backgroundColor: 'var(--gold)',
-                  color: 'var(--paper-dark)',
+                  background: 'linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%)',
+                  color: '#120f0c',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontWeight: 600,
-                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  fontSize: '0.80rem',
                   flexShrink: 0,
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.25)',
                 }}
               >
                 {getInitials(name || 'AW')}
@@ -290,7 +299,7 @@ export const Navbar = () => {
                 className="navbar-user-name"
                 style={{
                   fontWeight: 500,
-                  fontSize: '0.85rem',
+                  fontSize: '0.84rem',
                   color: 'var(--ink)',
                   whiteSpace: 'nowrap',
                 }}
@@ -298,7 +307,7 @@ export const Navbar = () => {
                 {name || 'Anonymous Writer'}
               </span>
               <ChevronDown
-                size={15}
+                size={14}
                 className="navbar-chevron"
                 style={{
                   color: 'var(--ink-muted)',

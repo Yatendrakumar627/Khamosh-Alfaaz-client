@@ -169,10 +169,13 @@ export const CATEGORY_SECTIONS = [
 
 export const getCategoryBySlugOrType = (identifier) => {
   if (!identifier) return CATEGORY_SECTIONS[0];
-  const normalized = identifier.toLowerCase().trim();
+  const clean = String(identifier).toLowerCase().trim().replace(/^\//, '').replace(/^category\//, '');
   return (
     CATEGORY_SECTIONS.find(
-      c => c.slug === normalized || c.type === normalized || c.path === `/${normalized}`
+      c =>
+        c.slug === clean ||
+        c.type === clean ||
+        c.path.replace(/^\//, '') === clean
     ) || CATEGORY_SECTIONS[0]
   );
 };

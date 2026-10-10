@@ -6,9 +6,9 @@ import { EmptyState, ErrorState } from '../components/diary/SearchAndFilter';
 import { LoadingState } from '../components/ui/LoadingState';
 import { Button } from '../components/ui/Button';
 import { Star, Filter, ChevronDown } from 'lucide-react';
-import { formatDate } from '../utils/helpers';
-import { debounce } from '../utils/helpers';
+import { formatDate, debounce } from '../utils/helpers';
 import { entriesApi } from '../services/api';
+import { ENTRY_TYPES, SORT_OPTIONS } from '../constants';
 
 export const Favorites = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -114,28 +114,22 @@ export const Favorites = () => {
           <div className="favorites-filter-panel paper-texture">
             <select
               value={filters.type || 'all'}
-              onChange={(e) => handleFilterChange({ type: e.target.value || null })}
+              onChange={(e) => handleFilterChange({ type: e.target.value === 'all' ? null : e.target.value })}
               className="favorites-select"
             >
               <option value="all">All Types</option>
-              <option value="diary">Diary</option>
-              <option value="thought">Thought</option>
-              <option value="quote">Quote</option>
-              <option value="idea">Idea</option>
-              <option value="note">Note</option>
-              <option value="personal">Personal</option>
-              <option value="gratitude">Gratitude</option>
-              <option value="other">Other</option>
+              {ENTRY_TYPES.map(t => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
             </select>
             <select
               value={filters.sort || 'newest'}
               onChange={(e) => handleFilterChange({ sort: e.target.value })}
               className="favorites-select"
             >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="recentlyUpdated">Recently Updated</option>
-              <option value="az">A to Z</option>
+              {SORT_OPTIONS.map(s => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
             </select>
           </div>
         )}

@@ -2,42 +2,10 @@ import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useSidebar } from '../../context/SidebarContext';
 import { MAIN_NAV_ITEMS, CATEGORY_NAV_ITEMS, TOOL_NAV_ITEMS } from '../../routes';
-import {
-  Home,
-  BookOpen,
-  Quote,
-  Star,
-  Calendar,
-  Tag,
-  BarChart3,
-  Download,
-  Settings,
-  X,
-  Lightbulb,
-  Sparkles,
-  FileText,
-  Heart,
-  Circle,
-} from 'lucide-react';
+import { X } from 'lucide-react';
+import { getNavIcon } from '../../constants/navIcons';
 import favicon from '../../assets/favicon.png';
 import { classNames } from '../../utils/helpers';
-
-const navIcons = {
-  home: Home,
-  bookOpen: BookOpen,
-  quote: Quote,
-  star: Star,
-  calendar: Calendar,
-  tag: Tag,
-  barChart: BarChart3,
-  download: Download,
-  settings: Settings,
-  lightbulb: Lightbulb,
-  sparkles: Sparkles,
-  fileText: FileText,
-  heart: Heart,
-  circle: Circle,
-};
 
 export const MobileNavigation = () => {
   const { isOpen, close } = useSidebar();
@@ -86,7 +54,7 @@ export const MobileNavigation = () => {
       )}
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {items.map(item => {
-          const Icon = navIcons[item.icon] || BookOpen;
+          const Icon = getNavIcon(item.icon);
           const isActive = location.pathname === item.path;
           return (
             <li key={item.path} style={{ marginBottom: '2px' }}>

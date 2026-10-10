@@ -115,7 +115,7 @@ export const throttle = (fn, limit) => {
 
 export const parseTags = (input) => {
   if (!input) return [];
-  return input.split(',').map(t => t.trim()).filter(Boolean);
+  return input.split(',').map(t => t.trim().replace(/^#+/, '')).filter(Boolean);
 };
 
 export const formatTags = (tags) => {
@@ -182,7 +182,8 @@ export const validateEntry = (data) => {
   if (data.title && data.title.length > 200) {
     errors.title = 'Title must be 200 characters or less';
   }
-  if (data.tags && data.tags.length > 20) {
+  const tagList = Array.isArray(data.tags) ? data.tags : (data.tags ? parseTags(data.tags) : []);
+  if (tagList && tagList.length > 20) {
     errors.tags = 'Maximum 20 tags allowed';
   }
   return { isValid: Object.keys(errors).length === 0, errors };

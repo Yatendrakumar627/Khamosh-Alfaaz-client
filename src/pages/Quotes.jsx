@@ -6,6 +6,7 @@ import { QuoteCard, DailyQuote } from '../components/diary/QuoteCard';
 import { EntryCard } from '../components/diary/EntryCard';
 import { EntryEditor } from '../components/diary/EntryEditor';
 import { Button } from '../components/ui/Button';
+import { CategoryHero } from '../components/ui/CategoryHero';
 import { useToast } from '../context';
 import { useEntries } from '../hooks/useEntries';
 import {
@@ -27,7 +28,7 @@ export const Quotes = () => {
   const [quotes] = useState(QUOTES);
   const [dailyQuoteIndex, setDailyQuoteIndex] = useState(Math.floor(Math.random() * QUOTES.length));
   const [savingQuote, setSavingQuote] = useState(null);
-  const [activeTab, setActiveTab] = useState('library'); // 'library' | 'my-quotes'
+  const [activeTab, setActiveTab] = useState('my-quotes'); // 'my-quotes' | 'library'
   const [isComposing, setIsComposing] = useState(false);
   const [savingEntry, setSavingEntry] = useState(false);
 
@@ -107,40 +108,15 @@ export const Quotes = () => {
       </nav>
 
       {/* Hero Header */}
-      <header className="category-hero paper-texture">
-        <div className="category-hero-top">
-          <div className="category-hero-identity">
-            <div className="category-hero-icon">
-              <QuoteIcon size={24} strokeWidth={2.1} />
-            </div>
-
-            <div className="category-hero-headings">
-              <div className="category-hero-title-row">
-                <h1 className="category-hero-title">
-                  Quotes &amp; Verses
-                </h1>
-                <span className="category-hero-badge">
-                  {userQuotes.length} Saved in Diary
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="category-hero-cta">
-            <Button
-              onClick={() => setIsComposing(prev => !prev)}
-              leftIcon={isComposing ? <ChevronUp size={15} /> : <PenLine size={15} />}
-              className="btn-primary category-hero-btn"
-            >
-              {isComposing ? 'Close Editor' : 'Write a Quote'}
-            </Button>
-          </div>
-        </div>
-
-        <p className="category-hero-subtitle">
-          Words that resonate, inspire, and stay with you. Collect them or pen your own.
-        </p>
-
+      <CategoryHero
+        icon={QuoteIcon}
+        title="Quotes &amp; Verses"
+        badge={`${userQuotes.length} Saved in Diary`}
+        tagline="Words that resonate, inspire, and stay with you. Collect them or pen your own."
+        isComposing={isComposing}
+        onToggleCompose={() => setIsComposing(prev => !prev)}
+        composeLabel="Write a Quote"
+      >
         {/* Tab Buttons */}
         <div className="quotes-tabs-row">
           <button
@@ -161,7 +137,7 @@ export const Quotes = () => {
             <span>My Saved Quotes ({userQuotes.length})</span>
           </button>
         </div>
-      </header>
+      </CategoryHero>
 
       {/* Compose Form */}
       {isComposing && (

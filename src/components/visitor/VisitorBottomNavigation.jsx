@@ -1,14 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Compass, PenLine, Quote, MoreHorizontal } from 'lucide-react';
+import { getNavIcon } from '../../constants/navIcons';
 import { classNames } from '../../utils/helpers';
-
-const navIcons = {
-  home: Home,
-  explore: Compass,
-  write: PenLine,
-  quotes: Quote,
-  more: MoreHorizontal,
-};
 
 export const VisitorBottomNavigation = ({ onMore, moreActive }) => {
   const items = [
@@ -22,7 +14,7 @@ export const VisitorBottomNavigation = ({ onMore, moreActive }) => {
   return (
     <nav aria-label="Bottom navigation" className="bottom-nav">
       {items.map(item => {
-        const Icon = navIcons[item.icon];
+        const Icon = getNavIcon(item.icon);
 
         if (!item.path) {
           return (

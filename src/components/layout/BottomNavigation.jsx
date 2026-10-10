@@ -1,36 +1,16 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { MOBILE_NAV_ITEMS } from '../../routes';
-import { Home, PenLine, BookOpen, Quote, Star, Lightbulb, MoreHorizontal } from 'lucide-react';
+import { getNavIcon } from '../../constants/navIcons';
 import { useSidebar } from '../../context/SidebarContext';
 import { classNames } from '../../utils/helpers';
-
-const navIcons = {
-  home: Home,
-  pen: PenLine,
-  bookOpen: BookOpen,
-  quote: Quote,
-  star: Star,
-  lightbulb: Lightbulb,
-  more: MoreHorizontal,
-};
-
-const MORE_ROUTES = [
-  '/favorites',
-  '/calendar',
-  '/categories',
-  '/statistics',
-  '/export',
-  '/settings',
-  '/diary',
-  '/ideas',
-  '/notes',
-  '/personal',
-  '/gratitude',
-];
 
 export const BottomNavigation = () => {
   const { open } = useSidebar();
   const { pathname } = useLocation();
+
+  const isPrimaryActive = MOBILE_NAV_ITEMS.some(
+    item => item.path && (pathname === item.path || (item.path !== '/dashboard' && pathname.startsWith(item.path)))
+  );
 
   return (
     <nav
@@ -38,10 +18,10 @@ export const BottomNavigation = () => {
       className="bottom-nav"
     >
       {MOBILE_NAV_ITEMS.map(item => {
-        const Icon = navIcons[item.icon] || BookOpen;
+        const Icon = getNavIcon(item.icon);
 
         if (!item.path) {
-          const active = MORE_ROUTES.some(route => pathname.startsWith(route));
+          const active = !isPrimaryActive;
           return (
             <button
               key={item.icon || item.label}

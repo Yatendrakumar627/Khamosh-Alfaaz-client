@@ -3,7 +3,7 @@ import { Pen, Cloud, Check, ArrowRight } from 'lucide-react';
 import { STORAGE_KEYS } from '../../constants';
 import { entriesApi } from '../../services/api';
 import { useToast } from '../../context';
-import { getLocalDateString } from '../../utils/helpers';
+import { getLocalDateString, formatDate } from '../../utils/helpers';
 import { useDraft } from '../../hooks/useDraft';
 import { EntryEditor } from './EntryEditor';
 
@@ -44,18 +44,28 @@ const loadStoredDraft = () => {
 const StatusPill = ({ saving, lastSaved }) => {
   const state = saving ? 'saving' : lastSaved ? 'saved' : 'idle';
   return (
-    <span className={`write-status ${state}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
-      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '18px', height: '18px' }}>
-        {state === 'saving' ? (
-          <Cloud size={13} style={{ animation: 'pulseGentle 1.4s ease-in-out infinite' }} />
-        ) : state === 'saved' ? (
-          <Check size={13} />
-        ) : (
-          <span className="dot" />
-        )}
-      </span>
-      <span>
-        {state === 'saving' ? 'Saving…' : state === 'saved' ? `Saved ${formatDate(lastSaved, 'TIME')}` : 'Ready to write'}
+    <span
+      className={`write-status ${state}`}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '7px',
+        fontSize: '0.78rem',
+        color: 'var(--ink-muted)',
+      }}
+    >
+      <span
+        style={{
+          width: '7px',
+          height: '7px',
+          borderRadius: '50%',
+          backgroundColor: state === 'saving' ? 'var(--gold)' : state === 'saved' ? 'var(--success)' : 'var(--ink-light)',
+          boxShadow: state === 'saving' ? '0 0 8px var(--gold)' : state === 'saved' ? '0 0 6px var(--success)' : 'none',
+          animation: state === 'saving' ? 'pulseGentle 1.4s ease-in-out infinite' : 'none',
+        }}
+      />
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {state === 'saving' ? 'Saving changes…' : state === 'saved' ? `Saved at ${formatDate(lastSaved, 'TIME')}` : 'Ready to write'}
       </span>
     </span>
   );
@@ -118,39 +128,44 @@ export const WriteCard = ({ onSaved }) => {
       style={{
         backgroundColor: 'var(--paper)',
         border: '1px solid var(--border)',
-        borderRadius: '14px',
-        padding: '18px 20px',
+        borderRadius: '16px',
+        padding: '20px 22px',
+        boxShadow: '0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px -4px rgba(0, 0, 0, 0.35)',
       }}
       aria-label="Write your thoughts"
     >
       {/* Header */}
-      <div className="write-card-header" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px', width: '100%' }}>
-        <div className="write-card-pen-badge" style={{
-          width: '42px',
-          height: '42px',
-          borderRadius: '10px',
-          background: 'linear-gradient(135deg, var(--gold-muted) 0%, var(--gold) 55%, var(--gold-dark) 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-          boxShadow: '0 4px 14px rgba(122, 92, 52, 0.28)',
-        }}>
-          <Pen size={18} style={{ color: 'var(--paper)' }} />
+      <div className="write-card-header" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', width: '100%' }}>
+        <div
+          className="write-card-pen-badge"
+          style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, rgba(223, 178, 100, 0.22) 0%, rgba(223, 178, 100, 0.06) 100%)',
+            border: '1px solid rgba(223, 178, 100, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+          }}
+        >
+          <Pen size={17} style={{ color: 'var(--gold)' }} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <h2 className="write-card-title" style={{
             fontFamily: 'var(--font-family-heading)',
-            fontSize: '1.18rem',
+            fontSize: '1.25rem',
             fontWeight: 600,
             color: 'var(--ink)',
             margin: 0,
-            lineHeight: 1.25,
+            lineHeight: 1.2,
             letterSpacing: '-0.01em',
           }}>
             Write Your Thoughts
           </h2>
-          <p className="write-card-subtitle" style={{ margin: '2px 0 0', fontSize: '0.84rem', color: 'var(--ink-muted)', lineHeight: 1.45 }}>
+          <p className="write-card-subtitle" style={{ margin: '3px 0 0', fontSize: '0.82rem', color: 'var(--ink-muted)', lineHeight: 1.45 }}>
             Anything on your mind — your day, a thought, a quote, a feeling...
           </p>
         </div>

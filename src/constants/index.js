@@ -59,6 +59,7 @@ export const STORAGE_KEYS = {
   THEME: 'khamosh-theme',
   FONT: 'khamosh-font',
   DRAFT: 'khamosh-draft',
+  EDIT_DRAFT: (id) => `khamosh_alfaaz_edit_draft_${id}`,
   NAME: 'khamosh-name',
   SIDEBAR_OPEN: 'khamosh-sidebar-open',
 };
