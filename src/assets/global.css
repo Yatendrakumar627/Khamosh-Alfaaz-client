@@ -1224,58 +1224,9 @@ main,
   outline: none;
 }
 
-/* Textarea quick navigation (jump to first / last line) */
+/* Textarea wrapper */
 .textarea-wrap {
   position: relative;
-}
-
-.textarea-nav {
-  position: absolute;
-  right: 10px;
-  z-index: 5;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  background-color: var(--paper);
-  color: var(--ink-muted);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.2s ease, transform 0.2s ease, color 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
-  pointer-events: auto;
-}
-
-.textarea-wrap:hover .textarea-nav,
-.textarea-wrap:focus-within .textarea-nav,
-.textarea-nav:focus-visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.textarea-nav:hover {
-  color: var(--gold);
-  border-color: var(--gold);
-  background-color: var(--active-bg);
-}
-
-.textarea-nav-top {
-  top: 44px;
-}
-
-.textarea-nav-bottom {
-  bottom: 14px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .textarea-nav {
-    transition: none;
-  }
 }
 
 /* Justified text alignment while typing in the writing area */

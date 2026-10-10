@@ -6,12 +6,14 @@ import { formatDate, getEntryTypeLabel } from '../utils/helpers';
 import { Button } from '../components/ui/Button';
 import { Modal, ConfirmDialog } from '../components/ui/Modal';
 import { EntryEditor } from '../components/diary/EntryEditor';
+import { useToast } from '../context/ToastContext';
 import { Edit, Trash2, Star, MapPin, Share2, ArrowLeft, Calendar, BookOpen, Globe, Lock } from 'lucide-react';
 import { classNames } from '../utils/helpers';
 
 export const EntryDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const { entry, loading, error, refresh } = useEntry(id);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -195,11 +197,13 @@ export const EntryDetail = () => {
             onSave={async (data) => {
               try {
                 await entriesApi.update(id, data);
+                toast?.success?.('Entry updated successfully.');
                 refresh();
                 setShowEdit(false);
               } catch (err) {
                 console.error('Failed to update:', err);
-                alert('Failed to update entry. Please try again.');
+                const isTimeout = err.code === 'ECONNABORTED' || err.message?.toLowerCase().includes('timeout');
+                toast?.error?.(isTimeout ? 'Server took too long to respond. Please try again.' : (err.response?.data?.error || 'Failed to update entry. Please try again.'));
               }
             }}
             onCancel={() => setShowEdit(false)}

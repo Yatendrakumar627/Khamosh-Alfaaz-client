@@ -1,6 +1,5 @@
-import { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useRef } from 'react';
 import { Textarea as MantineTextarea } from '@mantine/core';
-import { ChevronUp, ChevronDown } from 'lucide-react';
 
 const Textarea = forwardRef(({
   label,
@@ -16,8 +15,6 @@ const Textarea = forwardRef(({
   ...props
 }, ref) => {
   const inputRef = useRef(null);
-  const [showTop, setShowTop] = useState(false);
-  const [showBottom, setShowBottom] = useState(false);
 
   const resize = useCallback(() => {
     const el = inputRef.current;
@@ -39,23 +36,14 @@ const Textarea = forwardRef(({
     el.style.overflowY = maxHeight && height >= maxHeight ? 'auto' : 'hidden';
   }, [autosize, minRows, maxRows]);
 
-  const updateScrollIndicators = useCallback(() => {
-    const el = inputRef.current;
-    if (!el) return;
-    const isScrollable = el.scrollHeight > el.clientHeight + 2;
-    setShowTop(isScrollable && el.scrollTop > 4);
-    setShowBottom(isScrollable && el.scrollTop + el.clientHeight < el.scrollHeight - 4);
-  }, []);
-
   useEffect(() => {
     resize();
-    updateScrollIndicators();
-  }, [resize, updateScrollIndicators, value]);
+  }, [resize, value]);
 
   useEffect(() => {
-    const id = requestAnimationFrame(() => { resize(); updateScrollIndicators(); });
+    const id = requestAnimationFrame(() => { resize(); });
     return () => cancelAnimationFrame(id);
-  }, [resize, updateScrollIndicators]);
+  }, [resize]);
 
   const setRef = useCallback((el) => {
     inputRef.current = el;
@@ -65,17 +53,6 @@ const Textarea = forwardRef(({
       ref.current = el;
     }
   }, [ref]);
-
-  const scrollTo = (target) => {
-    const el = inputRef.current;
-    if (!el) return;
-    el.scrollTo({ top: target === 'top' ? 0 : el.scrollHeight, behavior: 'smooth' });
-  };
-
-  const handleScroll = (e) => {
-    updateScrollIndicators();
-    if (onScroll) onScroll(e);
-  };
 
   return (
     <div className="textarea-wrap" style={{ position: 'relative' }}>
@@ -90,31 +67,9 @@ const Textarea = forwardRef(({
         autosize={false}
         value={value}
         className={className}
-        onScroll={handleScroll}
+        onScroll={onScroll}
         {...props}
       />
-      {showTop && (
-        <button
-          type="button"
-          onClick={() => scrollTo('top')}
-          aria-label="Jump to first line"
-          title="Jump to first line"
-          className="textarea-nav textarea-nav-top"
-        >
-          <ChevronUp size={15} />
-        </button>
-      )}
-      {showBottom && (
-        <button
-          type="button"
-          onClick={() => scrollTo('bottom')}
-          aria-label="Jump to last line"
-          title="Jump to last line"
-          className="textarea-nav textarea-nav-bottom"
-        >
-          <ChevronDown size={15} />
-        </button>
-      )}
     </div>
   );
 });

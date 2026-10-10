@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
@@ -50,21 +50,27 @@ export const EntryEditor = ({
   const [errors, setErrors] = useState({});
   const [tags, setTags] = useState(Array.isArray(initialData.tags) ? initialData.tags : []);
   const TypeIcon = typeIcons[formData.type] || BookOpen;
+  const prevInitialKeyRef = useRef(null);
 
   useEffect(() => {
-    setFormData({
-      title: '',
-      content: '',
-      type: 'diary',
-      isFavorite: false,
-      isPinned: false,
-      visibility: 'private',
-      entryDate: getLocalDateString(),
-      ...initialData,
-      tags: Array.isArray(initialData.tags) ? formatTags(initialData.tags) : (initialData.tags || ''),
-    });
-    setTags(Array.isArray(initialData.tags) ? initialData.tags : []);
-    setErrors({});
+    const currentKey = `${initialData?._id || initialData?.id || ''}_${initialData?.updatedAt || ''}_${initialData?.content ? initialData.content.slice(0, 30) : ''}`;
+    // Only re-initialize if the underlying entry actually changed, preventing parent re-renders from wiping edits
+    if (prevInitialKeyRef.current !== currentKey) {
+      prevInitialKeyRef.current = currentKey;
+      setFormData({
+        title: '',
+        content: '',
+        type: 'diary',
+        isFavorite: false,
+        isPinned: false,
+        visibility: 'private',
+        entryDate: getLocalDateString(),
+        ...initialData,
+        tags: Array.isArray(initialData.tags) ? formatTags(initialData.tags) : (initialData.tags || ''),
+      });
+      setTags(Array.isArray(initialData.tags) ? initialData.tags : []);
+      setErrors({});
+    }
   }, [initialData]);
 
   const handleChange = (field, value) => {

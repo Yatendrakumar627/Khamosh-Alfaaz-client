@@ -105,6 +105,44 @@ export const SessionProvider = ({ children }) => {
     fetchSession();
   }, [fetchSession]);
 
+  // Keep-alive heartbeat: Prevents Render free-tier backend from spinning down
+  // while the user is actively composing or reading, and immediately wakes it
+  // up when the user returns to the tab after their mobile screen was locked.
+  useEffect(() => {
+    let lastPing = Date.now();
+    const pingBackend = async () => {
+      try {
+        lastPing = Date.now();
+        await sessionApi.get();
+      } catch {
+        // Silently ignore ping errors
+      }
+    };
+
+    // Ping every 3.5 minutes (Render sleep threshold is 15 minutes)
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        pingBackend();
+      }
+    }, 210000);
+
+    const handleVisibilityOrFocus = () => {
+      // If returning to tab and more than 2 minutes elapsed since last ping, warm up server
+      if (document.visibilityState === 'visible' && Date.now() - lastPing > 120000) {
+        pingBackend();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+    };
+  }, []);
+
   const value = {
     visitor,
     name,

@@ -7,7 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000,
+  timeout: 60000, // 60s to accommodate Render.com cold starts
 });
 
 const isSessionRequest = (url) => {
@@ -19,10 +19,34 @@ api.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config;
+    if (!originalRequest) return Promise.reject(error);
 
-    if (error.response?.status === 401 && originalRequest && !isSessionRequest(originalRequest.url) && !originalRequest._retry) {
-      originalRequest._retry = true;
-      window.location.href = '/';
+    // Auto-retry on timeout (cold starts), network connection drops, or gateway 502/503/504
+    const isTimeout = error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout');
+    const isNetworkError = !error.response && Boolean(error.request);
+    const isGatewayError = error.response && [502, 503, 504].includes(error.response.status);
+
+    const shouldRetry = (isTimeout || isNetworkError || isGatewayError) &&
+      (!originalRequest._retryCount || originalRequest._retryCount < 2);
+
+    if (shouldRetry) {
+      originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
+      const delay = originalRequest._retryCount * 2000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return api(originalRequest);
+    }
+
+    if (error.response?.status === 401 && !isSessionRequest(originalRequest.url) && !originalRequest._authRetry) {
+      originalRequest._authRetry = true;
+      // If user is currently composing or editing, avoid a hard page reload that destroys their written draft
+      const isComposing = typeof window !== 'undefined' && (
+        window.location.pathname.includes('/edit') ||
+        window.location.pathname.includes('/entries') ||
+        window.location.pathname.includes('/dashboard')
+      );
+      if (!isComposing && typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
       return Promise.reject(error);
     }
 
