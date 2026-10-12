@@ -29,14 +29,15 @@ export const SearchBar = ({ value, onChange, onSearch, placeholder = 'Search ent
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
+    <div className="search-bar-root" style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
       <label htmlFor="search" className="sr-only">Search entries</label>
       <div style={{ position: 'relative' }}>
         <Search
-          size={20}
+          size={18}
+          className="search-bar-icon"
           style={{
             position: 'absolute',
-            left: 'var(--spacing-md)',
+            left: '14px',
             top: '50%',
             transform: 'translateY(-50%)',
             color: 'var(--ink-light)',
@@ -49,9 +50,10 @@ export const SearchBar = ({ value, onChange, onSearch, placeholder = 'Search ent
           value={localValue}
           onChange={handleChange}
           placeholder={placeholder}
+          className="search-bar-input"
           style={{
             width: '100%',
-            padding: 'var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 44px',
+            padding: 'var(--spacing-sm) var(--spacing-md) var(--spacing-sm) 40px',
             border: '1px solid var(--input-border)',
             borderRadius: 'var(--radius-full)',
             backgroundColor: 'var(--input-bg)',

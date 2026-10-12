@@ -24,7 +24,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { classNames } from '../utils/helpers';
+import { classNames, getLocalDateString } from '../utils/helpers';
 
 export const CategorySection = ({ type: propType }) => {
   const { type: paramType } = useParams();
@@ -291,70 +291,34 @@ export const CategorySection = ({ type: propType }) => {
       )}
 
       {/* Search, Filter & Controls Bar */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '12px',
-          flexWrap: 'wrap',
-          marginBottom: '20px',
-        }}
-      >
-        <div style={{ flex: 1, minWidth: '240px' }}>
+      <div className="category-toolbar-row">
+        <div className="category-search-wrap">
           <SearchBar
             value={searchQuery}
             onChange={handleSearch}
-            placeholder={`Search through your ${categoryConfig.pluralLabel.toLowerCase()}...`}
+            placeholder={`Search ${categoryConfig.pluralLabel.toLowerCase()}...`}
           />
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div className="category-ctrl-anchor" ref={filterBtnRef}>
           <button
-            ref={filterBtnRef}
             type="button"
-            className={classNames('btn-icon-subtle', (favoritesOnly || pinnedOnly) && 'active')}
+            className={classNames('category-filter-btn', (favoritesOnly || pinnedOnly) && 'active')}
             onClick={() => setShowFilters(prev => !prev)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 14px',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: favoritesOnly || pinnedOnly ? 'var(--paper-dark)' : 'var(--paper)',
-              color: favoritesOnly || pinnedOnly ? 'var(--gold)' : 'var(--ink)',
-              cursor: 'pointer',
-              fontSize: '0.86rem',
-            }}
+            aria-label="Filter entries"
+            aria-expanded={showFilters}
           >
             <Filter size={15} />
             <span>Filter</span>
             {(favoritesOnly || pinnedOnly) && (
-              <span style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--gold)',
-              }} />
+              <span className="category-filter-dot" />
             )}
           </button>
 
           {showFilters && (
             <div
               ref={popoverRef}
-              style={{
-                position: 'absolute',
-                right: '20px',
-                marginTop: '190px',
-                zIndex: 100,
-                backgroundColor: 'var(--paper)',
-                border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '16px',
-                boxShadow: 'var(--shadow-lg)',
-                minWidth: '240px',
-              }}
+              className="category-filter-popover paper-texture"
             >
               <h4 style={{ margin: '0 0 12px', fontSize: '0.9rem', color: 'var(--ink)', fontWeight: 600 }}>
                 Filter & Sort {categoryConfig.label}
@@ -385,11 +349,12 @@ export const CategorySection = ({ type: propType }) => {
                     onChange={(e) => setSortOrder(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '6px 10px',
+                      padding: '7px 10px',
                       borderRadius: 'var(--radius-md)',
                       border: '1px solid var(--border)',
                       backgroundColor: 'var(--paper-dark)',
                       color: 'var(--ink)',
+                      fontSize: '0.86rem',
                     }}
                   >
                     <option value="newest">Newest First</option>

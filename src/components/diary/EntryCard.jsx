@@ -128,13 +128,13 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
         }}
       >
         {/* ── Top row: badges + actions ── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: entry.title || entry.content ? '8px' : '0' }}>
+        <div className="entry-card-top-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: entry.title || entry.content ? '8px' : '0' }}>
           {/* Left: type badge + status indicators */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', minWidth: 0 }}>
+          <div className="entry-card-badges" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', minWidth: 0 }}>
             <TypeBadge type={entry.type} />
             <VisibilityBadge visibility={visibility} />
             {pinned && (
-              <span style={{
+              <span className="entry-card-pin-pill" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '3px',
                 padding: '2px 7px', borderRadius: '999px',
                 backgroundColor: 'rgba(185,146,74,0.12)',
@@ -146,7 +146,7 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
               </span>
             )}
             {fav && (
-              <span style={{
+              <span className="entry-card-fav-pill" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '3px',
                 padding: '2px 7px', borderRadius: '999px',
                 backgroundColor: 'rgba(185,146,74,0.12)',
@@ -160,12 +160,12 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
           </div>
 
           {/* Right: meta + kebab */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.76rem', color: 'var(--ink-light)', whiteSpace: 'nowrap' }}>
+          <div className="entry-card-meta" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            <span className="entry-card-date" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.76rem', color: 'var(--ink-light)', whiteSpace: 'nowrap' }}>
               <Calendar size={12} />
-              {formatDate(entry.entryDate || entry.createdAt, 'DISPLAY')}
+              {formatDate(entry.entryDate || entry.createdAt, 'SHORT')}
             </span>
-            <span style={{ fontSize: '0.72rem', color: 'var(--ink-light)', whiteSpace: 'nowrap' }}>
+            <span className="entry-card-relative-time" style={{ fontSize: '0.72rem', color: 'var(--ink-light)', whiteSpace: 'nowrap' }}>
               {formatRelativeTime(entry.updatedAt || entry.createdAt)}
             </span>
             {showActions && (
@@ -174,16 +174,21 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
                 onClick={openMenu}
                 className="icon-btn entry-kebab"
                 style={{
-                  padding: '4px',
+                  width: '32px',
+                  height: '32px',
+                  minWidth: '32px',
+                  minHeight: '32px',
+                  padding: 0,
                   border: 'none',
                   background: 'transparent',
                   color: 'var(--ink-light)',
                   borderRadius: '6px',
                   cursor: 'pointer',
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
+                  touchAction: 'manipulation',
                 }}
                 aria-label="More options"
                 aria-expanded={showMenu}
