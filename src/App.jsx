@@ -11,23 +11,12 @@ import { PublicQuotes } from './pages/PublicQuotes';
 import { PublicCategories } from './pages/PublicCategories';
 import { About } from './pages/About';
 
-const Splash = ({ message }) => (
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    backgroundColor: 'var(--background)',
-    color: 'var(--ink-muted)',
-  }}>
-    {message}
-  </div>
-);
+import { SplashScreen } from './components/ui/SplashScreen';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useSession();
 
-  if (loading) return <Splash message="Opening your diary..." />;
+  if (loading) return <SplashScreen message="Opening your diary..." />;
   if (!isAuthenticated) return <Navigate to="/" replace />;
 
   return children;
@@ -36,7 +25,7 @@ const ProtectedRoute = ({ children }) => {
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useSession();
 
-  if (loading) return <Splash message="Opening your diary..." />;
+  if (loading) return <SplashScreen message="Opening your diary..." />;
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return children;
@@ -46,7 +35,7 @@ const PublicRoute = ({ children }) => {
 const VisitorOnlyRoute = ({ children }) => {
   const { isAuthenticated, loading } = useSession();
 
-  if (loading) return <Splash message="Opening the quiet pages..." />;
+  if (loading) return <SplashScreen message="Opening the quiet pages..." />;
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return children;

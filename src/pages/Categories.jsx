@@ -21,18 +21,26 @@ export const Categories = () => {
 
   useEffect(() => {
     let active = true;
-    statisticsApi.get()
-      .then(res => {
-        if (!active) return;
-        const byType = res.data?.statistics?.byType || [];
-        const map = {};
-        byType.forEach(item => {
-          if (item.type) map[item.type.toLowerCase()] = item.count;
-        });
-        setStatsByType(map);
-      })
-      .catch(() => {});
-    return () => { active = false; };
+    const loadStats = () => {
+      statisticsApi.get()
+        .then(res => {
+          if (!active) return;
+          const byType = res.data?.statistics?.byType || [];
+          const map = {};
+          byType.forEach(item => {
+            if (item.type) map[item.type.toLowerCase()] = item.count;
+          });
+          setStatsByType(map);
+        })
+        .catch(() => {});
+    };
+
+    loadStats();
+    window.addEventListener('entries-updated', loadStats);
+    return () => {
+      active = false;
+      window.removeEventListener('entries-updated', loadStats);
+    };
   }, []);
 
   const handleCreate = async () => {

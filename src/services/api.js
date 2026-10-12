@@ -18,7 +18,18 @@ const isSessionRequest = (url) => {
 };
 
 api.interceptors.response.use(
-  response => response,
+  response => {
+    try {
+      const method = (response.config?.method || '').toLowerCase();
+      const url = response.config?.url || '';
+      if (['post', 'put', 'patch', 'delete'].includes(method) && (url.includes('/api/entries') || url.includes('/api/backup'))) {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('entries-updated'));
+        }
+      }
+    } catch {}
+    return response;
+  },
   async error => {
     const originalRequest = error.config;
     if (!originalRequest) return Promise.reject(error);
@@ -87,9 +98,9 @@ export const categoriesApi = {
 
 export const exportApi = {
   entry: (id, format) => api.get(API_ENDPOINTS.EXPORT_ENTRY(id, format), { responseType: 'blob' }),
-  bulk: (format, params = {}) => api.post(API_ENDPOINTS.EXPORT_BULK(format), {}, {
+  bulk: (format, data = {}) => api.post(API_ENDPOINTS.EXPORT_BULK(format), data, {
     responseType: 'blob',
-    params,
+    params: data,
   }),
 };
 

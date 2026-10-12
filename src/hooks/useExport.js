@@ -7,12 +7,15 @@ export const useExport = () => {
   const [progress, setProgress] = useState(0);
   const { success, error } = useToast();
 
-  const exportEntry = useCallback(async (entryId, format) => {
+  const exportEntry = useCallback(async (entryId, format, title = '') => {
     setExporting(true);
     setProgress(0);
     try {
       const response = await exportApi.entry(entryId, format);
-      const filename = `entry-${entryId}.${format}`;
+      const safeTitle = title
+        ? title.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 40)
+        : `entry-${entryId}`;
+      const filename = `${safeTitle || 'entry'}.${format}`;
       downloadBlob(response.data, filename);
       success('Entry exported successfully');
       return true;
@@ -31,9 +34,9 @@ export const useExport = () => {
     try {
       const response = await exportApi.bulk(format, data);
       const date = new Date().toISOString().split('T')[0];
-      const filename = `diary-${date}.${format}`;
+      const filename = `khamosh-alfaaz-diary-${date}.${format}`;
       downloadBlob(response.data, filename);
-      success('Diary exported successfully');
+      success('Diary exported successfully (Recent to Oldest)');
       return true;
     } catch (err) {
       error('Failed to export diary');

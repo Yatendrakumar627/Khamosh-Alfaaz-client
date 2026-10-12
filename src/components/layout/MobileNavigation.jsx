@@ -1,15 +1,56 @@
-import { useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useSidebar } from '../../context/SidebarContext';
 import { MAIN_NAV_ITEMS, CATEGORY_NAV_ITEMS, TOOL_NAV_ITEMS } from '../../routes';
 import { X } from 'lucide-react';
 import { getNavIcon } from '../../constants/navIcons';
+import { statisticsApi } from '../../services/api';
 import favicon from '../../assets/favicon.png';
 import { classNames } from '../../utils/helpers';
 
 export const MobileNavigation = () => {
   const { isOpen, close } = useSidebar();
   const location = useLocation();
+  const [stats, setStats] = useState(null);
+
+  const fetchStats = useCallback(() => {
+    statisticsApi.get()
+      .then((res) => {
+        if (res.data?.ok && res.data?.statistics) {
+          setStats(res.data.statistics);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+    const handleUpdate = () => fetchStats();
+    window.addEventListener('entries-updated', handleUpdate);
+    return () => {
+      window.removeEventListener('entries-updated', handleUpdate);
+    };
+  }, [fetchStats]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [location.pathname, fetchStats]);
+
+  const getItemCount = useCallback((item) => {
+    if (!stats) return null;
+    if (item.path === '/entries') {
+      return stats.totalEntries ?? 0;
+    }
+    if (item.path === '/favorites') {
+      return stats.favorites ?? 0;
+    }
+    if (item.type) {
+      const typeKey = String(item.type).toLowerCase();
+      const match = stats.byType?.find((t) => (t.type || '').toLowerCase() === typeKey);
+      return match ? match.count : 0;
+    }
+    return null;
+  }, [stats]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,6 +97,8 @@ export const MobileNavigation = () => {
         {items.map(item => {
           const Icon = getNavIcon(item.icon);
           const isActive = location.pathname === item.path;
+          const count = getItemCount(item);
+          const hasCount = count !== null && count !== undefined;
           return (
             <li key={item.path} style={{ marginBottom: '2px' }}>
               <NavLink
@@ -76,7 +119,7 @@ export const MobileNavigation = () => {
                   border: '1px solid transparent',
                 })}
                 className={() => classNames('sidebar-item', isActive && 'active')}
-                aria-label={item.label}
+                aria-label={`${item.label}${hasCount ? ` (${count})` : ''}`}
               >
                 <Icon
                   size={18}
@@ -95,6 +138,11 @@ export const MobileNavigation = () => {
                 >
                   {item.label}
                 </span>
+                {hasCount && (
+                  <span className="sidebar-count-badge">
+                    {count}
+                  </span>
+                )}
               </NavLink>
             </li>
           );

@@ -18,14 +18,14 @@ export const Export = () => {
   }
 
   const handleExport = async (data) => {
-    if (data.scope === 'selected' && data.entryIds?.length) {
-      for (const id of data.entryIds) {
-        await exportEntry(id, data.format);
-      }
-    } else {
-      await exportBulk(data.format, data);
-    }
+    await exportBulk(data.format, data);
   };
+
+  const sortedQuickEntries = [...entries].sort((a, b) => {
+    const dA = new Date(a.entryDate || a.createdAt || 0).getTime();
+    const dB = new Date(b.entryDate || b.createdAt || 0).getTime();
+    return dB - dA;
+  });
 
   return (
     <div style={{ padding: 'var(--spacing-xl)', maxWidth: '1000px', margin: '0 auto' }}>
@@ -94,21 +94,33 @@ export const Export = () => {
           <span style={{ fontSize: '0.9rem', color: 'var(--ink-muted)' }}>{entries.length} entr{entries.length === 1 ? 'y' : 'ies'}</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
-          {entries.slice(0, 10).map(entry => (
+          {sortedQuickEntries.slice(0, 10).map(entry => (
             <div key={entry._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--spacing-md)', flexWrap: 'wrap', backgroundColor: 'var(--paper)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--spacing-md) var(--spacing-lg)' }} className="paper-texture">
-              <div style={{ minWidth: 0 }}>
+              <div style={{ minWidth: 0, flex: 1 }}>
                 <p style={{ margin: 0, fontWeight: 500, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {entry.title || 'Untitled Entry'}
                 </p>
                 <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: 'var(--ink-muted)' }}>
-                  {formatDate(entry.entryDate || entry.createdAt, 'SHORT')} • {entry.type}
+                  {formatDate(entry.entryDate || entry.createdAt, 'SHORT')} • {entry.type || 'diary'}
                 </p>
               </div>
-              <Button variant="subtle" size="sm" onClick={() => exportEntry(entry._id, 'pdf')} leftIcon={<Download size={16} />}>
-                PDF
-              </Button>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <Button variant="subtle" size="sm" onClick={() => exportEntry(entry._id, 'pdf', entry.title)} title="Export as PDF" leftIcon={<Download size={14} />}>
+                  PDF
+                </Button>
+                <Button variant="subtle" size="sm" onClick={() => exportEntry(entry._id, 'docx', entry.title)} title="Export as Word (.docx)">
+                  DOCX
+                </Button>
+                <Button variant="subtle" size="sm" onClick={() => exportEntry(entry._id, 'txt', entry.title)} title="Export as Text (.txt)">
+                  TXT
+                </Button>
+                <Button variant="subtle" size="sm" onClick={() => exportEntry(entry._id, 'md', entry.title)} title="Export as Markdown (.md)">
+                  MD
+                </Button>
+              </div>
             </div>
           ))}
+
           {entries.length === 0 && (
             <div style={{ textAlign: 'center', padding: 'var(--spacing-xl)', color: 'var(--ink-muted)', border: '1px dashed var(--border)', borderRadius: 'var(--radius-md)' }}>
               <ArrowRight size={24} style={{ marginBottom: 'var(--spacing-sm)', opacity: 0.6 }} />

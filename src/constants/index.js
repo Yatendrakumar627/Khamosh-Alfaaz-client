@@ -19,9 +19,10 @@ export const SORT_OPTIONS = [
 ];
 
 export const EXPORT_FORMATS = [
+  { value: 'pdf', label: 'PDF Document (.pdf)', icon: 'fileType' },
   { value: 'docx', label: 'Microsoft Word (.docx)', icon: 'fileType' },
-  { value: 'pdf', label: 'PDF (.pdf)', icon: 'fileType' },
   { value: 'txt', label: 'Plain Text (.txt)', icon: 'fileText' },
+  { value: 'md', label: 'Markdown (.md)', icon: 'fileText' },
 ];
 
 export const EXPORT_SCOPES = [

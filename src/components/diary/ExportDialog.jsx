@@ -4,50 +4,111 @@ import { DatePicker } from '../ui/DatePicker';
 import { EXPORT_FORMATS, EXPORT_SCOPES } from '../../constants';
 import { useState, useRef } from 'react';
 import { formatDate, getLocalDateString } from '../../utils/helpers';
-import { FileText, FileType, Download, Calendar, X } from 'lucide-react';
+import { FileText, FileType, Download, Calendar, X, ArrowDownUp, ArrowUpDown } from 'lucide-react';
 
 export const ExportDialog = ({ opened, onClose, onExport, exporting = false, entries = [] }) => {
   const [format, setFormat] = useState('pdf');
   const [scope, setScope] = useState('all');
+  const [sortOrder, setSortOrder] = useState('newest'); // 'newest' | 'oldest'
   const [customRange, setCustomRange] = useState({ start: '', end: '' });
   const [selectingEntries, setSelectingEntries] = useState(false);
   const [selectedEntries, setSelectedEntries] = useState([]);
 
+  // Sort entries for display and selection dynamically based on chosen sortOrder
+  const sortedEntriesList = [...entries].sort((a, b) => {
+    const dA = new Date(a.entryDate || a.createdAt || 0).getTime();
+    const dB = new Date(b.entryDate || b.createdAt || 0).getTime();
+    return sortOrder === 'oldest' ? dA - dB : dB - dA;
+  });
+
+  const handleSelectAll = () => {
+    if (selectedEntries.length === sortedEntriesList.length) {
+      setSelectedEntries([]);
+    } else {
+      setSelectedEntries(sortedEntriesList.map(e => e._id));
+    }
+  };
+
   const handleExport = () => {
-    let data = { format, scope };
+    let data = { format, scope, sortOrder };
     if (scope === 'custom') {
       data.startDate = customRange.start;
       data.endDate = customRange.end;
     } else if (scope === 'selected') {
+      if (selectedEntries.length === 0) {
+        alert('Please select at least one entry to export.');
+        return;
+      }
       data.entryIds = selectedEntries;
     }
     onExport(data);
     onClose();
   };
 
-  const formatIcons = { docx: FileType, pdf: FileType, txt: FileText };
+  const formatIcons = { docx: FileType, pdf: FileType, txt: FileText, md: FileText };
 
   return (
     <Modal opened={opened} onClose={onClose} title="Export Diary" size="md">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
+        {/* Date Sorting Order Selector */}
+        <div>
+          <label style={{ display: 'block', marginBottom: 'var(--spacing-xs)', fontWeight: 500, color: 'var(--ink-muted)', fontSize: '0.9rem' }}>
+            Sort Entries By (Date Order)
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing-sm)' }}>
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)',
+              padding: '10px 14px', border: '2px solid', borderRadius: 'var(--radius-md)',
+              borderColor: sortOrder === 'newest' ? 'var(--accent)' : 'var(--border)',
+              backgroundColor: sortOrder === 'newest' ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+              cursor: 'pointer', transition: 'all 0.2s ease',
+            }}>
+              <input type="radio" name="sortOrder" value="newest" checked={sortOrder === 'newest'} onChange={() => setSortOrder('newest')} style={{ display: 'none' }} />
+              <ArrowDownUp size={20} style={{ color: sortOrder === 'newest' ? 'var(--accent)' : 'var(--ink-muted)', flexShrink: 0 }} />
+              <div>
+                <div style={{ fontWeight: 600, fontSize: '0.85rem', color: sortOrder === 'newest' ? 'var(--accent)' : 'var(--ink)' }}>New → Old</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--ink-light)' }}>Recent date first</div>
+              </div>
+            </label>
+
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)',
+              padding: '10px 14px', border: '2px solid', borderRadius: 'var(--radius-md)',
+              borderColor: sortOrder === 'oldest' ? 'var(--accent)' : 'var(--border)',
+              backgroundColor: sortOrder === 'oldest' ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+              cursor: 'pointer', transition: 'all 0.2s ease',
+            }}>
+              <input type="radio" name="sortOrder" value="oldest" checked={sortOrder === 'oldest'} onChange={() => setSortOrder('oldest')} style={{ display: 'none' }} />
+              <ArrowUpDown size={20} style={{ color: sortOrder === 'oldest' ? 'var(--accent)' : 'var(--ink-muted)', flexShrink: 0 }} />
+              <div>
+                <div style={{ fontWeight: 600, fontSize: '0.85rem', color: sortOrder === 'oldest' ? 'var(--accent)' : 'var(--ink)' }}>Old → New</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--ink-light)' }}>Oldest date first</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+
         <div>
           <label style={{ display: 'block', marginBottom: 'var(--spacing-sm)', fontWeight: 500, color: 'var(--ink-muted)' }}>
-            Format
+            Document Format
           </label>
-          <div style={{ display: 'flex', gap: 'var(--spacing-md)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--spacing-sm)' }}>
             {EXPORT_FORMATS.map(f => {
-              const Icon = formatIcons[f.value];
+              const Icon = formatIcons[f.value] || FileText;
               return (
                 <label key={f.value} style={{
-                  flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-sm)',
-                  padding: 'var(--spacing-md)', border: '2px solid', borderRadius: 'var(--radius-md)',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--spacing-xs)',
+                  padding: 'var(--spacing-sm)', border: '2px solid', borderRadius: 'var(--radius-md)',
                   borderColor: format === f.value ? 'var(--accent)' : 'var(--border)',
                   backgroundColor: format === f.value ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
                   cursor: 'pointer', transition: 'all 0.2s ease',
+                  textAlign: 'center',
                 }}>
                   <input type="radio" name="format" value={f.value} checked={format === f.value} onChange={() => setFormat(f.value)} style={{ display: 'none' }} />
-                  <Icon size={28} style={{ color: format === f.value ? 'var(--accent)' : 'var(--ink-muted)' }} />
-                  <span style={{ fontWeight: 500, color: format === f.value ? 'var(--accent)' : 'var(--ink)' }}>{f.label.split(' ')[0]}</span>
+                  <Icon size={24} style={{ color: format === f.value ? 'var(--accent)' : 'var(--ink-muted)' }} />
+                  <span style={{ fontWeight: 600, fontSize: '0.85rem', color: format === f.value ? 'var(--accent)' : 'var(--ink)' }}>{f.value.toUpperCase()}</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--ink-light)' }}>.{f.value}</span>
                 </label>
               );
             })}
@@ -114,15 +175,32 @@ export const ExportDialog = ({ opened, onClose, onExport, exporting = false, ent
           </div>
         )}
 
-        {scope === 'selected' && selectingEntries && entries.length > 0 && (
-          <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--spacing-sm)' }}>
-            {entries.map(entry => (
-              <label key={entry._id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', padding: 'var(--spacing-sm)', cursor: 'pointer', borderRadius: 'var(--radius-sm)', transition: 'background-color 0.15s ease' }}>
-                <input type="checkbox" checked={selectedEntries.includes(entry._id)} onChange={e => setSelectedEntries(prev => e.target.checked ? [...prev, entry._id] : prev.filter(id => id !== entry._id))} style={{ accentColor: 'var(--accent)' }} />
-                <span style={{ fontSize: '0.9rem', color: 'var(--ink)' }}>{entry.title || 'Untitled'}</span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--ink-light)' }}>{formatDate(entry.entryDate, 'SHORT')}</span>
-              </label>
-            ))}
+        {scope === 'selected' && selectingEntries && sortedEntriesList.length > 0 && (
+          <div style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--spacing-sm)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-xs)', padding: '0 4px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--ink-muted)' }}>
+                Choose entries (recent first):
+              </span>
+              <button
+                type="button"
+                onClick={handleSelectAll}
+                style={{
+                  background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer',
+                  fontSize: '0.8rem', fontWeight: 600, padding: 0
+                }}
+              >
+                {selectedEntries.length === sortedEntriesList.length ? 'Deselect All' : 'Select All'}
+              </button>
+            </div>
+            <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              {sortedEntriesList.map(entry => (
+                <label key={entry._id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', padding: '6px 8px', cursor: 'pointer', borderRadius: 'var(--radius-sm)', transition: 'background-color 0.15s ease' }}>
+                  <input type="checkbox" checked={selectedEntries.includes(entry._id)} onChange={e => setSelectedEntries(prev => e.target.checked ? [...prev, entry._id] : prev.filter(id => id !== entry._id))} style={{ accentColor: 'var(--accent)' }} />
+                  <span style={{ fontSize: '0.9rem', color: 'var(--ink)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{entry.title || 'Untitled'}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--ink-light)', whiteSpace: 'nowrap' }}>{formatDate(entry.entryDate || entry.createdAt, 'SHORT')}</span>
+                </label>
+              ))}
+            </div>
           </div>
         )}
 
@@ -131,13 +209,14 @@ export const ExportDialog = ({ opened, onClose, onExport, exporting = false, ent
             Cancel
           </Button>
           <Button onClick={handleExport} loading={exporting} leftIcon={<Download size={18} />}>
-            Export
+            Export {format.toUpperCase()}
           </Button>
         </div>
       </div>
     </Modal>
   );
 };
+
 
 export const BackupDialog = ({ opened, onClose, onExport, onImport, exporting = false, importing = false }) => {
   const [file, setFile] = useState(null);

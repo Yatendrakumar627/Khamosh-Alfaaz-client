@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEntry } from '../hooks/useEntries';
+import { useExport } from '../hooks/useExport';
 import { entriesApi } from '../services/api';
 import { formatDate, getEntryTypeLabel } from '../utils/helpers';
 import { Button } from '../components/ui/Button';
 import { Modal, ConfirmDialog } from '../components/ui/Modal';
 import { EntryEditor } from '../components/diary/EntryEditor';
 import { useToast } from '../context/ToastContext';
-import { Edit, Trash2, Star, MapPin, Share2, ArrowLeft, Calendar, BookOpen, Globe, Lock } from 'lucide-react';
+import { Edit, Trash2, Star, MapPin, Share2, ArrowLeft, Calendar, BookOpen, Globe, Lock, Download, ChevronDown } from 'lucide-react';
 import { classNames } from '../utils/helpers';
 
 export const EntryDetail = () => {
@@ -15,8 +16,23 @@ export const EntryDetail = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const { entry, loading, error, refresh } = useEntry(id);
+  const { exportEntry, exporting } = useExport();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutside = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
+        setShowExportMenu(false);
+      }
+    };
+    if (showExportMenu) {
+      document.addEventListener('mousedown', handleOutside);
+      return () => document.removeEventListener('mousedown', handleOutside);
+    }
+  }, [showExportMenu]);
 
   const handleFavorite = async () => {
     try {
@@ -116,7 +132,80 @@ export const EntryDetail = () => {
             </div>
           </div>
         </div>
-        <div className="entry-actions" style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+        <div className="entry-actions" style={{ display: 'flex', gap: 'var(--spacing-sm)', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div ref={exportMenuRef} style={{ position: 'relative' }}>
+            <Button
+              variant="subtle"
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              leftIcon={<Download size={18} />}
+              rightIcon={<ChevronDown size={14} />}
+              loading={exporting}
+            >
+              Export
+            </Button>
+            {showExportMenu && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 'calc(100% + 4px)',
+                  right: 0,
+                  backgroundColor: 'var(--paper)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-md)',
+                  boxShadow: 'var(--shadow-md, 0 4px 12px rgba(0,0,0,0.12))',
+                  padding: '6px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                  zIndex: 100,
+                  minWidth: '180px',
+                }}
+                className="paper-texture"
+              >
+                {[
+                  { format: 'pdf', label: 'PDF Document (.pdf)' },
+                  { format: 'docx', label: 'Word Document (.docx)' },
+                  { format: 'txt', label: 'Plain Text (.txt)' },
+                  { format: 'md', label: 'Markdown (.md)' },
+                ].map((opt) => (
+                  <button
+                    key={opt.format}
+                    type="button"
+                    onClick={() => {
+                      exportEntry(id, opt.format, entry.title);
+                      setShowExportMenu(false);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      textAlign: 'left',
+                      padding: '8px 12px',
+                      fontSize: '0.85rem',
+                      fontWeight: 500,
+                      color: 'var(--ink)',
+                      cursor: 'pointer',
+                      borderRadius: 'var(--radius-sm)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      transition: 'background-color 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'color-mix(in srgb, var(--accent) 12%, transparent)';
+                      e.currentTarget.style.color = 'var(--accent)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = 'var(--ink)';
+                    }}
+                  >
+                    <span>{opt.label}</span>
+                    <Download size={14} style={{ opacity: 0.6 }} />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           <Button variant="subtle" onClick={() => setShowEdit(true)} leftIcon={<Edit size={18} />}>
             Edit
           </Button>
@@ -133,6 +222,7 @@ export const EntryDetail = () => {
             Delete
           </Button>
         </div>
+
       </header>
 
       <article style={{
