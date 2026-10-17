@@ -14,6 +14,8 @@ const CategorySection = lazy(() => import('./pages/CategorySection').then(m => (
 const Statistics = lazy(() => import('./pages/Statistics').then(m => ({ default: m.Statistics })));
 const Export = lazy(() => import('./pages/Export').then(m => ({ default: m.Export })));
 const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
+const Explore = lazy(() => import('./pages/Explore').then(m => ({ default: m.Explore })));
+const PublicEntry = lazy(() => import('./pages/PublicEntry').then(m => ({ default: m.PublicEntry })));
 
 const PageWrapper = ({ children }) => (
   <Suspense fallback={<LoadingState message="Loading page..." />}>
@@ -26,6 +28,8 @@ export const routes = [
   { path: 'entries', element: <PageWrapper><Entries /></PageWrapper> },
   { path: 'entries/:id', element: <PageWrapper><EntryDetail /></PageWrapper> },
   { path: 'entries/:id/edit', element: <PageWrapper><EditEntry /></PageWrapper> },
+  { path: 'explore', element: <PageWrapper><Explore /></PageWrapper> },
+  { path: 'explore/:id', element: <PageWrapper><PublicEntry /></PageWrapper> },
   // Dedicated Category Sections
   { path: 'diary', element: <PageWrapper><CategorySection key="diary" type="diary" /></PageWrapper> },
   { path: 'thoughts', element: <PageWrapper><CategorySection key="thoughts" type="thought" /></PageWrapper> },
@@ -47,6 +51,7 @@ export const routes = [
 export const MAIN_NAV_ITEMS = [
   { path: '/dashboard', label: 'Home', icon: 'home' },
   { path: '/entries', label: 'All Entries', icon: 'bookOpen' },
+  { path: '/explore', label: 'Explore', icon: 'explore' },
   { path: '/favorites', label: 'Favorites', icon: 'star' },
   { path: '/calendar', label: 'Calendar', icon: 'calendar' },
 ];

@@ -5,7 +5,6 @@ import { MainLayout } from './layouts/MainLayout';
 import { VisitorLayout } from './layouts/VisitorLayout';
 import { Welcome } from './pages/Welcome';
 import { VisitorHome } from './pages/VisitorHome';
-import { Explore } from './pages/Explore';
 import { PublicEntry } from './pages/PublicEntry';
 import { PublicQuotes } from './pages/PublicQuotes';
 import { PublicCategories } from './pages/PublicCategories';
@@ -17,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useSession();
 
   if (loading) return <SplashScreen message="Opening your diary..." />;
-  if (!isAuthenticated) return <Navigate to="/" replace />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   return children;
 };
@@ -49,7 +48,6 @@ function App() {
 
         <Route element={<VisitorOnlyRoute><VisitorLayout /></VisitorOnlyRoute>}>
           <Route path="/" element={<VisitorHome />} />
-          <Route path="/explore" element={<Explore />} />
           <Route path="/explore/quotes" element={<PublicQuotes />} />
           <Route path="/explore/categories" element={<PublicCategories />} />
           <Route path="/explore/:id" element={<PublicEntry />} />

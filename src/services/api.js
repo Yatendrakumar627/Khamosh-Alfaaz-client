@@ -17,9 +17,23 @@ const isSessionRequest = (url) => {
   return url === API_ENDPOINTS.SESSION || url === API_ENDPOINTS.SESSION_LOGIN || url.includes('/api/session');
 };
 
+api.interceptors.request.use(config => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('ka_token');
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   response => {
     try {
+      if (response.data?.token && typeof window !== 'undefined') {
+        localStorage.setItem('ka_token', response.data.token);
+      }
       const method = (response.config?.method || '').toLowerCase();
       const url = response.config?.url || '';
       if (['post', 'put', 'patch', 'delete'].includes(method) && (url.includes('/api/entries') || url.includes('/api/backup'))) {
@@ -50,6 +64,9 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401 && !isSessionRequest(originalRequest.url) && !originalRequest._authRetry) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('ka_token');
+      }
       originalRequest._authRetry = true;
       // If user is currently composing or editing, avoid a hard page reload that destroys their written draft
       const isComposing = typeof window !== 'undefined' && (

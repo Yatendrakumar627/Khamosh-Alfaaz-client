@@ -721,7 +721,9 @@ export const EntryDetail = () => {
             lineHeight: 1.55,
             fontSize: fontSizeLarge ? '1.08rem' : '0.94rem',
             color: 'var(--ink)',
-            textAlign: 'left',
+            textAlign: 'justify',
+            textJustify: 'inter-word',
+            hyphens: 'auto',
             fontFamily: 'var(--font-family-body)',
             letterSpacing: '0.005em',
           }}

@@ -2,59 +2,47 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
 import { sessionApi } from '../services/api';
-import { Button } from '../components/ui/Button';
+import { useTheme } from '../context/ThemeContext';
 import { Input } from '../components/ui/Input';
-import { BookOpen, LockKeyhole, Sparkles, UserRound, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, Sun, Moon } from 'lucide-react';
 import favicon from '../assets/favicon.png';
 import { STORAGE_KEYS } from '../constants';
 
 export const Welcome = () => {
   const { initializeSession, login, loading: sessionLoading } = useSession();
-  const [mode, setMode] = useState('login');
+  const { resolvedTheme, setTheme } = useTheme();
+
+  const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
-  const [usernameStatus, setUsernameStatus] = useState('');
-  const [checkingUsername, setCheckingUsername] = useState(false);
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
+  const [showPin, setShowPin] = useState(false);
+  const [showConfirmPin, setShowConfirmPin] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [loginFailed, setLoginFailed] = useState(false);
+
   const isRegister = mode === 'register';
 
-  const checkUsername = async () => {
-    const value = username.trim();
-    if (value.length < 3) {
-      setUsernameStatus('');
-      return;
-    }
-
-    setCheckingUsername(true);
-    try {
-      const response = await sessionApi.checkUsername(value);
-      setUsernameStatus(response.data.available ? 'available' : 'taken');
-    } catch {
-      setUsernameStatus('');
-    } finally {
-      setCheckingUsername(false);
-    }
+  const switchMode = (newMode) => {
+    setMode(newMode);
+    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoginFailed(false);
 
     if (isRegister && !displayName.trim()) {
-      setError('Please enter your display name');
+      setError('Please enter a display name');
       return;
     }
     if (!username.trim()) {
-      setError('Please enter a private username');
+      setError('Please enter your username');
       return;
     }
     if (!pin) {
-      setError('Please enter a PIN');
+      setError('Please enter your PIN');
       return;
     }
     if (isRegister && pin !== confirmPin) {
@@ -74,14 +62,12 @@ export const Welcome = () => {
 
       if (!result?.success) {
         if (!isRegister) {
-          setLoginFailed(true);
-          setMode('register');
-          setError('That username or PIN is incorrect. Create a new diary to get started.');
+          setError('Incorrect username or PIN.');
           return;
         }
         const message = result?.details?.username
-          ? 'That private username is already taken'
-          : result?.error || 'Unable to open your diary. Please try again.';
+          ? 'Username is already taken'
+          : result?.error || 'Unable to open diary. Please try again.';
         setError(message);
         return;
       }
@@ -89,7 +75,7 @@ export const Welcome = () => {
       localStorage.setItem(STORAGE_KEYS.NAME, result.name || displayName.trim());
       window.location.href = '/dashboard';
     } catch (err) {
-      setError(err?.response?.data?.error || err?.message || 'Unable to open your diary. Please try again.');
+      setError(err?.response?.data?.error || err?.message || 'Unable to open diary. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -97,190 +83,378 @@ export const Welcome = () => {
 
   if (sessionLoading) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        backgroundColor: 'var(--background)',
-        color: 'var(--ink-muted)',
-      }}>
-        <div style={{
-          width: '40px', height: '40px', border: '3px solid var(--border)',
-          borderTopColor: 'var(--accent)', borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-        }} />
-        <p style={{ marginTop: 'var(--spacing-lg)' }}>Opening your diary...</p>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          backgroundColor: 'var(--background)',
+          color: 'var(--ink-muted)',
+          gap: '12px',
+        }}
+      >
+        <div
+          style={{
+            width: '32px',
+            height: '32px',
+            border: '2px solid var(--border)',
+            borderTopColor: 'var(--gold)',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+          }}
+        />
+        <p style={{ fontSize: '0.85rem', color: 'var(--ink-muted)' }}>Opening your diary...</p>
       </div>
     );
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: 'var(--background)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 'var(--spacing-md)',
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '520px',
-        padding: 'var(--spacing-xl)',
-        borderRadius: 'var(--radius-lg)',
-      }} className="paper-texture diary-page fade-in">
-        <p style={{ margin: '0 0 var(--spacing-sm)', textAlign: 'center' }}>
-          <Link to="/" style={{ color: 'var(--ink-muted)', fontSize: '0.85rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            <ArrowLeft size={15} />
-            Back to the public pages
-          </Link>
-        </p>
+    <div
+      style={{
+        height: '100vh',
+        maxHeight: '100vh',
+        backgroundColor: 'var(--background)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+        position: 'relative',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Top Controls: Back & Theme */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '14px',
+          left: '16px',
+          right: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          zIndex: 10,
+        }}
+      >
+        <Link
+          to="/"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px',
+            color: 'var(--ink-muted)',
+            fontSize: '0.80rem',
+            textDecoration: 'none',
+            padding: '4px 8px',
+            borderRadius: '6px',
+            transition: 'color 0.15s ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--gold)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--ink-muted)'; }}
+        >
+          <ArrowLeft size={14} />
+          <span>Back to Home</span>
+        </Link>
 
-        <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-lg)' }}>
+        <button
+          type="button"
+          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+          aria-label="Toggle theme"
+          style={{
+            width: '30px',
+            height: '30px',
+            borderRadius: '50%',
+            border: '1px solid var(--border)',
+            backgroundColor: 'var(--paper)',
+            color: 'var(--ink-muted)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          {resolvedTheme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+        </button>
+      </div>
+
+      {/* Main Compact Card */}
+      <div
+        className="paper-texture"
+        style={{
+          width: '100%',
+          maxWidth: '380px',
+          padding: '20px 24px',
+          borderRadius: '14px',
+          backgroundColor: 'var(--paper)',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow-md)',
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* Simple Brand Header */}
+        <div style={{ textAlign: 'center', marginBottom: '14px' }}>
           <img
             src={favicon}
-            alt="Khamosh Alfaaz emblem"
-            style={{ position: 'relative', width: 48, height: 48, borderRadius: 8, flexShrink: 0, margin: '0 auto var(--spacing-lg)', display: 'block' }}
+            alt=""
+            style={{ width: '26px', height: '26px', borderRadius: '5px', marginBottom: '4px' }}
           />
-          <h1 style={{
-            fontFamily: 'var(--font-family-heading)',
-            fontSize: 'clamp(2rem, 5vw, 3rem)',
-            fontWeight: 600,
-            color: 'var(--ink)',
-            margin: '0 0 var(--spacing-sm)',
-          }}>
+          <h1
+            style={{
+              fontFamily: 'var(--font-family-heading)',
+              fontSize: '1.48rem',
+              fontWeight: 600,
+              color: 'var(--ink)',
+              margin: '0 0 2px',
+              lineHeight: 1.15,
+            }}
+          >
             Khamosh Alfaaz
           </h1>
-          <div className="gold-rule" style={{ margin: '0 auto var(--spacing-md)', maxWidth: '220px' }}>
-            <span className="diamond" />
-          </div>
-          <p style={{
-            fontFamily: 'var(--font-family-heading)',
-            color: 'var(--ink-muted)',
-            fontSize: '1.15rem',
-            fontStyle: 'italic',
-            margin: 0,
-          }}>
+          <p
+            style={{
+              margin: 0,
+              fontFamily: 'var(--font-family-heading)',
+              fontStyle: 'italic',
+              fontSize: '0.86rem',
+              color: 'var(--gold)',
+            }}
+          >
             Jo keh nahi paaye, likh do.
           </p>
         </div>
 
-        <div style={{ marginBottom: 'var(--spacing-lg)', textAlign: 'center', color: 'var(--ink-muted)' }}>
-          <p style={{ margin: '0 0 var(--spacing-md)', fontSize: '1rem', fontFamily: 'var(--font-family-heading)' }}>
-            Your diary, protected by your private username and PIN.
-          </p>
-          <p style={{ margin: 0, fontSize: '0.95rem', fontStyle: 'italic', fontFamily: 'var(--font-family-heading)', lineHeight: 1.5 }}>
-            The public site stays open. Your entries stay private.
-          </p>
+        {/* Mode Toggle */}
+        <div
+          style={{
+            display: 'flex',
+            borderBottom: '1px solid var(--border)',
+            marginBottom: '14px',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => switchMode('login')}
+            style={{
+              flex: 1,
+              padding: '6px 0',
+              border: 'none',
+              background: 'transparent',
+              color: !isRegister ? 'var(--gold)' : 'var(--ink-muted)',
+              fontWeight: !isRegister ? 600 : 500,
+              fontSize: '0.84rem',
+              borderBottom: !isRegister ? '2px solid var(--gold)' : '2px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            Open Diary
+          </button>
+          <button
+            type="button"
+            onClick={() => switchMode('register')}
+            style={{
+              flex: 1,
+              padding: '6px 0',
+              border: 'none',
+              background: 'transparent',
+              color: isRegister ? 'var(--gold)' : 'var(--ink-muted)',
+              fontWeight: isRegister ? 600 : 500,
+              fontSize: '0.84rem',
+              borderBottom: isRegister ? '2px solid var(--gold)' : '2px solid transparent',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            Create Diary
+          </button>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-md)' }}>
-          <Button
-            type="button"
-            variant={isRegister ? 'filled' : 'subtle'}
-            size="sm"
-            onClick={() => { setMode('register'); setUsernameStatus(''); setError(''); setLoginFailed(false); }}
-          >
-            Create diary
-          </Button>
-          <Button
-            type="button"
-            variant={!isRegister ? 'filled' : 'subtle'}
-            size="sm"
-            onClick={() => { setMode('login'); setUsernameStatus(''); setError(''); setLoginFailed(false); }}
-          >
-            Open existing diary
-          </Button>
-        </div>
-
+        {/* Error Alert */}
         {error && (
-          <p role="alert" style={{
-            margin: '0 0 var(--spacing-md)',
-            padding: 'var(--spacing-sm) var(--spacing-md)',
-            borderRadius: 'var(--radius-md)',
-            backgroundColor: 'var(--error)12',
-            border: '1px solid var(--error)',
-            color: 'var(--error)',
-            fontSize: '0.9rem',
-          }}>
+          <div
+            role="alert"
+            style={{
+              padding: '7px 10px',
+              borderRadius: '6px',
+              backgroundColor: 'rgba(199, 90, 70, 0.12)',
+              border: '1px solid rgba(199, 90, 70, 0.3)',
+              color: 'var(--error)',
+              fontSize: '0.78rem',
+              marginBottom: '10px',
+            }}
+          >
             {error}
-          </p>
+          </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+        {/* Compact Form */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
           {isRegister && (
             <Input
-              label="Display name"
-              placeholder="Your simple name"
+              size="sm"
+              label="Display Name"
+              placeholder="e.g. A Quiet Soul"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              error={error && !username && !pin ? error : undefined}
               required={isRegister}
               autoFocus
               autoComplete="name"
               maxLength={50}
-              leftIcon={<UserRound size={20} />}
             />
           )}
 
           <Input
-            label="Private username"
-            placeholder="3-30 letters, numbers, or underscores"
+            size="sm"
+            label="Private Username"
+            placeholder="Your username"
             value={username}
-            onChange={(e) => { setUsername(e.target.value); setUsernameStatus(''); }}
-            onBlur={checkUsername}
-            hint={checkingUsername ? 'Checking availability...' : usernameStatus === 'available' ? 'Available' : usernameStatus === 'taken' ? 'Already taken' : undefined}
-            error={error && (!username || (!isRegister && !pin)) ? error : usernameStatus === 'taken' ? 'That private username is already taken' : undefined}
+            onChange={(e) => setUsername(e.target.value)}
             required
             autoComplete="username"
             maxLength={30}
-            leftIcon={<BookOpen size={20} />}
           />
 
           <Input
+            size="sm"
             label="PIN"
             placeholder="4-12 digits"
-            type="password"
+            type={showPin ? 'text' : 'password'}
             value={pin}
             onChange={(e) => setPin(e.target.value)}
-            error={error && !pin ? error : undefined}
             required
             autoComplete={isRegister ? 'new-password' : 'current-password'}
             maxLength={12}
-            leftIcon={<LockKeyhole size={20} />}
+            rightSection={
+              <button
+                type="button"
+                onClick={() => setShowPin(!showPin)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--ink-muted)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 0,
+                }}
+                tabIndex={-1}
+                aria-label={showPin ? 'Hide PIN' : 'Show PIN'}
+              >
+                {showPin ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            }
           />
 
           {isRegister && (
             <Input
+              size="sm"
               label="Confirm PIN"
-              placeholder="Enter the same PIN"
-              type="password"
+              placeholder="Re-enter PIN"
+              type={showConfirmPin ? 'text' : 'password'}
               value={confirmPin}
               onChange={(e) => setConfirmPin(e.target.value)}
-              error={error && pin !== confirmPin ? error : undefined}
               required
               autoComplete="new-password"
               maxLength={12}
-              leftIcon={<LockKeyhole size={20} />}
+              rightSection={
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPin(!showConfirmPin)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--ink-muted)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: 0,
+                  }}
+                  tabIndex={-1}
+                  aria-label={showConfirmPin ? 'Hide PIN' : 'Show PIN'}
+                >
+                  {showConfirmPin ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              }
             />
           )}
 
-          <Button type="submit" fullWidth size="lg" loading={submitting} leftIcon={<Sparkles size={20} />} className="btn-primary">
-            {isRegister ? 'Create and Begin Writing' : 'Open Diary'}
-          </Button>
+          <button
+            type="submit"
+            disabled={submitting}
+            style={{
+              marginTop: '4px',
+              padding: '9px 16px',
+              borderRadius: '8px',
+              backgroundColor: 'var(--gold)',
+              color: '#1a140d',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              border: 'none',
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              transition: 'opacity 0.15s ease',
+              opacity: submitting ? 0.7 : 1,
+            }}
+          >
+            {submitting ? 'Please wait...' : isRegister ? 'Create Diary' : 'Open Diary'}
+          </button>
         </form>
 
-        <p style={{
-          textAlign: 'center',
-          color: 'var(--ink-light)',
-          fontSize: '0.85rem',
-          margin: 'var(--spacing-md) 0 0',
-        }}>
-          Your private username is never shown publicly. Keep it with your PIN.
+        {/* Footer switch prompt */}
+        <p
+          style={{
+            margin: '12px 0 0',
+            textAlign: 'center',
+            fontSize: '0.78rem',
+            color: 'var(--ink-muted)',
+          }}
+        >
+          {isRegister ? (
+            <span>
+              Already have a diary?{' '}
+              <button
+                type="button"
+                onClick={() => switchMode('login')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  color: 'var(--gold)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                }}
+              >
+                Open it
+              </button>
+            </span>
+          ) : (
+            <span>
+              New here?{' '}
+              <button
+                type="button"
+                onClick={() => switchMode('register')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  color: 'var(--gold)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                }}
+              >
+                Create a diary
+              </button>
+            </span>
+          )}
         </p>
       </div>
     </div>
   );
 };
+
+export default Welcome;
