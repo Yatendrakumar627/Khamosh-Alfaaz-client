@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { VisitorFooter } from '../components/visitor/VisitorFooter';
 
 export const VisitorLayout = () => {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, toggleTheme } = useTheme();
 
   return (
     <div
@@ -23,59 +23,43 @@ export const VisitorLayout = () => {
           top: '16px',
           right: '18px',
           zIndex: 90,
-          display: 'flex',
-          alignItems: 'center',
-          backgroundColor: 'color-mix(in srgb, var(--paper) 88%, transparent)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          border: '1px solid var(--border)',
-          borderRadius: '9999px',
-          padding: '3px',
-          gap: '3px',
-          boxShadow: '0 4px 18px rgba(0,0,0,0.22)',
         }}
       >
         <button
           type="button"
-          onClick={() => setTheme('light')}
-          aria-label="Switch to light theme"
-          aria-pressed={resolvedTheme === 'light'}
+          onClick={toggleTheme}
+          aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           style={{
-            width: '28px',
-            height: '28px',
+            width: '36px',
+            height: '36px',
             borderRadius: '50%',
-            border: 'none',
-            background: resolvedTheme === 'light' ? 'rgba(216,168,91,0.22)' : 'transparent',
-            color: resolvedTheme === 'light' ? 'var(--gold)' : 'var(--ink-light)',
+            border: '1px solid var(--border)',
+            backgroundColor: 'color-mix(in srgb, var(--paper) 88%, transparent)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            color: 'var(--gold)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'all 0.15s ease',
+            boxShadow: '0 4px 18px rgba(0,0,0,0.22)',
+            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.45)';
+            e.currentTarget.style.transform = 'scale(1.08)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = 'var(--border)';
+            e.currentTarget.style.transform = 'scale(1)';
           }}
         >
-          <Sun size={15} />
-        </button>
-        <button
-          type="button"
-          onClick={() => setTheme('dark')}
-          aria-label="Switch to dark theme"
-          aria-pressed={resolvedTheme === 'dark'}
-          style={{
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            border: 'none',
-            background: resolvedTheme === 'dark' ? 'rgba(216,168,91,0.22)' : 'transparent',
-            color: resolvedTheme === 'dark' ? 'var(--gold)' : 'var(--ink-light)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.15s ease',
-          }}
-        >
-          <Moon size={15} />
+          {resolvedTheme === 'dark' ? (
+            <Sun size={18} />
+          ) : (
+            <Moon size={18} />
+          )}
         </button>
       </div>
 

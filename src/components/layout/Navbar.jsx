@@ -10,7 +10,7 @@ import { getInitials } from '../../utils/helpers';
 
 export const Navbar = () => {
   const { name, deleteSession, isAuthenticated } = useSession();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, toggleTheme } = useTheme();
   const { fontScheme, setFont, schemes } = useFont();
   const { toggle: toggleSidebar } = useSidebar();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -41,51 +41,31 @@ export const Navbar = () => {
   };
 
   return (
-    <header
-      className="navbar-header"
-      style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 'var(--z-sticky)',
-        backgroundColor: 'color-mix(in srgb, var(--background) 88%, transparent)',
-        backdropFilter: 'blur(10px) saturate(1.4)',
-        WebkitBackdropFilter: 'blur(10px) saturate(1.4)',
-        borderBottom: '1px solid var(--border)',
-      }}
-    >
+    <header className="navbar-header">
       {/* Left: mobile menu toggle */}
-      <div className="menu-wrap" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div className="menu-wrap">
         <button
           onClick={toggleSidebar}
-          style={{
-            padding: '8px',
-            border: 'none',
-            background: 'transparent',
-            color: 'var(--ink-muted)',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
           aria-label="Toggle menu"
-          className="mobile-menu-btn icon-btn"
+          className="navbar-menu-btn"
+          title="Toggle sidebar"
         >
-          <Menu size={20} />
+          <Menu size={18} />
         </button>
       </div>
 
-      {/* Brand (mobile only) */}
+      {/* Brand */}
       <div className="navbar-brand">
-        <img
-          src={favicon}
-          alt=""
-          style={{ width: 24, height: 24, flexShrink: 0, borderRadius: 4 }}
-        />
+        <div className="navbar-brand-icon">
+          <img
+            src={favicon}
+            alt="Khamosh Alfaaz"
+          />
+        </div>
         <div className="navbar-brand-text">
           <span className="navbar-brand-title">Khamosh Alfaaz</span>
           <span className="navbar-brand-tagline">
-            <span>Jo keh nahi paaye,</span>
-            <span>likh do.</span>
+            Jo keh nahi paaye, likh do.
           </span>
         </div>
       </div>
@@ -99,19 +79,7 @@ export const Navbar = () => {
             aria-expanded={showFontMenu}
             aria-haspopup="true"
             title="Font style"
-            className="theme-pill"
-            style={{
-              width: '30px',
-              height: '30px',
-              borderRadius: '50%',
-              border: 'none',
-              background: showFontMenu ? 'rgba(216,168,91,0.18)' : 'transparent',
-              color: showFontMenu ? 'var(--gold)' : 'var(--ink-light)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            className={`navbar-action-btn ${showFontMenu ? 'active' : ''}`}
           >
             <Type size={16} />
           </button>
@@ -119,20 +87,22 @@ export const Navbar = () => {
             <div
               style={{
                 position: 'absolute',
-                top: 'calc(100% + 8px)',
+                top: 'calc(100% + 10px)',
                 right: 0,
-                backgroundColor: 'var(--card-bg)',
-                border: '1px solid var(--border)',
-                borderRadius: '12px',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-                minWidth: '235px',
+                backgroundColor: 'color-mix(in srgb, var(--card-bg) 95%, transparent)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(223, 178, 100, 0.22)',
+                borderRadius: '14px',
+                boxShadow: '0 16px 40px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(223, 178, 100, 0.08)',
+                minWidth: '240px',
                 padding: '8px',
                 zIndex: 60,
-                animation: 'scaleIn 0.2s ease',
+                animation: 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
             >
-              <p style={{ margin: '2px 10px 6px', fontFamily: 'var(--font-family-ui)', fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--ink-light)' }}>
-                Font style
+              <p style={{ margin: '4px 10px 8px', fontFamily: 'var(--font-family-ui)', fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gold)' }}>
+                Typography Style
               </p>
               {schemes.map(s => {
                 const active = fontScheme === s.id;
@@ -193,125 +163,40 @@ export const Navbar = () => {
           )}
         </div>
 
-        <div
-          role="group"
-          aria-label="Theme switcher"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: 'var(--input-bg)',
-            border: '1px solid var(--border)',
-            borderRadius: '18px',
-            padding: '2px',
-            gap: '2px',
-          }}
+        {/* Theme Toggle Button */}
+        <button
+          onClick={toggleTheme}
+          aria-label={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="navbar-action-btn theme-btn"
         >
-          <button
-            onClick={() => setTheme('light')}
-            aria-label="Switch to light theme"
-            aria-pressed={resolvedTheme === 'light'}
-            title="Light mode"
-            className="theme-pill"
-            style={{
-              width: '30px',
-              height: '30px',
-              borderRadius: '50%',
-              border: 'none',
-              background: resolvedTheme === 'light' ? 'rgba(216,168,91,0.18)' : 'transparent',
-              color: resolvedTheme === 'light' ? 'var(--gold)' : 'var(--ink-light)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Sun size={16} />
-          </button>
-          <button
-            onClick={() => setTheme('dark')}
-            aria-label="Switch to dark theme"
-            aria-pressed={resolvedTheme === 'dark'}
-            title="Dark mode"
-            className="theme-pill"
-            style={{
-              width: '30px',
-              height: '30px',
-              borderRadius: '50%',
-              border: 'none',
-              background: resolvedTheme === 'dark' ? 'rgba(216,168,91,0.18)' : 'transparent',
-              color: resolvedTheme === 'dark' ? 'var(--gold)' : 'var(--ink-light)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Moon size={16} />
-          </button>
-        </div>
+          {resolvedTheme === 'dark' ? (
+            <Sun size={17} />
+          ) : (
+            <Moon size={17} />
+          )}
+        </button>
 
+        {/* User Account Button */}
         {isAuthenticated && (
           <div style={{ position: 'relative' }} ref={userMenuRef}>
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '4px 10px 4px 4px',
-                border: '1px solid var(--border)',
-                background: 'rgba(255, 255, 255, 0.03)',
-                color: 'var(--ink)',
-                borderRadius: '9999px',
-                cursor: 'pointer',
-                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.35)';
-                e.currentTarget.style.backgroundColor = 'var(--hover-bg)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'var(--border)';
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
-              }}
+              className="navbar-user-btn"
               aria-expanded={showUserMenu}
               aria-haspopup="true"
+              title={name || 'My Account'}
             >
-              <div
-                style={{
-                  width: '30px',
-                  height: '30px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%)',
-                  color: '#120f0c',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 700,
-                  fontSize: '0.80rem',
-                  flexShrink: 0,
-                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.25)',
-                }}
-              >
+              <div className="navbar-user-avatar">
                 {getInitials(name || 'AW')}
               </div>
-              <span
-                className="navbar-user-name"
-                style={{
-                  fontWeight: 500,
-                  fontSize: '0.84rem',
-                  color: 'var(--ink)',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <span className="navbar-user-name">
                 {name || 'Anonymous Writer'}
               </span>
               <ChevronDown
                 size={14}
                 className="navbar-chevron"
                 style={{
-                  color: 'var(--ink-muted)',
-                  transition: 'transform 0.2s ease',
                   transform: showUserMenu ? 'rotate(180deg)' : 'none',
                 }}
               />
@@ -321,20 +206,23 @@ export const Navbar = () => {
               <div
                 style={{
                   position: 'absolute',
-                  top: 'calc(100% + 8px)',
+                  top: 'calc(100% + 10px)',
                   right: 0,
-backgroundColor: 'var(--card-bg)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '12px',
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-                    minWidth: '190px',
+                  backgroundColor: 'color-mix(in srgb, var(--card-bg) 95%, transparent)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(223, 178, 100, 0.22)',
+                  borderRadius: '14px',
+                  boxShadow: '0 16px 40px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(223, 178, 100, 0.08)',
+                  minWidth: '200px',
                   padding: '8px',
-                  animation: 'scaleIn 0.2s ease',
+                  zIndex: 60,
+                  animation: 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
                 }}
               >
-                <div style={{ padding: '6px 12px', borderBottom: '1px solid var(--border)', marginBottom: '4px' }}>
-                  <p style={{ margin: 0, fontWeight: 500, color: 'var(--ink)', fontSize: '0.88rem' }}>{name || 'Anonymous Writer'}</p>
-                  <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--ink-muted)' }}>Protected session</p>
+                <div style={{ padding: '8px 12px 10px', borderBottom: '1px solid var(--border)', marginBottom: '4px' }}>
+                  <p style={{ margin: 0, fontWeight: 600, color: 'var(--ink)', fontSize: '0.88rem' }}>{name || 'Anonymous Writer'}</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '0.72rem', color: 'var(--gold)', opacity: 0.9 }}>Protected Session</p>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -343,14 +231,21 @@ backgroundColor: 'var(--card-bg)',
                     alignItems: 'center',
                     gap: '8px',
                     width: '100%',
-                    padding: '8px 12px',
+                    padding: '9px 12px',
                     border: 'none',
                     background: 'transparent',
                     color: 'var(--error)',
-                    borderRadius: '8px',
+                    borderRadius: '9px',
                     cursor: 'pointer',
                     fontSize: '0.85rem',
                     fontFamily: 'inherit',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
                   }}
                 >
                   <LogOut size={16} />

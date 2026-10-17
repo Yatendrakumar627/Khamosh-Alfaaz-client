@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { sessionApi } from '../services/api';
+import { sessionApi, healthApi } from '../services/api';
 import { STORAGE_KEYS } from '../constants';
 
 const SessionContext = createContext(null);
@@ -9,10 +9,20 @@ const getErrorMessage = (err) => err?.response?.data?.error || err?.response?.da
 export const SessionProvider = ({ children }) => {
   const [visitor, setVisitor] = useState(null);
   const [name, setNameState] = useState('');
-  const [loading, setLoading] = useState(true);
+  // Non-blocking: Unauthenticated visitors (no ka_token) load the UI immediately without waiting for server cold boot
+  const hasStoredToken = typeof window !== 'undefined' && Boolean(localStorage.getItem('ka_token'));
+  const [loading, setLoading] = useState(hasStoredToken);
   const [error, setError] = useState(null);
 
   const fetchSession = useCallback(async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('ka_token') : null;
+    if (!token) {
+      // No credentials stored: Visitor mode is active. Silently pre-warm server in background.
+      setLoading(false);
+      healthApi.check().catch(() => {});
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await sessionApi.get();
@@ -24,6 +34,9 @@ export const SessionProvider = ({ children }) => {
       setVisitor(null);
       setNameState('');
       setError(getErrorMessage(err));
+      if (err?.response?.status === 401 && typeof window !== 'undefined') {
+        localStorage.removeItem('ka_token');
+      }
     } finally {
       setLoading(false);
     }
@@ -113,7 +126,7 @@ export const SessionProvider = ({ children }) => {
     const pingBackend = async () => {
       try {
         lastPing = Date.now();
-        await sessionApi.get();
+        await healthApi.check();
       } catch {
         // Silently ignore ping errors
       }

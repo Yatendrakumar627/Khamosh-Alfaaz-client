@@ -62,11 +62,9 @@ export const ThemeProvider = ({ children }) => {
   }, [theme, getSystemTheme, applyTheme, mounted]);
 
   const toggleTheme = useCallback(() => {
-    const themes = THEMES.map(t => t.value);
-    const currentIndex = themes.indexOf(theme);
-    const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
-  }, [theme, setTheme]);
+    const nextTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+  }, [resolvedTheme, setTheme]);
 
   const value = {
     theme,
