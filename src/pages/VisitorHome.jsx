@@ -85,15 +85,16 @@ export const VisitorHome = () => {
         </div>
 
         {/* Logo Emblem */}
-        <div style={{ position: 'relative', marginTop: '4px' }}>
+        <div style={{ position: 'relative', marginTop: '4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
           <img
             src={favicon}
             alt="Khamosh Alfaaz emblem"
             style={{
-              width: 54,
-              height: 54,
-              borderRadius: 12,
-              boxShadow: '0 4px 16px rgba(223, 178, 100, 0.25)',
+              width: 64,
+              height: 64,
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 4px 16px rgba(223, 178, 100, 0.45)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2))',
+              display: 'block',
             }}
           />
         </div>

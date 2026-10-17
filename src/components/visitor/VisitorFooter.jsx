@@ -150,7 +150,7 @@ export const VisitorFooter = () => {
               <img
                 src={favicon}
                 alt=""
-                style={{ width: '24px', height: '24px', borderRadius: '6px' }}
+                style={{ width: '26px', height: '26px', objectFit: 'contain', filter: 'drop-shadow(0 1px 3px rgba(223, 178, 100, 0.35))' }}
               />
               <span
                 style={{

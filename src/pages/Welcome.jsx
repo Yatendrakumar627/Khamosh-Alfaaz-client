@@ -200,7 +200,14 @@ export const Welcome = () => {
           <img
             src={favicon}
             alt=""
-            style={{ width: '26px', height: '26px', borderRadius: '5px', marginBottom: '4px' }}
+            style={{
+              width: '36px',
+              height: '36px',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 2px 8px rgba(223, 178, 100, 0.4))',
+              marginBottom: '6px',
+              display: 'inline-block',
+            }}
           />
           <h1
             style={{

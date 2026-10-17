@@ -263,7 +263,7 @@ export const Sidebar = () => {
                   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
                 }}
               >
-                <img src={favicon} alt="Khamosh Alfaaz" style={{ width: 20, height: 20, borderRadius: 3 }} />
+                <img src={favicon} alt="Khamosh Alfaaz" style={{ width: 22, height: 22, objectFit: 'contain', filter: 'drop-shadow(0 1px 3px rgba(223, 178, 100, 0.35))' }} />
               </div>
               <div style={{ minWidth: 0 }}>
                 <h1
@@ -350,7 +350,7 @@ export const Sidebar = () => {
               onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
             >
-              <img src={favicon} alt="Khamosh Alfaaz" style={{ width: 20, height: 20, borderRadius: 3 }} />
+              <img src={favicon} alt="Khamosh Alfaaz" style={{ width: 22, height: 22, objectFit: 'contain', filter: 'drop-shadow(0 1px 3px rgba(223, 178, 100, 0.35))' }} />
             </div>
             <span className="sidebar-tooltip">
               Khamosh Alfaaz

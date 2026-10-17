@@ -64,7 +64,7 @@ export const SplashScreen = ({ message = 'Opening your diary...' }) => {
         <img
           src={favicon}
           alt="Khamosh Alfaaz"
-          style={{ width: '32px', height: '32px', borderRadius: '4px' }}
+          style={{ width: '38px', height: '38px', objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(223, 178, 100, 0.45))' }}
         />
       </div>
 

@@ -197,7 +197,7 @@ export const MobileNavigation = () => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-            <img src={favicon} alt="" style={{ width: 20, height: 20, flexShrink: 0, borderRadius: 4 }} />
+            <img src={favicon} alt="" style={{ width: 22, height: 22, flexShrink: 0, objectFit: 'contain', filter: 'drop-shadow(0 1px 3px rgba(223, 178, 100, 0.35))' }} />
             <div style={{ minWidth: 0 }}>
               <h1
                 style={{
