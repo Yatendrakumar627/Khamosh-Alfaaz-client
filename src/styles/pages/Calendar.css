@@ -1,0 +1,139 @@
+/* ──────────────────────────────────────────────────────────
+   Calendar
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.cal-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.cal-nav-btn:hover {
+  background-color: var(--hover-bg);
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--gold) 45%, var(--border));
+}
+
+.cal-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.cal-today-btn {
+  font-family: var(--font-family-ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--border));
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+  color: var(--gold-dark);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.cal-today-btn:hover {
+  background-color: color-mix(in srgb, var(--gold) 18%, transparent);
+  border-color: var(--gold);
+}
+
+.cal-today-btn:active {
+  transform: scale(0.96);
+}
+
+.cal-nav-btn:focus-visible,
+.cal-today-btn:focus-visible,
+.cal-day-cell:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.cal-day-cell {
+  transition: all 0.15s ease !important;
+}
+
+.cal-day-cell:hover:not(:disabled):not(.selected) {
+  background-color: var(--hover-bg) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.cal-day-cell:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.cal-day-cell:disabled {
+  cursor: default;
+}
+
+@media (max-width: 767.98px) {
+  /* Calendar day view behaves like a bottom sheet */
+  .cal-day-overlay {
+    align-items: flex-end !important;
+    padding: 12px 0 !important;
+  }
+  .cal-day-sheet {
+    border-radius: 18px 18px 0 0 !important;
+    max-height: 88dvh !important;
+  }
+  /* Calendar page — compact month header on phones */
+  .cal-month-header {
+    flex-wrap: wrap !important;
+    gap: var(--spacing-sm) !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+  }
+  .cal-month-title {
+    font-size: 1.2rem !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cal-nav-btn {
+    width: 32px;
+    height: 32px;
+  }
+  .cal-day-cell {
+    padding: 2px !important;
+    font-size: 0.82rem !important;
+  }
+}
+
+@media (max-width: 479.98px) {
+  /* Calendar page — tighter day cells on small phones */
+  .cal-day-cell {
+    font-size: 0.78rem !important;
+  }
+}
+
+.calendar-page-container {
+  padding: 24px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .calendar-page-container {
+    padding: 12px 8px !important;
+  }
+  .cal-month-header {
+    padding: 10px 12px !important;
+  }
+  .cal-month-title {
+    font-size: 1.25rem !important;
+  }
+  .cal-day-cell {
+    font-size: 0.82rem !important;
+    padding: 2px 1px !important;
+  }
+}

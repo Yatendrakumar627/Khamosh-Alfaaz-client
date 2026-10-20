@@ -1,0 +1,38 @@
+/* ──────────────────────────────────────────────────────────
+   Categories
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.category-hub-card {
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.category-hub-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold) !important;
+  box-shadow: 0 8px 24px rgba(122, 92, 52, 0.12) !important;
+}
+
+.category-sections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.custom-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  /* Page containers and toolbars on mobile */
+  .category-sections-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .custom-categories-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+}

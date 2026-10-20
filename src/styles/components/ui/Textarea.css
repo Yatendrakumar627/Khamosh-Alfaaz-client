@@ -1,0 +1,8 @@
+/* ──────────────────────────────────────────────────────────
+   Textarea
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.textarea-wrap {
+  position: relative;
+}

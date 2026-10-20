@@ -1,0 +1,82 @@
+/* ──────────────────────────────────────────────────────────
+   Favorites
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.favorites-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.favorites-search-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.favorites-search-input {
+  width: 100%;
+  padding: 9px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background-color: var(--input-bg);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.favorites-search-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(216, 168, 91, 0.15);
+}
+
+.favorites-filter-btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.favorites-filter-panel {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  background-color: var(--paper-dark);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.favorites-select {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.86rem;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.favorites-select:focus {
+  border-color: var(--gold);
+}
+
+@media (max-width: 640px) {
+  .favorites-toolbar {
+    gap: 8px !important;
+  }
+  .favorites-filter-panel {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .favorites-select {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+}

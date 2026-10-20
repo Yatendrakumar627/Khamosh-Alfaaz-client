@@ -5,7 +5,7 @@ import { EntryCard } from '../components/diary/EntryCard';
 import { SearchBar, FilterPopover, DatePickerPopover, EmptyState, ErrorState } from '../components/diary/SearchAndFilter';
 import { LoadingState } from '../components/ui/LoadingState';
 import { Button } from '../components/ui/Button';
-import { Plus, Filter, Calendar, X, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { Plus, Filter, Calendar, X, BookOpen } from 'lucide-react';
 import { formatDate, getEntryTypeLabel } from '../utils/helpers';
 import { classNames } from '../utils/helpers';
 import { useDateFilter } from '../context/DateFilterContext';
@@ -26,6 +26,8 @@ const FilterChip = ({ label, onClear }) => (
   </span>
 );
 
+const PAGE_SIZE = 12;
+
 export const Entries = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { date: selectedDate, setDate: setSelectedDate } = useDateFilter();
@@ -43,6 +45,7 @@ export const Entries = () => {
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarButtonRef = useRef(null);
   const datePopoverRef = useRef(null);
+  const loadMoreRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -83,16 +86,21 @@ export const Entries = () => {
   const {
     entries,
     loading,
+    loadingMore,
+    hasMore,
+    loadMore,
     error,
     pagination,
     params,
     searchEntries,
     setFilters: setApiFilters,
-    setPage,
+    deleteEntry,
+    toggleFavorite,
+    togglePin,
+    updateEntry,
     refresh,
   } = useEntries({
-    page: parseInt(searchParams.get('page')) || 1,
-    limit: 1000,
+    limit: PAGE_SIZE,
     type: filters.type,
     sort: filters.sort,
     favorite: filters.favorite,
@@ -100,8 +108,27 @@ export const Entries = () => {
     date: selectedDate,
   });
 
+  // Infinite scroll trigger when sentinel comes into viewport
+  useEffect(() => {
+    if (!hasMore || loading || loadingMore) return;
+    const sentinel = loadMoreRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasMore && !loadingMore && !loading) {
+          loadMore();
+        }
+      },
+      { rootMargin: '180px', threshold: 0.1 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadingMore, loadMore]);
+
   // Unified query updater: synchronizes URL parameters and executes API query
-  const updateEntriesQuery = useCallback((newFilters, newDate, newSearch, newPage = 1) => {
+  const updateEntriesQuery = useCallback((newFilters, newDate, newSearch) => {
     // 1. Synchronize URL search params
     const newParams = new URLSearchParams();
     if (newSearch) newParams.set('q', newSearch);
@@ -110,17 +137,15 @@ export const Entries = () => {
     if (newFilters.favorite) newParams.set('favorite', 'true');
     if (newFilters.pinned) newParams.set('pinned', 'true');
     if (newDate) newParams.set('date', newDate);
-    if (newPage > 1) newParams.set('page', newPage.toString());
     setSearchParams(newParams, { replace: true });
 
-    // 2. Fetch from API
-    setPage(newPage);
+    // 2. Fetch from API starting at page 1
     if (newSearch && newSearch.trim()) {
-      searchEntries(newSearch.trim(), { ...newFilters, date: newDate, page: newPage });
+      searchEntries(newSearch.trim(), { ...newFilters, date: newDate, page: 1, limit: PAGE_SIZE });
     } else {
-      setApiFilters({ ...newFilters, date: newDate, page: newPage });
+      setApiFilters({ ...newFilters, date: newDate, page: 1, limit: PAGE_SIZE, search: '' });
     }
-  }, [setSearchParams, setPage, searchEntries, setApiFilters]);
+  }, [setSearchParams, searchEntries, setApiFilters]);
 
   // Synchronize state when browser back/forward navigation occurs
   useEffect(() => {
@@ -150,31 +175,25 @@ export const Entries = () => {
 
   const handleSearchSubmit = (query) => {
     setSearchQuery(query);
-    updateEntriesQuery(filters, selectedDate, query, 1);
+    updateEntriesQuery(filters, selectedDate, query);
   };
 
   const handleFilterChange = (newFilters) => {
     const nextFilters = { ...filters, ...newFilters };
     setFilters(nextFilters);
-    updateEntriesQuery(nextFilters, selectedDate, searchQuery, 1);
+    updateEntriesQuery(nextFilters, selectedDate, searchQuery);
   };
 
   const handleDateSelect = (date) => {
     const nextDate = selectedDate === date ? '' : date;
     setSelectedDate(nextDate);
     setShowCalendar(false);
-    updateEntriesQuery(filters, nextDate, searchQuery, 1);
+    updateEntriesQuery(filters, nextDate, searchQuery);
   };
 
   const handleClearDate = () => {
     setSelectedDate('');
-    updateEntriesQuery(filters, '', searchQuery, 1);
-  };
-
-  const handlePageChange = (page) => {
-    setPage(page);
-    updateEntriesQuery(filters, selectedDate, searchQuery, page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    updateEntriesQuery(filters, '', searchQuery);
   };
 
   const clearAllFilters = () => {
@@ -184,7 +203,7 @@ export const Entries = () => {
     setSearchQuery('');
     setShowFilters(false);
     setShowCalendar(false);
-    updateEntriesQuery(resetFilters, '', '', 1);
+    updateEntriesQuery(resetFilters, '', '');
   };
 
   const hasActiveFilters = filters.type || filters.favorite || filters.pinned || filters.publicOnly || searchQuery || selectedDate;
@@ -209,7 +228,7 @@ export const Entries = () => {
             <div style={{ minWidth: 0 }}>
               <h1 className="entries-page-title">All Entries</h1>
               <p className="entries-page-meta">
-                {pagination.total ?? entries.length} {(pagination.total ?? entries.length) === 1 ? 'entry' : 'entries'}
+                Showing {entries.length} of {pagination.total ?? entries.length} {(pagination.total ?? entries.length) === 1 ? 'entry' : 'entries'}
                 {hasActiveFilters && <span className="entries-filter-indicator"> · filtered</span>}
               </p>
             </div>
@@ -391,69 +410,58 @@ export const Entries = () => {
                 index={index}
                 onEdit={(e) => window.location.href = `/entries/${e._id}/edit?from=${encodeURIComponent('/entries')}`}
                 onDelete={async (id) => {
-                  await entriesApi.delete(id);
-                  refresh();
+                  await deleteEntry(id);
                 }}
                 onFavorite={async (e, next) => {
-                  await entriesApi.toggleFavorite(e._id, next);
-                  refresh();
+                  await toggleFavorite(e._id, next);
                 }}
                 onPin={async (e, next) => {
-                  await entriesApi.togglePin(e._id, next);
-                  refresh();
+                  await togglePin(e._id, next);
                 }}
                 onVisibility={async (e, next) => {
-                  await entriesApi.update(e._id, { visibility: next });
-                  refresh();
+                  await updateEntry(e._id, { visibility: next });
                 }}
               />
             ))}
           </div>
 
-          {/* ── Pagination ── */}
-          {pagination.totalPages > 1 && (
-            <nav className="entries-pagination" aria-label="Pagination">
+          {/* ── Load More / Pagination Area ── */}
+          {hasMore && (
+            <div className="entries-load-more-section" ref={loadMoreRef}>
               <button
-                className="entries-pg-btn"
-                onClick={() => handlePageChange(params.page - 1)}
-                disabled={params.page <= 1}
-                aria-label="Previous page"
+                type="button"
+                className={`entries-load-more-btn${loadingMore ? ' loading' : ''}`}
+                onClick={loadMore}
+                disabled={loadingMore}
+                aria-label="Load more entries"
               >
-                <ChevronLeft size={16} />
-                <span>Prev</span>
+                {loadingMore ? (
+                  <span className="entries-load-more-spinner-content">
+                    <span className="entries-load-more-spinner" aria-hidden="true" />
+                    <span>Loading more memories...</span>
+                  </span>
+                ) : (
+                  <span className="entries-load-more-content">
+                    <span>Load More Entries</span>
+                    <span className="entries-load-more-badge">
+                      +{Math.min(PAGE_SIZE, (pagination.total || 0) - entries.length)}
+                    </span>
+                  </span>
+                )}
               </button>
 
-              <div className="entries-pg-pages">
-                {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (pagination.totalPages <= 5) pageNum = i + 1;
-                  else if (params.page <= 3) pageNum = i + 1;
-                  else if (params.page >= pagination.totalPages - 2) pageNum = pagination.totalPages - 4 + i;
-                  else pageNum = params.page - 2 + i;
-                  return (
-                    <button
-                      key={pageNum}
-                      className={`entries-pg-num${params.page === pageNum ? ' active' : ''}`}
-                      onClick={() => handlePageChange(pageNum)}
-                      aria-label={`Page ${pageNum}`}
-                      aria-current={params.page === pageNum ? 'page' : undefined}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-              </div>
+              <p className="entries-load-more-progress">
+                Showing {entries.length} of {pagination.total} entries
+              </p>
+            </div>
+          )}
 
-              <button
-                className="entries-pg-btn"
-                onClick={() => handlePageChange(params.page + 1)}
-                disabled={params.page >= pagination.totalPages}
-                aria-label="Next page"
-              >
-                <span>Next</span>
-                <ChevronRight size={16} />
-              </button>
-            </nav>
+          {!hasMore && entries.length > 0 && (pagination.total || 0) > PAGE_SIZE && (
+            <div className="entries-caught-up-banner">
+              <span className="entries-caught-up-line" />
+              <span className="entries-caught-up-text">✦ All {pagination.total} entries loaded · You're all caught up ✦</span>
+              <span className="entries-caught-up-line" />
+            </div>
           )}
         </>
       )}

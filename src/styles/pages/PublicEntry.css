@@ -1,0 +1,8 @@
+/* ──────────────────────────────────────────────────────────
+   PublicEntry
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.candle-active {
+  animation: candleFlicker 2.4s infinite ease-in-out;
+}

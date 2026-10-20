@@ -1,0 +1,106 @@
+/* ──────────────────────────────────────────────────────────
+   MainLayout
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.layout-main-row{
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+}
+
+.dashboard-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.layout-body {
+  padding-left: 60px;
+  transition: padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.layout-body.sidebar-expanded {
+  padding-left: 260px;
+}
+
+.layout-body.sidebar-collapsed {
+  padding-left: 60px;
+}
+
+.layout-main-row {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  padding: 0 20px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dashboard-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 16px 0 40px;
+  box-sizing: border-box;
+}
+
+.layout-main-row .dashboard-main {
+  scrollbar-gutter: stable;
+}
+
+@media (max-width: 1199.98px) {
+  .layout-body,
+  .layout-body.sidebar-expanded,
+  .layout-body.sidebar-collapsed {
+    padding-left: 0 !important;
+  }
+  .layout-main-row {
+    flex-direction: column;
+    overflow: visible !important;
+  }
+  .layout-main-row .dashboard-main {
+    overflow: visible;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .layout-main-row {
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 0 14px !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .dashboard-main {
+    padding: 12px 0 96px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .dashboard-main {
+    padding: 12px 0 96px !important;
+    gap: 20px !important;
+  }
+  /* Defensive: no horizontal spill may push the dashboard out of frame on phones */
+  .layout-main-row .dashboard-main {
+    overflow-x: clip;
+  }
+  /* Page shells rely on the .layout-main-row gutter instead of their inline 32px padding */
+  .dashboard-main > div {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .dashboard-main .diary-page {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+  .layout-shell {
+    min-height: 100dvh !important;
+  }
+  .dashboard-main{
+    padding-bottom: 96px !important;
+  
+}
+}

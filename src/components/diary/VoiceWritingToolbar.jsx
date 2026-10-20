@@ -26,13 +26,10 @@ import {
  * An ambient, luxury stationery styled Voice-to-Text Dictation toolbar.
  * Embedded directly above or within the writing canvas in EntryEditor.
  *
- * Senior Mobile-First Capabilities:
- * - Direct Native STT on mobile (Android Chrome, iOS Safari) with zero mic locking
- * - Universal Fallback STT for Firefox, Android WebViews, standalone apps, and Opera
- * - Real-time interim & final speech recognition auto-inserted into writing canvas
- * - Emotion & sensation-aware smart punctuation (questions, awe, yearnings)
- * - Dynamic sound wave visualizer responding fluidly to speech
- * - Post-transcription & manual smart punctuate tools
+ * Professional 3-Zone Justified Layout:
+ * - Left Zone: Primary Dictation Action Trigger (Pill button with pulsing indicator)
+ * - Center Zone: Dynamic Centerpiece (Live Soundwave / Shimmer Transcribing / Ambient Guide)
+ * - Right Zone: Clean Utilities & Language Selector (Zero duplicate codes, screen-bound dropdown)
  */
 export const VoiceWritingToolbar = ({
   content = '',
@@ -92,8 +89,6 @@ export const VoiceWritingToolbar = ({
   } = useVoiceRecorderWithSTT({
     language: selectedLang,
     enablePunctuation: true,
-    // Do NOT lock microphone with MediaRecorder when dictating into editor,
-    // unless caller explicitly asked to save raw audio files.
     recordAudio: Boolean(onAudioSave),
     onFinalTranscriptChunk: (chunk) => {
       if (autoInsert && onContentChange && chunk) {
@@ -131,20 +126,22 @@ export const VoiceWritingToolbar = ({
 
   const currentLangObj = SPEECH_LANGUAGES.find((l) => l.code === selectedLang) || SPEECH_LANGUAGES[0];
 
-  // Number of soundwave bars to display with dynamic speech response
+  // Dynamic 7-bar soundwave reacting to speech amplitude
   const waveBars = [
-    Math.min(100, Math.max(12, Math.round(audioLevel * 0.85))),
-    Math.min(100, Math.max(20, Math.round(audioLevel * 1.25))),
-    Math.min(100, Math.max(8, Math.round(audioLevel * 0.65))),
-    Math.min(100, Math.max(26, Math.round(audioLevel * 1.45))),
-    Math.min(100, Math.max(15, Math.round(audioLevel * 1.05))),
+    Math.min(100, Math.max(10, Math.round(audioLevel * 0.75))),
+    Math.min(100, Math.max(22, Math.round(audioLevel * 1.2))),
+    Math.min(100, Math.max(34, Math.round(audioLevel * 1.5))),
+    Math.min(100, Math.max(14, Math.round(audioLevel * 0.9))),
+    Math.min(100, Math.max(30, Math.round(audioLevel * 1.35))),
+    Math.min(100, Math.max(18, Math.round(audioLevel * 1.05))),
+    Math.min(100, Math.max(12, Math.round(audioLevel * 0.7))),
   ];
 
   return (
     <div className={`voice-writing-toolbar ${className}`}>
-      {/* Main Bar */}
+      {/* Main Justified Bar */}
       <div className="voice-toolbar-main">
-        {/* Left: Mic Activation Button */}
+        {/* Left Zone: Action Trigger Button */}
         <div className="voice-toolbar-left">
           <button
             type="button"
@@ -169,11 +166,11 @@ export const VoiceWritingToolbar = ({
           >
             <div className="mic-icon-wrapper">
               {isTranscribing ? (
-                <Loader2 size={16} className="spinner-icon spinning" />
+                <Loader2 size={15} className="spinner-icon spinning" />
               ) : isRecording ? (
                 <Square size={13} className="stop-icon" />
               ) : (
-                <Mic size={16} />
+                <Mic size={15} />
               )}
               {isRecording && <span className="mic-pulse-ring" />}
             </div>
@@ -197,25 +194,40 @@ export const VoiceWritingToolbar = ({
               )}
             </span>
           </button>
+        </div>
 
-          {/* Audio Visualizer Wave (Active while listening) */}
-          {isRecording && (
-            <div className="voice-soundwave" aria-label="Microphone activity visualizer">
+        {/* Center Zone: Dynamic Visualizer or Ambient Guide */}
+        <div className="voice-toolbar-center">
+          {isRecording ? (
+            <div className="voice-soundwave-center" aria-label="Microphone activity visualizer">
               {waveBars.map((height, i) => (
                 <span
                   key={i}
                   className="soundwave-bar"
                   style={{
                     height: `${Math.max(4, Math.round(height * 0.22))}px`,
-                    animationDuration: `${0.4 + i * 0.15}s`,
+                    animationDuration: `${0.35 + (i % 3) * 0.14}s`,
                   }}
                 />
               ))}
             </div>
+          ) : isTranscribing ? (
+            <div className="voice-status-center transcribing">
+              <Sparkles size={12} className="gold-icon sparkle-anim" />
+              <span className="center-status-text">Transcribing voice note...</span>
+            </div>
+          ) : (
+            <div className="voice-status-center idle">
+              <span className="voice-center-ambient">
+                <span className="ambient-pulse-dot" />
+                <span className="ambient-text-desktop">Speak naturally in {currentLangObj.label.split(' ')[0]}</span>
+                <span className="ambient-text-mobile">Speak in {currentLangObj.short || 'EN'}</span>
+              </span>
+            </div>
           )}
         </div>
 
-        {/* Right: Controls & Language Selection */}
+        {/* Right Zone: Clean Utilities & Language Selector (Zero Duplicates) */}
         <div className="voice-toolbar-right">
           {/* Language Selector Dropdown */}
           <div className="voice-lang-dropdown-anchor" ref={langMenuRef}>
@@ -227,15 +239,10 @@ export const VoiceWritingToolbar = ({
               aria-expanded={showLangMenu}
               title="Select speech recognition language"
             >
-              <Languages size={14} className="voice-lang-icon" />
-              <span className="voice-lang-label">
-                <span className="voice-lang-flag">{currentLangObj.flag}</span>
-                <span className="voice-lang-text-desktop">{currentLangObj.label.split(' ')[0]}</span>
-                <span className="voice-lang-text-mobile">
-                  {currentLangObj.code.slice(0, 2).toUpperCase()}
-                </span>
-              </span>
-              <ChevronDown size={12} className={`voice-chevron ${showLangMenu ? 'open' : ''}`} />
+              <Languages size={13} className="voice-lang-icon" />
+              <span className="voice-lang-code-badge">{currentLangObj.short || currentLangObj.code.slice(0, 2).toUpperCase()}</span>
+              <span className="voice-lang-text-desktop">{currentLangObj.label.split(' ')[0]}</span>
+              <ChevronDown size={11} className={`voice-chevron ${showLangMenu ? 'open' : ''}`} />
             </button>
 
             {showLangMenu && (
@@ -250,7 +257,7 @@ export const VoiceWritingToolbar = ({
                     className={`voice-lang-item ${item.code === selectedLang ? 'selected' : ''}`}
                     onClick={() => handleLanguageSelect(item.code)}
                   >
-                    <span className="voice-lang-item-flag">{item.flag}</span>
+                    <span className="voice-lang-pill-badge">{item.short || item.code.slice(0, 2).toUpperCase()}</span>
                     <span className="voice-lang-item-name">{item.label}</span>
                     {item.code === selectedLang && <Check size={13} className="voice-lang-check" />}
                   </button>
@@ -341,7 +348,7 @@ export const VoiceWritingToolbar = ({
         <div className="voice-support-hint">
           <Sparkles size={13} className="gold-icon" />
           <span>
-            Universal Voice Typing enabled for your browser & mobile app. Tap <strong>Speak</strong>, talk naturally, then tap <strong>Stop</strong> to write.
+            Universal Voice Typing enabled. Tap <strong>Speak</strong>, talk naturally, then tap <strong>Stop</strong> to write.
           </span>
         </div>
       )}
@@ -351,7 +358,7 @@ export const VoiceWritingToolbar = ({
         <div className="voice-support-hint">
           <Info size={13} />
           <span>
-            Microphone recording is unavailable. Please ensure microphone permissions are granted in your browser or device settings.
+            Microphone recording is unavailable. Please ensure microphone permissions are granted in your browser settings.
           </span>
         </div>
       )}

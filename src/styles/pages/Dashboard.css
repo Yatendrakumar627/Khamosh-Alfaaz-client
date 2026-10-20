@@ -1,0 +1,94 @@
+/* ──────────────────────────────────────────────────────────
+   Dashboard
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.view-all-link:hover svg {
+  transform: translateX(3px);
+}
+
+.view-all-link svg {
+  transition: transform 0.2s ease;
+}
+
+@media (max-width: 767.98px) {
+  /* Mobile welcome banner — elegant 2-tier layout (greeting top, chips below) */
+  .dash-welcome {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    width: 100% !important;
+    padding: 4px 0 2px !important;
+  }
+  .dash-welcome-user {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .dash-avatar {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
+  }
+  .dash-greeting-wrap {
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+  .dash-greeting-time {
+    font-size: 0.68rem !important;
+    letter-spacing: 0.1em !important;
+  }
+  .dash-greeting {
+    font-size: 1.35rem !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.2 !important;
+    word-break: break-word !important;
+  }
+  .dash-root {
+    gap: 16px !important;
+  }
+  .dash-stat-chips {
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+  .dash-stat-chip {
+    padding: 5px 12px !important;
+    font-size: 0.76rem !important;
+    gap: 6px !important;
+    border-radius: 9999px !important;
+    white-space: nowrap !important;
+  }
+  .dash-stat-chip > svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+  /* Recent entries section header — clean alignment on mobile */
+  .dash-recent-header {
+    align-items: center !important;
+    gap: 10px !important;
+  }
+  .dash-recent-header h2 {
+    font-size: 1.05rem !important;
+    gap: 8px !important;
+  }
+  .dash-recent-header .ornament-divider {
+    display: none !important;
+  }
+  .dash-recent-header .view-all-link {
+    font-size: 0.78rem !important;
+    padding: 4px 10px !important;
+    gap: 4px !important;
+  }
+  .dash-recent-header .view-all-link svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+}

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useMediaQuery } from '@mantine/hooks';
 import {
   CalendarClock,
-  ChevronRight,
   Search,
   SearchX,
   X,
@@ -16,6 +15,7 @@ import {
   FileText,
   Heart,
   Circle,
+  ChevronRight,
 } from 'lucide-react';
 import { formatDate } from '../../utils/helpers';
 import { Modal } from '../ui/Modal';
@@ -149,6 +149,7 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
   }
 
   const totalCount = allEntries(grouped).length;
+  const activeBuckets = BUCKETS.filter(bucket => grouped[bucket.key].length > 0);
 
   if (totalCount === 0) {
     return null;
@@ -173,114 +174,53 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
         }}
         className="paper-texture"
       >
-        <header style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          padding: '12px 14px',
-          borderBottom: '1px solid var(--border)',
-        }}>
-          <div style={{
-            width: '30px',
-            height: '30px',
-            borderRadius: '9px',
-            backgroundColor: 'rgba(223, 178, 100, 0.12)',
-            border: '1px solid rgba(223, 178, 100, 0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}>
+        <header
+          onClick={() => openModal(ALL_KEY)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openModal(ALL_KEY);
+            }
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="View all recent memories"
+          className="recent-mem-header"
+        >
+          <div className="recent-mem-header-iconbox">
             <CalendarClock size={16} style={{ color: 'var(--gold)' }} />
           </div>
           <div style={{ minWidth: 0, flex: 1 }}>
-            <h3 style={{
-              fontFamily: 'var(--font-family-heading)',
-              fontSize: '0.94rem',
-              fontWeight: 600,
-              margin: 0,
-              color: 'var(--ink)',
-              lineHeight: 1.2,
-            }}>
+            <h3 className="recent-mem-title">
               Recent Memories
             </h3>
             <p style={{ margin: '1px 0 0', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
               {totalCount} {totalCount === 1 ? 'memory' : 'memories'} across time
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => openModal(ALL_KEY)}
-            aria-label="View all recent memories"
-            className="icon-btn"
-            style={{
-              padding: '6px',
-              border: 'none',
-              background: 'transparent',
-              color: 'var(--ink-muted)',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <ChevronRight size={16} />
-          </button>
         </header>
 
         <div style={{ padding: '12px 12px 8px' }}>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
-            {BUCKETS.map(bucket => {
-              const count = grouped[bucket.key].length;
-              if (count === 0) return null;
-              return (
-                <button
-                  key={bucket.key}
-                  type="button"
-                  onClick={() => openModal(bucket.key)}
-                  className="recent-mem-pill"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '4px 10px',
-                    borderRadius: '9999px',
-                    border: '1px solid var(--border)',
-                    background: 'var(--paper-dark)',
-                    color: 'var(--ink)',
-                    fontSize: '0.73rem',
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.4)';
-                    e.currentTarget.style.backgroundColor = 'var(--active-bg)';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'var(--border)';
-                    e.currentTarget.style.backgroundColor = 'var(--paper-dark)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <span>{bucket.label}</span>
-                  <span style={{
-                    fontSize: '0.66rem',
-                    fontWeight: 700,
-                    padding: '1px 6px',
-                    borderRadius: '9999px',
-                    background: 'rgba(223, 178, 100, 0.16)',
-                    color: 'var(--gold)',
-                    fontVariantNumeric: 'tabular-nums',
-                  }}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          {activeBuckets.length > 0 && (
+            <div className="recent-mem-grid">
+              {activeBuckets.map((bucket, index) => {
+                const count = grouped[bucket.key].length;
+                const isOddLast = activeBuckets.length % 2 === 1 && index === activeBuckets.length - 1;
+                return (
+                  <button
+                    key={bucket.key}
+                    type="button"
+                    onClick={() => openModal(bucket.key)}
+                    className={`recent-mem-btn ${isOddLast ? 'recent-mem-btn-span-full' : ''}`}
+                    aria-label={`View ${bucket.label} memories (${count})`}
+                  >
+                    <span className="recent-mem-btn-label">{bucket.label}</span>
+                    <span className="recent-mem-btn-count">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             {topEntries.map(entry => (
@@ -408,7 +348,8 @@ const RecentMemoriesContent = ({
     trimmedQuery ? list.filter(entry => matchesSearch(entry, trimmedQuery)) : list,
   );
 
-  const pills = [{ key: ALL_KEY, label: 'All' }, ...BUCKETS];
+  const availableBuckets = BUCKETS.filter(b => (grouped[b.key]?.length || 0) > 0 || b.key === activeBucket);
+  const pills = [{ key: ALL_KEY, label: 'All' }, ...availableBuckets];
   const activeLabel = activeBucket === ALL_KEY ? 'All periods' : (BUCKETS.find(b => b.key === activeBucket) || {}).label;
 
   return (
@@ -421,10 +362,10 @@ const RecentMemoriesContent = ({
         maxHeight: isMobile ? 'calc(100dvh - 130px)' : 'calc(100dvh - 190px)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', minWidth: 0 }}>
+        <div className="rm-pills-container">
           {pills.map(pill => {
-            const count = pill.key === ALL_KEY ? totalCount : grouped[pill.key].length;
+            const count = pill.key === ALL_KEY ? totalCount : (grouped[pill.key]?.length || 0);
             const active = activeBucket === pill.key;
             return (
               <button
@@ -434,14 +375,14 @@ const RecentMemoriesContent = ({
                 className={active ? 'rm-pill rm-pill-active' : 'rm-pill'}
                 aria-pressed={active}
               >
-                {pill.label}
+                <span>{pill.label}</span>
                 {count > 0 && <span className="rm-pill-badge">{count}</span>}
               </button>
             );
           })}
         </div>
 
-        <span style={{ fontSize: '0.78rem', color: 'var(--ink-muted)', fontWeight: 500 }}>
+        <span className="rm-count-label">
           {visible.length} {visible.length === 1 ? 'memory' : 'memories'}
         </span>
       </div>
@@ -492,7 +433,7 @@ const RecentMemoriesContent = ({
         )}
       </div>
 
-      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '2px' }}>
+      <div className="rm-list-scroll" style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '2px' }}>
         {visible.length === 0 ? (
           <div style={{
             flex: 1,

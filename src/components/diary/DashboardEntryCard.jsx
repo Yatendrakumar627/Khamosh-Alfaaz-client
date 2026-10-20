@@ -97,19 +97,20 @@ export const DashboardEntryCard = ({ entry, onDelete, index }) => {
       setShowMenu(false);
       return;
     }
-    const rect = btnRef.current.getBoundingClientRect();
-    const container = menuRef.current && menuRef.current.closest('.dashboard-main');
-    const cRect = container ? container.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
-    const viewportBottom = window.innerHeight;
-    const belowSpace = Math.min(viewportBottom, cRect.bottom) - rect.bottom;
-    const aboveSpace = rect.top - Math.max(0, cRect.top);
-    setOpenUp(belowSpace < POPUP_HEIGHT && aboveSpace > belowSpace);
+    const rect = btnRef.current ? btnRef.current.getBoundingClientRect() : null;
+    if (rect) {
+      const container = menuRef.current && menuRef.current.closest('.dashboard-main');
+      const cRect = container ? container.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+      const viewportBottom = window.innerHeight;
+      const belowSpace = Math.min(viewportBottom, cRect.bottom) - rect.bottom;
+      const aboveSpace = rect.top - Math.max(0, cRect.top);
+      setOpenUp(belowSpace < POPUP_HEIGHT && aboveSpace > belowSpace);
+    }
     setShowMenu(true);
   };
 
   return (
     <div
-      ref={menuRef}
       className={showMenu ? 'menu-open' : undefined}
       style={{
         position: 'relative',
@@ -244,143 +245,155 @@ export const DashboardEntryCard = ({ entry, onDelete, index }) => {
             </span>
           )}
 
-          <button
-            ref={btnRef}
-            type="button"
-            onClick={openMenu}
-            onKeyDown={(e) => e.stopPropagation()}
-            aria-label="More options"
-            aria-expanded={showMenu}
-            className="icon-btn"
-            style={{
-              marginTop: 'auto',
-              padding: '5px',
-              background: 'transparent',
-              color: 'var(--ink-light)',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <MoreVertical size={15} />
-          </button>
+          <div ref={menuRef} style={{ position: 'relative', marginTop: 'auto', display: 'inline-flex' }}>
+            <button
+              ref={btnRef}
+              type="button"
+              onClick={openMenu}
+              onKeyDown={(e) => e.stopPropagation()}
+              aria-label="More options"
+              aria-expanded={showMenu}
+              className="icon-btn"
+              style={{
+                padding: '5px',
+                background: 'transparent',
+                color: 'var(--ink-light)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <MoreVertical size={15} />
+            </button>
+
+            {/* ── Dropdown menu anchored directly to 3-dots button ── */}
+            {showMenu && (
+              <div
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'absolute',
+                  top: openUp ? 'auto' : 'calc(100% + 4px)',
+                  bottom: openUp ? 'calc(100% + 4px)' : 'auto',
+                  right: 0,
+                  backgroundColor: 'var(--paper)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+                  minWidth: '180px',
+                  width: 'max-content',
+                  padding: '6px',
+                  zIndex: 100,
+                  animation: 'scaleIn 0.15s ease',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/entries/${entry._id}`); }}
+                  className="menu-item"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    width: '100%', padding: '9px 12px',
+                    border: 'none', background: 'transparent', color: 'var(--ink)',
+                    borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <Eye size={15} style={{ flexShrink: 0 }} /> Open
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/entries/${entry._id}/edit?from=${encodeURIComponent('/dashboard')}`); }}
+                  className="menu-item"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    width: '100%', padding: '9px 12px',
+                    border: 'none', background: 'transparent', color: 'var(--ink)',
+                    borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <Edit size={15} style={{ flexShrink: 0 }} /> Edit
+                </button>
+
+                <div className="menu-divider" role="separator" />
+
+                <button
+                  type="button"
+                  onClick={(e) => { handleFavorite(e); setShowMenu(false); }}
+                  className="menu-item"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    width: '100%', padding: '9px 12px',
+                    border: 'none', background: 'transparent',
+                    color: fav ? 'var(--gold)' : 'var(--ink)',
+                    borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <Star size={15} fill={fav ? 'currentColor' : 'none'} style={{ flexShrink: 0 }} /> {fav ? 'Remove from Favorites' : 'Add to Favorites'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePin}
+                  className="menu-item"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    width: '100%', padding: '9px 12px',
+                    border: 'none', background: 'transparent',
+                    color: pinned ? 'var(--gold)' : 'var(--ink)',
+                    borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <Pin size={15} fill={pinned ? 'currentColor' : 'none'} style={{ flexShrink: 0 }} /> {pinned ? 'Unpin' : 'Pin to top'}
+                </button>
+
+                <div className="menu-divider" role="separator" />
+
+                <button
+                  type="button"
+                  onClick={handleVisibility}
+                  className="menu-item"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    width: '100%', padding: '9px 12px',
+                    border: 'none', background: 'transparent', color: 'var(--ink)',
+                    borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {visibility === 'public' ? <Lock size={15} style={{ flexShrink: 0 }} /> : <Globe size={15} style={{ flexShrink: 0 }} />} {visibility === 'public' ? 'Make Private' : 'Make Public'}
+                </button>
+
+                <div className="menu-divider" role="separator" />
+
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setShowMenu(false); setShowDeleteConfirm(true); }}
+                  className="menu-item"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '8px',
+                    width: '100%', padding: '9px 12px',
+                    border: 'none', background: 'transparent', color: 'var(--error)',
+                    borderRadius: '8px', cursor: 'pointer',
+                    fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <Trash2 size={15} style={{ flexShrink: 0 }} /> Delete
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </article>
-
-      {showMenu && (
-        <div style={{
-          position: 'absolute',
-          top: openUp ? 'auto' : 'calc(100% + 4px)',
-          bottom: openUp ? 'calc(100% + 4px)' : 'auto',
-          right: '8px',
-          backgroundColor: 'var(--paper)',
-          border: '1px solid var(--border)',
-          borderRadius: '10px',
-          boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-          minWidth: '180px',
-          padding: '6px',
-          zIndex: 100,
-          animation: 'scaleIn 0.15s ease',
-        }}>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); navigate(`/entries/${entry._id}`); }}
-            className="menu-item"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              width: '100%', padding: '9px 12px',
-              border: 'none', background: 'transparent', color: 'var(--ink)',
-              borderRadius: '8px', cursor: 'pointer',
-              fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
-            }}
-          >
-            <Eye size={15} /> Open
-          </button>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); navigate(`/entries/${entry._id}/edit?from=${encodeURIComponent('/dashboard')}`); }}
-            className="menu-item"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              width: '100%', padding: '9px 12px',
-              border: 'none', background: 'transparent', color: 'var(--ink)',
-              borderRadius: '8px', cursor: 'pointer',
-              fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
-            }}
-          >
-            <Edit size={15} /> Edit
-          </button>
-
-          <div className="menu-divider" role="separator" />
-
-          <button
-            type="button"
-            onClick={(e) => { handleFavorite(e); setShowMenu(false); }}
-            className="menu-item"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              width: '100%', padding: '9px 12px',
-              border: 'none', background: 'transparent',
-              color: fav ? 'var(--gold)' : 'var(--ink)',
-              borderRadius: '8px', cursor: 'pointer',
-              fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
-            }}
-          >
-            <Star size={15} fill={fav ? 'currentColor' : 'none'} /> {fav ? 'Remove from Favorites' : 'Add to Favorites'}
-          </button>
-          <button
-            type="button"
-            onClick={handlePin}
-            className="menu-item"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              width: '100%', padding: '9px 12px',
-              border: 'none', background: 'transparent',
-              color: pinned ? 'var(--gold)' : 'var(--ink)',
-              borderRadius: '8px', cursor: 'pointer',
-              fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
-            }}
-          >
-            <Pin size={15} fill={pinned ? 'currentColor' : 'none'} /> {pinned ? 'Unpin' : 'Pin to top'}
-          </button>
-
-          <div className="menu-divider" role="separator" />
-
-          <button
-            type="button"
-            onClick={handleVisibility}
-            className="menu-item"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              width: '100%', padding: '9px 12px',
-              border: 'none', background: 'transparent', color: 'var(--ink)',
-              borderRadius: '8px', cursor: 'pointer',
-              fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
-            }}
-          >
-            {visibility === 'public' ? <Lock size={15} /> : <Globe size={15} />} {visibility === 'public' ? 'Make Private' : 'Make Public'}
-          </button>
-
-          <div className="menu-divider" role="separator" />
-
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); setShowMenu(false); setShowDeleteConfirm(true); }}
-            className="menu-item"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              width: '100%', padding: '9px 12px',
-              border: 'none', background: 'transparent', color: 'var(--error)',
-              borderRadius: '8px', cursor: 'pointer',
-              fontSize: '0.85rem', fontFamily: 'inherit', textAlign: 'left',
-            }}
-          >
-            <Trash2 size={15} /> Delete
-          </button>
-        </div>
-      )}
 
       <ConfirmDialog
         opened={showDeleteConfirm}

@@ -5,13 +5,13 @@
  */
 
 export const SPEECH_LANGUAGES = [
-  { code: 'en-US', label: 'English (US)', flag: '🇺🇸', native: 'English' },
-  { code: 'en-IN', label: 'English (India)', flag: '🇮🇳', native: 'Indian English' },
-  { code: 'hi-IN', label: 'हिन्दी (Hindi)', flag: '🇮🇳', native: 'Hindi' },
-  { code: 'ur-PK', label: 'اردو (Urdu)', flag: '🇵🇰', native: 'Urdu' },
-  { code: 'ur-IN', label: 'اردو (Urdu - India)', flag: '🇮🇳', native: 'Urdu' },
-  { code: 'ar-SA', label: 'العربية (Arabic)', flag: '🇸🇦', native: 'Arabic' },
-  { code: 'es-ES', label: 'Español (Spanish)', flag: '🇪🇸', native: 'Spanish' },
+  { code: 'en-US', label: 'English (US)', short: 'EN', region: 'US', native: 'English' },
+  { code: 'en-IN', label: 'English (India)', short: 'EN', region: 'IN', native: 'Indian English' },
+  { code: 'hi-IN', label: 'हिन्दी (Hindi)', short: 'HI', region: 'IN', native: 'हिन्दी' },
+  { code: 'ur-PK', label: 'اردو (Urdu)', short: 'UR', region: 'PK', native: 'اردو' },
+  { code: 'ur-IN', label: 'اردو (Urdu - India)', short: 'UR', region: 'IN', native: 'اردو (ہند)' },
+  { code: 'ar-SA', label: 'العربية (Arabic)', short: 'AR', region: 'SA', native: 'العربية' },
+  { code: 'es-ES', label: 'Español (Spanish)', short: 'ES', region: 'ES', native: 'Español' },
 ];
 
 /**

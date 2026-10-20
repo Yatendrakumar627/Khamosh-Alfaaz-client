@@ -1,0 +1,16 @@
+/* ──────────────────────────────────────────────────────────
+   EditEntry
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.edit-entry-page-container {
+  padding: 28px 24px;
+  max-width: 840px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .edit-entry-page-container {
+    padding: 16px 12px !important;
+  }
+}

@@ -5,22 +5,21 @@ import { useToast } from '../context';
 export const useEntries = (initialParams = {}) => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState({ page: 1, limit: 1000, total: 0, totalPages: 0 });
-  const [params, setParams] = useState({ page: 1, limit: 1000, ...initialParams });
+
+  const initialLimit = initialParams.limit || 1000;
+  const [pagination, setPagination] = useState({ page: 1, limit: initialLimit, total: 0, totalPages: 0 });
+  const [params, setParams] = useState({ page: 1, limit: initialLimit, ...initialParams });
+
   const abortRef = useRef(null);
   const { error: showError } = useToast();
 
-  // Reactive state management: Keep params synchronized whenever caller's params (e.g. category type, filters) change
-  const initialParamsKey = JSON.stringify(initialParams);
-  useEffect(() => {
-    setParams(prev => {
-      const next = { page: 1, limit: 1000, ...initialParams };
-      const keys = new Set([...Object.keys(prev), ...Object.keys(next)]);
-      const unchanged = [...keys].every(k => prev[k] === next[k]);
-      return unchanged ? prev : next;
-    });
-  }, [initialParamsKey]);
+  const paginationRef = useRef(pagination);
+  paginationRef.current = pagination;
+
+  const paramsRef = useRef(params);
+  paramsRef.current = params;
 
   // Immediately clear entries on category change to prevent cross-category entry contamination
   const prevTypeRef = useRef(initialParams.type);
@@ -31,62 +30,87 @@ export const useEntries = (initialParams = {}) => {
     }
   }, [initialParams.type]);
 
-  const fetchEntries = useCallback(async (fetchParams = params, append = false) => {
+  const sanitizeParams = (p) => {
+    const { signal, ...clean } = p;
+    for (const key of ['type', 'search', 'tags', 'from', 'to', 'date', 'calendar']) {
+      if (clean[key] === undefined || clean[key] === null || clean[key] === '') {
+        delete clean[key];
+      }
+    }
+    if (clean.favorite !== true) delete clean.favorite;
+    if (clean.pinned !== true) delete clean.pinned;
+    return clean;
+  };
+
+  const fetchEntries = useCallback(async (fetchParams = paramsRef.current, append = false) => {
     if (abortRef.current) abortRef.current.abort();
     abortRef.current = new AbortController();
 
-    setLoading(true);
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
+
     try {
-      const { signal, ...queryParams } = fetchParams;
-      for (const key of ['type', 'search', 'tags', 'from', 'to', 'date', 'calendar']) {
-        if (queryParams[key] === undefined || queryParams[key] === null || queryParams[key] === '') {
-          delete queryParams[key];
-        }
+      const queryParams = sanitizeParams(fetchParams);
+      let response;
+      if (queryParams.search && queryParams.search.trim()) {
+        response = await entriesApi.search(queryParams.search.trim(), queryParams);
+      } else {
+        response = await entriesApi.list(queryParams);
       }
-      if (queryParams.favorite !== true) delete queryParams.favorite;
-      if (queryParams.pinned !== true) delete queryParams.pinned;
-      const response = await entriesApi.list(queryParams);
       const { entries: data, pagination: pag } = response.data;
       if (append) {
-        setEntries(prev => [...prev, ...data]);
+        setEntries(prev => {
+          const existingIds = new Set(prev.map(e => e._id));
+          const uniqueNew = (data || []).filter(e => !existingIds.has(e._id));
+          return [...prev, ...uniqueNew];
+        });
       } else {
-        setEntries(data);
+        setEntries(data || []);
       }
-      if (pag) setPagination(pag);
+      if (pag) {
+        setPagination(pag);
+      }
     } catch (err) {
       if (err.name !== 'AbortError') {
         setError(err.message);
-        showError('Failed to load entries');
+        showError(append ? 'Failed to load more entries' : 'Failed to load entries');
       }
     } finally {
-      setLoading(false);
-    }
-  }, [params, showError]);
-
-  const searchEntries = useCallback(async (query, searchParams = {}) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params = { ...searchParams };
-      for (const key of ['type', 'search', 'tags', 'from', 'to', 'date', 'calendar']) {
-        if (params[key] === undefined || params[key] === null || params[key] === '') {
-          delete params[key];
-        }
+      if (append) {
+        setLoadingMore(false);
+      } else {
+        setLoading(false);
       }
-      if (params.favorite !== true) delete params.favorite;
-      if (params.pinned !== true) delete params.pinned;
-      const response = await entriesApi.search(query, params);
-      const { entries: data, pagination: pag } = response.data;
-      setEntries(data);
-      if (pag) setPagination(pag);
-    } catch (err) {
-      setError(err.message);
-      showError('Search failed');
-    } finally {
-      setLoading(false);
     }
   }, [showError]);
+
+  // Initial load and filter change trigger: only runs when filter/search/sort/date parameters change
+  const initialParamsKey = JSON.stringify(initialParams);
+  useEffect(() => {
+    const nextParams = { ...paramsRef.current, page: 1, limit: initialLimit, ...initialParams };
+    setParams(nextParams);
+    fetchEntries(nextParams, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialParamsKey, initialLimit, fetchEntries]);
+
+  const hasMore = pagination.page < pagination.totalPages;
+
+  const loadMore = useCallback(async () => {
+    if (loading || loadingMore || !hasMore) return;
+    const nextPage = paginationRef.current.page + 1;
+    const nextParams = { ...paramsRef.current, page: nextPage };
+    await fetchEntries(nextParams, true);
+  }, [loading, loadingMore, hasMore, fetchEntries]);
+
+  const searchEntries = useCallback(async (query, searchParams = {}) => {
+    const nextParams = { ...paramsRef.current, ...searchParams, search: query, page: 1 };
+    setParams(nextParams);
+    fetchEntries(nextParams, false);
+  }, [fetchEntries]);
 
   const createEntry = useCallback(async (data) => {
     try {
@@ -148,32 +172,31 @@ export const useEntries = (initialParams = {}) => {
   }, [showError]);
 
   const setPage = useCallback((page) => {
-    setParams(prev => ({ ...prev, page }));
-  }, []);
+    const nextParams = { ...paramsRef.current, page };
+    setParams(nextParams);
+    fetchEntries(nextParams, false);
+  }, [fetchEntries]);
 
   const setFilters = useCallback((filters) => {
-    setParams(prev => {
-      const next = {
-        ...prev,
-        ...filters,
-        page: filters.page ?? prev.page,
-      };
-      const keys = new Set([...Object.keys(prev), ...Object.keys(next)]);
-      const unchanged = [...keys].every(key => prev[key] === next[key]);
-      return unchanged ? prev : next;
-    });
-  }, []);
+    const nextParams = {
+      ...paramsRef.current,
+      ...filters,
+      page: filters.page ?? 1,
+    };
+    setParams(nextParams);
+    fetchEntries(nextParams, false);
+  }, [fetchEntries]);
 
-  const refresh = useCallback(() => fetchEntries(params), [fetchEntries, params]);
-
-  useEffect(() => {
-    fetchEntries();
-    return () => { if (abortRef.current) abortRef.current.abort(); };
+  const refresh = useCallback(() => {
+    return fetchEntries({ ...paramsRef.current, page: 1 }, false);
   }, [fetchEntries]);
 
   return {
     entries,
     loading,
+    loadingMore,
+    hasMore,
+    loadMore,
     error,
     pagination,
     params,
