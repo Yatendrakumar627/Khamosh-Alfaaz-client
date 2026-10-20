@@ -7,6 +7,7 @@ import { ENTRY_TYPES } from '../../constants';
 import { parseTags, formatTags, validateEntry, getLocalDateString, classNames } from '../../utils/helpers';
 import { Tag, X, Plus, Star, Pin, Lock, Globe, BookOpen } from 'lucide-react';
 import { getNavIcon } from '../../constants/navIcons';
+import { VoiceWritingToolbar } from './VoiceWritingToolbar';
 
 export const EntryEditor = ({
   initialData = {},
@@ -20,6 +21,7 @@ export const EntryEditor = ({
   showPin = true,
   showVisibility = true,
   showCancel = true,
+  showVoiceTyping = true,
   submitLabel = 'Save Entry',
   submitIcon = <Plus size={17} />,
   submitIconPosition = 'left',
@@ -174,6 +176,14 @@ export const EntryEditor = ({
         <label className="entry-field-label" htmlFor="entry-content-textarea">
           Write your thoughts... <span className="entry-label-required">*</span>
         </label>
+
+        {showVoiceTyping && (
+          <VoiceWritingToolbar
+            content={formData.content}
+            onContentChange={(newContent) => handleChange('content', newContent)}
+          />
+        )}
+
         <Textarea
           id="entry-content-textarea"
           placeholder="Anything on your mind — your day, a thought, a quote, a feeling..."

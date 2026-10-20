@@ -14,3 +14,5 @@ export {
   MilestoneTracker,
 } from './StatisticsCard';
 export { ExportDialog, BackupDialog } from './ExportDialog';
+export { VoiceWritingToolbar } from './VoiceWritingToolbar';
+export { VoiceRecorderCard } from './VoiceRecorderCard';
