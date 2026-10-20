@@ -6,6 +6,8 @@ import {
   isMobileDevice,
   getSpeechCapabilities,
   applyVoicePunctuation,
+  appendTranscriptToContent,
+  deduplicateTranscriptChunk,
 } from '../utils/audioUtils';
 import { sttApi } from '../services/api';
 
@@ -70,6 +72,8 @@ export function useVoiceRecorderWithSTT({
   const visualizerIntervalRef = useRef(null);
   const isSpeakingRef = useRef(false);
   const restartTimeoutRef = useRef(null);
+  const lastProcessedFinalIndexRef = useRef(-1);
+  const lastProcessedFinalTextRef = useRef('');
 
   const selectedLangRef = useRef(selectedLanguage);
   const onFinalChunkRef = useRef(onFinalTranscriptChunk);
@@ -208,7 +212,14 @@ export function useVoiceRecorderWithSTT({
 
     try {
       const recognizer = new SpeechConstructor();
-      recognizer.continuous = true;
+      const isMobile = isMobileDevice();
+
+      // Architecture rule for mobile:
+      // In Android Chrome, continuous = true triggers Chromium's broken multi-result
+      // buffer bug where event.resultIndex is stuck at 0 and interim utterances are prematurely
+      // marked final or re-accumulated. Setting continuous = false on mobile forces clean single
+      // utterances, while our onend watchdog smoothly re-engages recognition within 60ms.
+      recognizer.continuous = !isMobile;
       recognizer.interimResults = true;
       recognizer.lang = lang || selectedLangRef.current || 'en-US';
 
@@ -234,28 +245,51 @@ export function useVoiceRecorderWithSTT({
         let interimStr = '';
         let newFinalChunk = '';
 
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        // Senior Guard: Android Chrome frequently resets or leaves event.resultIndex at 0,
+        // causing all previous final results to be re-iterated on every event!
+        // We track lastProcessedFinalIndexRef to guarantee results are processed strictly forward.
+        const startIndex = Math.max(
+          event.resultIndex || 0,
+          lastProcessedFinalIndexRef.current + 1
+        );
+
+        for (let i = startIndex; i < event.results.length; i++) {
           const result = event.results[i];
           const transcriptChunk = result[0]?.transcript || '';
 
           if (result.isFinal) {
             newFinalChunk += transcriptChunk + ' ';
+            lastProcessedFinalIndexRef.current = i;
           } else {
             interimStr += transcriptChunk;
           }
         }
 
-        if (newFinalChunk) {
-          const processedChunk = enablePunctuation
-            ? applyVoicePunctuation(newFinalChunk, selectedLangRef.current, { smart: enableSmartPunctuation })
-            : newFinalChunk;
+        // Process newly finalized chunk
+        if (newFinalChunk.trim()) {
+          const rawChunk = newFinalChunk.trim();
 
-          const updatedFull = (liveTranscriptRef.current + ' ' + processedChunk).trim();
-          liveTranscriptRef.current = updatedFull;
-          setLiveTranscript(updatedFull);
+          // Deduplicate against already accumulated transcript (catches Android cumulative bug)
+          const cleanedChunk = deduplicateTranscriptChunk(
+            rawChunk,
+            liveTranscriptRef.current,
+            lastProcessedFinalTextRef.current
+          );
 
-          if (onFinalChunkRef.current) {
-            onFinalChunkRef.current(processedChunk.trim());
+          if (cleanedChunk) {
+            lastProcessedFinalTextRef.current = cleanedChunk;
+
+            const processedChunk = enablePunctuation
+              ? applyVoicePunctuation(cleanedChunk, selectedLangRef.current, { smart: enableSmartPunctuation })
+              : cleanedChunk;
+
+            const updatedFull = appendTranscriptToContent(liveTranscriptRef.current, processedChunk);
+            liveTranscriptRef.current = updatedFull;
+            setLiveTranscript(updatedFull);
+
+            if (onFinalChunkRef.current) {
+              onFinalChunkRef.current(processedChunk.trim());
+            }
           }
         }
 
@@ -298,6 +332,7 @@ export function useVoiceRecorderWithSTT({
 
       recognizer.onend = () => {
         isSpeakingRef.current = false;
+        lastProcessedFinalIndexRef.current = -1;
         // Chromium and Android OS automatically fire onend during pauses or single utterances.
         // If the user did not manually tap stop, automatically and smoothly re-engage recognition!
         if (isRecordingRef.current && !isStoppingManuallyRef.current) {
@@ -307,7 +342,14 @@ export function useVoiceRecorderWithSTT({
               try {
                 recognizer.start();
               } catch (e) {
-                // If already active or starting, safely ignore
+                // If recognizer instance cannot be restarted directly, re-initialize
+                try {
+                  const freshRecognizer = initSpeechRecognition(selectedLangRef.current);
+                  speechRecognitionRef.current = freshRecognizer;
+                  if (freshRecognizer) freshRecognizer.start();
+                } catch (reInitErr) {
+                  // Safely ignored
+                }
               }
             }
           }, 60);
@@ -355,23 +397,32 @@ export function useVoiceRecorderWithSTT({
 
       if (res.data?.success && res.data?.transcript) {
         const rawText = res.data.transcript;
-        const processed = enablePunctuation
-          ? applyVoicePunctuation(rawText, selectedLangRef.current, { smart: enableSmartPunctuation })
-          : rawText;
+        const cleaned = deduplicateTranscriptChunk(
+          rawText,
+          liveTranscriptRef.current,
+          lastProcessedFinalTextRef.current
+        );
 
-        const updatedFull = (liveTranscriptRef.current + ' ' + processed).trim();
-        liveTranscriptRef.current = updatedFull;
-        setLiveTranscript(updatedFull);
+        if (cleaned) {
+          lastProcessedFinalTextRef.current = cleaned;
+          const processed = enablePunctuation
+            ? applyVoicePunctuation(cleaned, selectedLangRef.current, { smart: enableSmartPunctuation })
+            : cleaned;
 
-        if (onFinalChunkRef.current) {
-          onFinalChunkRef.current(processed);
-        }
+          const updatedFull = appendTranscriptToContent(liveTranscriptRef.current, processed);
+          liveTranscriptRef.current = updatedFull;
+          setLiveTranscript(updatedFull);
 
-        if (onCompleteRef.current) {
-          onCompleteRef.current({
-            blob,
-            transcript: updatedFull,
-          });
+          if (onFinalChunkRef.current) {
+            onFinalChunkRef.current(processed);
+          }
+
+          if (onCompleteRef.current) {
+            onCompleteRef.current({
+              blob,
+              transcript: updatedFull,
+            });
+          }
         }
       } else if (res.data?.message && res.data?.code === 'NO_PROVIDER_CONFIGURED') {
         // Helpful notification if backend has no key configured yet
@@ -395,6 +446,8 @@ export function useVoiceRecorderWithSTT({
       setError(null);
       setInterimTranscript('');
       isStoppingManuallyRef.current = false;
+      lastProcessedFinalIndexRef.current = -1;
+      lastProcessedFinalTextRef.current = '';
       if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current);
 
       const caps = getSpeechCapabilities();
@@ -544,6 +597,8 @@ export function useVoiceRecorderWithSTT({
     setIsPaused(false);
     setInterimTranscript('');
     isSpeakingRef.current = false;
+    lastProcessedFinalIndexRef.current = -1;
+    lastProcessedFinalTextRef.current = '';
 
     if (restartTimeoutRef.current) {
       clearTimeout(restartTimeoutRef.current);
@@ -617,6 +672,8 @@ export function useVoiceRecorderWithSTT({
    * Clear all transcript state
    */
   const clearTranscript = useCallback(() => {
+    lastProcessedFinalIndexRef.current = -1;
+    lastProcessedFinalTextRef.current = '';
     liveTranscriptRef.current = '';
     setLiveTranscript('');
     setInterimTranscript('');

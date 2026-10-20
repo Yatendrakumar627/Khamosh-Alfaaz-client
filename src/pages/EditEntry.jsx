@@ -279,12 +279,7 @@ export const EditEntry = () => {
         </div>
       )}
 
-      <div style={{
-        backgroundColor: 'var(--paper)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-lg)',
-        padding: 'var(--spacing-xl)',
-      }} className="paper-texture diary-page">
+      <div className="paper-texture diary-page edit-entry-card">
         <EntryEditor
           initialData={editorInitialData}
           onSave={handleSave}

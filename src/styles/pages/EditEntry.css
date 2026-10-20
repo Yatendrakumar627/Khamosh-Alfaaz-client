@@ -7,10 +7,31 @@
   padding: 28px 24px;
   max-width: 840px;
   margin: 0 auto;
+  box-sizing: border-box;
+  width: 100%;
 }
 
-@media (max-width: 640px) {
+.edit-entry-card {
+  background-color: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
   .edit-entry-page-container {
-    padding: 16px 12px !important;
+    padding: 14px 10px !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+  .edit-entry-card {
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
   }
 }
+

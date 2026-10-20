@@ -93,7 +93,9 @@ export const VoiceWritingToolbar = ({
     onFinalTranscriptChunk: (chunk) => {
       if (autoInsert && onContentChange && chunk) {
         const nextContent = appendTranscriptToContent(contentRef.current, chunk);
-        onContentChange(nextContent);
+        if (nextContent !== contentRef.current) {
+          onContentChange(nextContent);
+        }
       }
     },
     onComplete: (data) => {
@@ -220,8 +222,8 @@ export const VoiceWritingToolbar = ({
             <div className="voice-status-center idle">
               <span className="voice-center-ambient">
                 <span className="ambient-pulse-dot" />
-                <span className="ambient-text-desktop">Speak naturally in {currentLangObj.label.split(' ')[0]}</span>
-                <span className="ambient-text-mobile">Speak in {currentLangObj.short || 'EN'}</span>
+                <span className="ambient-text-desktop voice-text-desktop">Speak naturally in {currentLangObj.label.split(' ')[0]}</span>
+                <span className="ambient-text-mobile voice-text-mobile">Speak in {currentLangObj.short || 'EN'}</span>
               </span>
             </div>
           )}

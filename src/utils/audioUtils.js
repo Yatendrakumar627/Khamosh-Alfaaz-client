@@ -437,29 +437,118 @@ export function applyVoicePunctuation(rawText = '', language = 'en-US', options 
 }
 
 /**
+ * Normalizes text for comparison (lowercased, removes punctuation, collapses whitespace).
+ */
+export function normalizeSpeechText(text = '') {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .toLowerCase()
+    .replace(/[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-./:;<=>?@[\]^_`{|}~।۔؟،…]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Deduplicates and cleans an incoming speech transcript chunk against
+ * previous text to eliminate Android Chrome / Web Speech API repetitions.
+ *
+ * Prevents:
+ * 1. Exact duplicate chunk re-emission (e.g. repeated isFinal events)
+ * 2. Cumulative/prefix overlap (e.g. Android sends "kya", then "kya kar", then "kya kar rahe ho")
+ * 3. Already existing phrases at the end of previous text
+ *
+ * @param {string} newChunk - The newly finalized speech chunk.
+ * @param {string} previousText - The full transcript or editor content so far.
+ * @param {string} lastFinalChunk - The immediately preceding finalized chunk.
+ * @returns {string} The cleaned, non-duplicate chunk to append (or empty string if duplicate).
+ */
+export function deduplicateTranscriptChunk(newChunk = '', previousText = '', lastFinalChunk = '') {
+  if (!newChunk || typeof newChunk !== 'string') return '';
+  const trimmedChunk = newChunk.trim();
+  if (!trimmedChunk) return '';
+
+  const normNew = normalizeSpeechText(trimmedChunk);
+  if (!normNew) return '';
+
+  const normLast = normalizeSpeechText(lastFinalChunk);
+  const normPrev = normalizeSpeechText(previousText);
+
+  // 1. Direct duplicate of the last chunk
+  if (normLast && normNew === normLast) {
+    return '';
+  }
+
+  // 2. Previous text already ends with this exact chunk
+  if (normPrev && (normPrev === normNew || normPrev.endsWith(' ' + normNew))) {
+    return '';
+  }
+
+  // 3. Prefix overlap: Android Chrome cumulative bug
+  // e.g. previous ended with "kya kar", newChunk is "kya kar rahe ho"
+  const newWords = trimmedChunk.split(/\s+/);
+  const normNewWords = normNew.split(/\s+/);
+
+  if (normPrev && normNewWords.length > 0) {
+    const prevWords = normPrev.split(/\s+/);
+    const maxOverlap = Math.min(prevWords.length, normNewWords.length);
+
+    // Check from largest possible overlap down to 1 word
+    for (let overlapLen = maxOverlap; overlapLen >= 1; overlapLen--) {
+      const prevTail = prevWords.slice(-overlapLen).join(' ');
+      const newHead = normNewWords.slice(0, overlapLen).join(' ');
+
+      if (prevTail === newHead) {
+        // If the entire newChunk was already in the previous text
+        if (overlapLen === normNewWords.length) {
+          return '';
+        }
+        // Return only the non-overlapping remaining words
+        const remainingWords = newWords.slice(overlapLen);
+        return remainingWords.join(' ').trim();
+      }
+    }
+  }
+
+  return trimmedChunk;
+}
+
+/**
  * Cleanly merges a newly transcribed phrase into existing content.
- * Handles spacing, capitalization, and newlines naturally.
+ * Handles spacing, punctuation, and deduplication naturally.
  */
 export function appendTranscriptToContent(currentContent = '', newChunk = '') {
+  if (!newChunk || typeof newChunk !== 'string') return currentContent || '';
   const trimmedChunk = newChunk.trim();
-  if (!trimmedChunk) return currentContent;
+  if (!trimmedChunk) return currentContent || '';
 
   const trimmedContent = currentContent || '';
   if (!trimmedContent) {
     return trimmedChunk;
   }
 
-  // If content ends with newline or space, just append
-  if (/[\s\n]$/.test(trimmedContent)) {
-    return trimmedContent + trimmedChunk;
+  // Guard against duplicate transcript chunk appending
+  const cleanedChunk = deduplicateTranscriptChunk(trimmedChunk, trimmedContent);
+  if (!cleanedChunk) {
+    return currentContent;
+  }
+
+  // If content ends with newline, preserve newline
+  if (/\n$/.test(trimmedContent)) {
+    return trimmedContent + cleanedChunk;
+  }
+
+  // If content ends with space, append directly
+  if (/\s$/.test(trimmedContent)) {
+    return trimmedContent + cleanedChunk;
   }
 
   // If ends with sentence punctuation, separate with a single space
   if (/[.!?।۔؟…]$|\.\.\.$/.test(trimmedContent)) {
-    return trimmedContent + ' ' + trimmedChunk;
+    return trimmedContent + ' ' + cleanedChunk;
   }
 
   // Otherwise separate with a single space
-  return trimmedContent + ' ' + trimmedChunk;
+  return trimmedContent + ' ' + cleanedChunk;
 }
+
 

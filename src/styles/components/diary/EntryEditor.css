@@ -393,15 +393,25 @@
     flex-direction: row !important;
     gap: 8px !important;
     align-items: flex-start !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
   .entry-title-col {
-    flex: 1 1 auto !important;
+    flex: 1 1 0% !important;
     min-width: 0 !important;
   }
+  .entry-title-input {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
   .entry-date-col {
-    flex: 0 0 130px !important;
-    min-width: 120px !important;
+    flex: 0 0 126px !important;
+    min-width: 110px !important;
+    max-width: 132px !important;
     position: relative !important;
+    box-sizing: border-box !important;
   }
   .entry-field-label {
     font-size: 0.78rem !important;

@@ -39,10 +39,10 @@
 }
 
 @media (max-width: 767.98px) {
-  .custom-datepicker-trigger{
-    font-size: 0.8rem !important;
-    padding: 0 8px !important;
+  .custom-datepicker-trigger {
+    font-size: 0.78rem !important;
+    padding: 0 6px 0 8px !important;
     height: 38px !important;
-  
-}
+    gap: 4px !important;
+  }
 }

@@ -11,6 +11,8 @@ import {
   smartPunctuateSentence,
   smartPunctuateText,
   autoCapitalizeText,
+  normalizeSpeechText,
+  deduplicateTranscriptChunk,
 } from './audioUtils';
 
 describe('audioUtils', () => {
@@ -213,6 +215,81 @@ describe('audioUtils', () => {
       expect(codes).toContain('en-US');
       expect(codes).toContain('hi-IN');
       expect(codes).toContain('ur-PK');
+    });
+  });
+
+  describe('normalizeSpeechText', () => {
+    it('lowercases and strips punctuation', () => {
+      expect(normalizeSpeechText('Kya kar rahe ho?')).toBe('kya kar rahe ho');
+      expect(normalizeSpeechText('Hello, World!...')).toBe('hello world');
+      expect(normalizeSpeechText('  آج کا دن۔  ')).toBe('آج کا دن');
+    });
+  });
+
+  describe('deduplicateTranscriptChunk', () => {
+    it('returns empty string for empty input', () => {
+      expect(deduplicateTranscriptChunk('', '', '')).toBe('');
+      expect(deduplicateTranscriptChunk('   ', '', '')).toBe('');
+    });
+
+    it('returns new chunk when there is no prior text', () => {
+      expect(deduplicateTranscriptChunk('Kya', '', '')).toBe('Kya');
+    });
+
+    it('blocks immediate duplicate of lastFinalChunk', () => {
+      expect(deduplicateTranscriptChunk('Kya kar rahe ho', 'Kya kar rahe ho', 'Kya kar rahe ho')).toBe('');
+      expect(deduplicateTranscriptChunk('Kya kar rahe ho?', 'Kya kar rahe ho', 'Kya kar rahe ho')).toBe('');
+    });
+
+    it('blocks chunk if previousText already ends with it', () => {
+      const prev = 'Kal raat sir dard tha. Kya kar rahe ho?';
+      expect(deduplicateTranscriptChunk('Kya kar rahe ho', prev, '')).toBe('');
+    });
+
+    it('resolves Android Chrome cumulative prefix overlap (root cause reproduction)', () => {
+      // Step 1: User says "kya"
+      const step1 = deduplicateTranscriptChunk('Kya', '', '');
+      expect(step1).toBe('Kya');
+
+      // Step 2: Android sends cumulative "kya kar"
+      const step2 = deduplicateTranscriptChunk('Kya kar', 'Kya', 'Kya');
+      expect(step2).toBe('kar');
+
+      // Step 3: Android sends cumulative "kya kar rahe ho"
+      const step3 = deduplicateTranscriptChunk('Kya kar rahe ho', 'Kya kar', 'kar');
+      expect(step3).toBe('rahe ho');
+
+      // Step 4: Android re-sends duplicate final "kya kar rahe ho"
+      const step4 = deduplicateTranscriptChunk('Kya kar rahe ho', 'Kya kar rahe ho', 'rahe ho');
+      expect(step4).toBe('');
+    });
+
+    it('preserves intentional repeated words within the same chunk', () => {
+      expect(deduplicateTranscriptChunk('haan haan bilkul', 'Hello', '')).toBe('haan haan bilkul');
+      expect(deduplicateTranscriptChunk('very very happy', 'I am', '')).toBe('very very happy');
+    });
+  });
+
+  describe('appendTranscriptToContent with deduplication', () => {
+    it('does not duplicate exact sentence repeated back-to-back', () => {
+      const initial = 'Kya kar rahe ho?';
+      const result = appendTranscriptToContent(initial, 'Kya kar rahe ho?');
+      expect(result).toBe('Kya kar rahe ho?');
+    });
+
+    it('merges cumulative prefixes cleanly without repeating words', () => {
+      let content = '';
+      content = appendTranscriptToContent(content, 'Kya');
+      expect(content).toBe('Kya');
+
+      content = appendTranscriptToContent(content, 'Kya kar');
+      expect(content).toBe('Kya kar');
+
+      content = appendTranscriptToContent(content, 'Kya kar rahe ho');
+      expect(content).toBe('Kya kar rahe ho');
+
+      content = appendTranscriptToContent(content, 'Kya kar rahe ho');
+      expect(content).toBe('Kya kar rahe ho');
     });
   });
 });
