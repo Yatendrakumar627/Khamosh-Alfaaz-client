@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Mic,
-  MicOff,
   Square,
   RotateCcw,
   Languages,
@@ -11,6 +10,7 @@ import {
   Info,
   Check,
   Headphones,
+  Loader2,
 } from 'lucide-react';
 import { useVoiceRecorderWithSTT } from '../../hooks/useVoiceRecorderWithSTT';
 import {
@@ -26,14 +26,13 @@ import {
  * An ambient, luxury stationery styled Voice-to-Text Dictation toolbar.
  * Embedded directly above or within the writing canvas in EntryEditor.
  *
- * Features:
- * - Real-time speech recognition with auto-insertion into writing canvas
- * - Smart emotion and sensation-aware auto-punctuation (questions, joy, shock, yearning)
- * - Live sound wave bars reacting to user's speech amplitude
- * - Live interim transcript preview pill
- * - Multi-language selector (English, Hindi, Urdu, Arabic, Spanish)
- * - One-click Smart Punctuate for existing canvas content
- * - Post-recording audio playback preview
+ * Senior Mobile-First Capabilities:
+ * - Direct Native STT on mobile (Android Chrome, iOS Safari) with zero mic locking
+ * - Universal Fallback STT for Firefox, Android WebViews, standalone apps, and Opera
+ * - Real-time interim & final speech recognition auto-inserted into writing canvas
+ * - Emotion & sensation-aware smart punctuation (questions, awe, yearnings)
+ * - Dynamic sound wave visualizer responding fluidly to speech
+ * - Post-transcription & manual smart punctuate tools
  */
 export const VoiceWritingToolbar = ({
   content = '',
@@ -75,12 +74,15 @@ export const VoiceWritingToolbar = ({
   // Hook instance with callbacks
   const {
     isRecording,
+    isTranscribing,
     recordingTime,
     liveTranscript,
     interimTranscript,
     audioBlob,
     audioUrl,
     isSTTSupported,
+    isNativeSTT,
+    sttMode,
     audioLevel,
     error,
     startRecording,
@@ -90,7 +92,9 @@ export const VoiceWritingToolbar = ({
   } = useVoiceRecorderWithSTT({
     language: selectedLang,
     enablePunctuation: true,
-    recordAudio: true,
+    // Do NOT lock microphone with MediaRecorder when dictating into editor,
+    // unless caller explicitly asked to save raw audio files.
+    recordAudio: Boolean(onAudioSave),
     onFinalTranscriptChunk: (chunk) => {
       if (autoInsert && onContentChange && chunk) {
         const nextContent = appendTranscriptToContent(contentRef.current, chunk);
@@ -115,12 +119,6 @@ export const VoiceWritingToolbar = ({
     setShowLangMenu(false);
   };
 
-  const handleManualInsert = (textToInsert) => {
-    if (!textToInsert || !onContentChange) return;
-    const nextContent = appendTranscriptToContent(contentRef.current, textToInsert);
-    onContentChange(nextContent);
-  };
-
   const handleSmartPunctuate = () => {
     if (!contentRef.current || !onContentChange) return;
     const punctuated = smartPunctuateText(contentRef.current, selectedLang, { smart: true });
@@ -133,13 +131,13 @@ export const VoiceWritingToolbar = ({
 
   const currentLangObj = SPEECH_LANGUAGES.find((l) => l.code === selectedLang) || SPEECH_LANGUAGES[0];
 
-  // Number of soundwave bars to display
+  // Number of soundwave bars to display with dynamic speech response
   const waveBars = [
-    Math.min(100, Math.max(15, audioLevel * 0.9)),
-    Math.min(100, Math.max(25, audioLevel * 1.3)),
-    Math.min(100, Math.max(10, audioLevel * 0.7)),
-    Math.min(100, Math.max(30, audioLevel * 1.5)),
-    Math.min(100, Math.max(18, audioLevel * 1.1)),
+    Math.min(100, Math.max(12, Math.round(audioLevel * 0.85))),
+    Math.min(100, Math.max(20, Math.round(audioLevel * 1.25))),
+    Math.min(100, Math.max(8, Math.round(audioLevel * 0.65))),
+    Math.min(100, Math.max(26, Math.round(audioLevel * 1.45))),
+    Math.min(100, Math.max(15, Math.round(audioLevel * 1.05))),
   ];
 
   return (
@@ -151,23 +149,41 @@ export const VoiceWritingToolbar = ({
           <button
             type="button"
             onClick={isRecording ? stopRecording : startRecording}
-            className={`voice-mic-trigger ${isRecording ? 'recording' : ''}`}
+            disabled={isTranscribing}
+            className={`voice-mic-trigger ${isRecording ? 'recording' : ''} ${isTranscribing ? 'transcribing' : ''}`}
             aria-pressed={isRecording}
-            aria-label={isRecording ? 'Stop voice dictation' : 'Start voice dictation'}
+            aria-label={
+              isTranscribing
+                ? 'Transcribing speech to text'
+                : isRecording
+                ? 'Stop voice dictation'
+                : 'Start voice dictation'
+            }
             title={
-              isRecording
-                ? 'Stop Voice Typing (Recording in progress)'
-                : isSTTSupported
-                ? 'Speak to Write — Real-time Voice to Text'
-                : 'Microphone recording'
+              isTranscribing
+                ? 'Transcribing speech into text...'
+                : isRecording
+                ? 'Stop Voice Typing (Tap when finished speaking)'
+                : 'Speak to Write — Real-time Voice to Text'
             }
           >
             <div className="mic-icon-wrapper">
-              {isRecording ? <Square size={14} className="stop-icon" /> : <Mic size={16} />}
+              {isTranscribing ? (
+                <Loader2 size={16} className="spinner-icon spinning" />
+              ) : isRecording ? (
+                <Square size={13} className="stop-icon" />
+              ) : (
+                <Mic size={16} />
+              )}
               {isRecording && <span className="mic-pulse-ring" />}
             </div>
             <span className="voice-trigger-text">
-              {isRecording ? (
+              {isTranscribing ? (
+                <>
+                  <span className="voice-text-desktop">Transcribing...</span>
+                  <span className="voice-text-mobile">Writing...</span>
+                </>
+              ) : isRecording ? (
                 <>
                   <span className="recording-status-dot" />
                   <span className="voice-text-desktop">Listening </span>
@@ -182,7 +198,7 @@ export const VoiceWritingToolbar = ({
             </span>
           </button>
 
-          {/* Audio Visualizer Wave (Only while recording) */}
+          {/* Audio Visualizer Wave (Active while listening) */}
           {isRecording && (
             <div className="voice-soundwave" aria-label="Microphone activity visualizer">
               {waveBars.map((height, i) => (
@@ -255,12 +271,12 @@ export const VoiceWritingToolbar = ({
           </button>
 
           {/* Smart Punctuate Button for existing content */}
-          {Boolean(content && content.trim()) && !isRecording && (
+          {Boolean(content && content.trim()) && !isRecording && !isTranscribing && (
             <button
               type="button"
               className={`voice-tool-btn smart-punctuate ${smartPunctuateSuccess ? 'active' : ''}`}
               onClick={handleSmartPunctuate}
-              title="Smart Punctuate: Intelligently adds punctuation according to sentence emotion, tone, and logical flow"
+              title="Smart Punctuate: Intelligently formats punctuation according to sentence emotion and flow"
               aria-label="Smart Punctuate text"
             >
               <Sparkles size={13} className="gold-icon" />
@@ -271,7 +287,7 @@ export const VoiceWritingToolbar = ({
           )}
 
           {/* Reset / Retake Button if recorded */}
-          {(liveTranscript || audioUrlCached || audioUrl) && !isRecording && (
+          {(liveTranscript || audioUrlCached || audioUrl) && !isRecording && !isTranscribing && (
             <button
               type="button"
               className="voice-tool-btn reset"
@@ -288,8 +304,8 @@ export const VoiceWritingToolbar = ({
             </button>
           )}
 
-          {/* Audio Preview Toggle Button */}
-          {(audioUrl || audioUrlCached) && !isRecording && (
+          {/* Audio Preview Toggle Button (if audio was saved) */}
+          {(audioUrl || audioUrlCached) && !isRecording && !isTranscribing && (
             <button
               type="button"
               className={`voice-tool-btn audio-toggle ${showAudioPreview ? 'active' : ''}`}
@@ -320,12 +336,22 @@ export const VoiceWritingToolbar = ({
         </div>
       )}
 
-      {/* STT Unsupported Warning */}
+      {/* Universal Mode Notice (Encouraging banner when on non-Chromium or mobile app without native STT) */}
+      {!isNativeSTT && isSTTSupported && !isRecording && !isTranscribing && (
+        <div className="voice-support-hint">
+          <Sparkles size={13} className="gold-icon" />
+          <span>
+            Universal Voice Typing enabled for your browser & mobile app. Tap <strong>Speak</strong>, talk naturally, then tap <strong>Stop</strong> to write.
+          </span>
+        </div>
+      )}
+
+      {/* STT Unsupported Warning (Only if neither native STT nor MediaRecorder exist) */}
       {!isSTTSupported && (
         <div className="voice-support-hint">
           <Info size={13} />
           <span>
-            Live Speech-to-Text works best on Chrome, Edge, and Safari. Your browser can still record studio audio notes.
+            Microphone recording is unavailable. Please ensure microphone permissions are granted in your browser or device settings.
           </span>
         </div>
       )}
@@ -338,7 +364,7 @@ export const VoiceWritingToolbar = ({
             <span>Voice Typing & Smart Emotion Punctuation</span>
           </div>
           <p className="voice-tips-description">
-            Speak naturally into your microphone. Khamosh Alfaaz automatically detects sentence emotions, sensations, questions, and yearnings to insert punctuation smartly and logically. You can also say commands explicitly:
+            Speak naturally into your microphone on any device or mobile browser. Khamosh Alfaaz automatically detects emotions, questions, and yearnings to add punctuation logically. You can also say commands explicitly:
           </p>
           <div className="voice-tips-grid">
             <div className="tip-chip">Emotion: Question → <strong>?</strong> / <strong>؟</strong></div>
@@ -351,16 +377,19 @@ export const VoiceWritingToolbar = ({
         </div>
       )}
 
-      {/* Live Interim Transcript Bubble (Subtitles as you speak) */}
-      {isRecording && (interimTranscript || liveTranscript) && (
+      {/* Live Interim Transcript Bubble (Subtitles as you speak or while transcribing) */}
+      {(isRecording || isTranscribing) && (interimTranscript || liveTranscript || isTranscribing) && (
         <div className="voice-live-subtitles" aria-live="polite">
           <div className="voice-subtitles-indicator">
             <Sparkles size={13} className="sparkle-anim" />
-            <span>Live Dictation</span>
+            <span>{isTranscribing ? 'Converting Speech to Text...' : 'Live Dictation'}</span>
           </div>
           <p className="voice-subtitles-text">
             {liveTranscript && <span className="final-part">{liveTranscript} </span>}
             {interimTranscript && <span className="interim-part">{interimTranscript}</span>}
+            {isTranscribing && !liveTranscript && (
+              <span className="interim-part">Transcribing and styling your voice with emotion punctuation...</span>
+            )}
           </p>
         </div>
       )}

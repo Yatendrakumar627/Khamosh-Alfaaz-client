@@ -4470,6 +4470,22 @@ main,
   box-shadow: 0 0 16px rgba(223, 178, 100, 0.24);
 }
 
+.voice-mic-trigger.transcribing {
+  background: linear-gradient(135deg, rgba(223, 178, 100, 0.12) 0%, rgba(223, 178, 100, 0.04) 100%);
+  border-color: var(--gold);
+  color: var(--gold);
+  opacity: 0.9;
+  cursor: wait;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
 .mic-icon-wrapper {
   position: relative;
   display: flex;

@@ -61,6 +61,38 @@ export function isSpeechRecognitionSupported() {
 }
 
 /**
+ * Checks if the current environment is a mobile phone, tablet, or touch-based device.
+ */
+export function isMobileDevice() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i;
+  const isTouchScreen = typeof navigator.maxTouchPoints === 'number' && navigator.maxTouchPoints > 1;
+  return mobileRegex.test(ua) || isTouchScreen;
+}
+
+/**
+ * Get detailed speech capability diagnostics for current device and browser.
+ */
+export function getSpeechCapabilities() {
+  const hasNativeSTT = isSpeechRecognitionSupported();
+  const hasMediaRecorder =
+    typeof navigator !== 'undefined' &&
+    Boolean(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) &&
+    typeof MediaRecorder !== 'undefined';
+  const mobile = isMobileDevice();
+
+  return {
+    hasNativeSTT,
+    hasMediaRecorder,
+    isMobile: mobile,
+    // Universal mode is supported if MediaRecorder is available even if Web Speech is missing
+    supportsUniversalSTT: hasNativeSTT || hasMediaRecorder,
+    recommendedMode: hasNativeSTT ? 'native' : hasMediaRecorder ? 'universal' : 'none',
+  };
+}
+
+/**
  * Get the SpeechRecognition constructor (standard or webkit prefixed).
  */
 export function getSpeechRecognitionConstructor() {

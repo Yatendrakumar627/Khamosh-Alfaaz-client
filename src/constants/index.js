@@ -91,6 +91,7 @@ export const API_ENDPOINTS = {
   PUBLIC_ENTRY: (id) => `/api/public/entries/${id}`,
   PUBLIC_QUOTES: '/api/public/quotes',
   PUBLIC_CATEGORIES: '/api/public/categories',
+  STT_TRANSCRIBE: '/api/stt/transcribe',
 };
 
 export const DATE_FORMATS = {

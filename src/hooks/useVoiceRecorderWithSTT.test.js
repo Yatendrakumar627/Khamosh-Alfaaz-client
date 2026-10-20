@@ -11,6 +11,7 @@ describe('useVoiceRecorderWithSTT', () => {
     const { result } = renderHook(() => useVoiceRecorderWithSTT());
 
     expect(result.current.isRecording).toBe(false);
+    expect(result.current.isTranscribing).toBe(false);
     expect(result.current.isPaused).toBe(false);
     expect(result.current.recordingTime).toBe(0);
     expect(result.current.liveTranscript).toBe('');
@@ -19,6 +20,8 @@ describe('useVoiceRecorderWithSTT', () => {
     expect(result.current.audioUrl).toBeNull();
     expect(result.current.error).toBeNull();
     expect(result.current.selectedLanguage).toBe('en-US');
+    expect(typeof result.current.isSTTSupported).toBe('boolean');
+    expect(typeof result.current.sttMode).toBe('string');
   });
 
   it('allows changing language dynamically', () => {

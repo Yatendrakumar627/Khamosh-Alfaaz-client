@@ -160,6 +160,11 @@ export const healthApi = {
   check: () => api.get(API_ENDPOINTS.HEALTH),
 };
 
+export const sttApi = {
+  transcribe: ({ audioBase64, mimeType = 'audio/webm', language = 'en-US' }) =>
+    api.post(API_ENDPOINTS.STT_TRANSCRIBE, { audioBase64, mimeType, language }, { timeout: 30000 }),
+};
+
 export const downloadBlob = (blob, filename) => {
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');

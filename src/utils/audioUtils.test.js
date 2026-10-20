@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   formatTime,
   isSpeechRecognitionSupported,
+  isMobileDevice,
+  getSpeechCapabilities,
   applyVoicePunctuation,
   appendTranscriptToContent,
   SPEECH_LANGUAGES,
@@ -32,6 +34,21 @@ describe('audioUtils', () => {
     it('returns false or true depending on window presence', () => {
       const result = isSpeechRecognitionSupported();
       expect(typeof result).toBe('boolean');
+    });
+  });
+
+  describe('isMobileDevice & getSpeechCapabilities', () => {
+    it('detects mobile device boolean', () => {
+      expect(typeof isMobileDevice()).toBe('boolean');
+    });
+
+    it('returns comprehensive capability diagnostics', () => {
+      const caps = getSpeechCapabilities();
+      expect(caps).toHaveProperty('hasNativeSTT');
+      expect(caps).toHaveProperty('hasMediaRecorder');
+      expect(caps).toHaveProperty('isMobile');
+      expect(caps).toHaveProperty('supportsUniversalSTT');
+      expect(caps).toHaveProperty('recommendedMode');
     });
   });
 
