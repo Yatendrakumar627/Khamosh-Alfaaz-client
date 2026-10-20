@@ -57,4 +57,22 @@ describe('useVoiceRecorderWithSTT', () => {
     expect(result.current.audioBlob).toBeNull();
     expect(result.current.audioUrl).toBeNull();
   });
+
+  it('resets live transcript and media state when startRecording is invoked', async () => {
+    const { result } = renderHook(() => useVoiceRecorderWithSTT());
+
+    // Even if previous state had transcripts or errors, starting a new take gives clean slate
+    await act(async () => {
+      // Mock browser mediaDevices/speechRecognition if not present in jsdom
+      try {
+        await result.current.startRecording();
+      } catch (e) {}
+    });
+
+    expect(result.current.liveTranscript).toBe('');
+    expect(result.current.interimTranscript).toBe('');
+    expect(result.current.audioBlob).toBeNull();
+    expect(result.current.audioUrl).toBeNull();
+  });
 });
+

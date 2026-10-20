@@ -110,6 +110,16 @@ export const VoiceWritingToolbar = ({
 
   const [smartPunctuateSuccess, setSmartPunctuateSuccess] = useState(false);
 
+  const handleToggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      setAudioUrlCached(null);
+      setShowAudioPreview(false);
+      startRecording();
+    }
+  };
+
   const handleLanguageSelect = (code) => {
     setSelectedLang(code);
     changeLanguage(code);
@@ -147,7 +157,7 @@ export const VoiceWritingToolbar = ({
         <div className="voice-toolbar-left">
           <button
             type="button"
-            onClick={isRecording ? stopRecording : startRecording}
+            onClick={handleToggleRecording}
             disabled={isTranscribing}
             className={`voice-mic-trigger ${isRecording ? 'recording' : ''} ${isTranscribing ? 'transcribing' : ''}`}
             aria-pressed={isRecording}

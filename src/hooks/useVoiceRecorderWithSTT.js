@@ -293,9 +293,11 @@ export function useVoiceRecorderWithSTT({
           }
         }
 
-        setInterimTranscript(interimStr);
-        if (onInterimRef.current) {
-          onInterimRef.current(interimStr);
+        if (isRecordingRef.current && !isStoppingManuallyRef.current) {
+          setInterimTranscript(interimStr);
+          if (onInterimRef.current) {
+            onInterimRef.current(interimStr);
+          }
         }
       };
 
@@ -444,10 +446,18 @@ export function useVoiceRecorderWithSTT({
   const startRecording = useCallback(async () => {
     try {
       setError(null);
+      // Clean slate guarantee: Every time recording starts, reset previous session transcripts & media
+      liveTranscriptRef.current = '';
+      setLiveTranscript('');
       setInterimTranscript('');
-      isStoppingManuallyRef.current = false;
       lastProcessedFinalIndexRef.current = -1;
       lastProcessedFinalTextRef.current = '';
+      setAudioBlob(null);
+      setAudioUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return null;
+      });
+      isStoppingManuallyRef.current = false;
       if (restartTimeoutRef.current) clearTimeout(restartTimeoutRef.current);
 
       const caps = getSpeechCapabilities();
