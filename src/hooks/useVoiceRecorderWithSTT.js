@@ -8,6 +8,7 @@ import {
   applyVoicePunctuation,
   appendTranscriptToContent,
   deduplicateTranscriptChunk,
+  formatProperSentenceCasing,
 } from '../utils/audioUtils';
 import { sttApi } from '../services/api';
 
@@ -283,20 +284,22 @@ export function useVoiceRecorderWithSTT({
               ? applyVoicePunctuation(cleanedChunk, selectedLangRef.current, { smart: enableSmartPunctuation })
               : cleanedChunk;
 
-            const updatedFull = appendTranscriptToContent(liveTranscriptRef.current, processedChunk);
+            const casedChunk = formatProperSentenceCasing(processedChunk, liveTranscriptRef.current);
+            const updatedFull = appendTranscriptToContent(liveTranscriptRef.current, casedChunk);
             liveTranscriptRef.current = updatedFull;
             setLiveTranscript(updatedFull);
 
             if (onFinalChunkRef.current) {
-              onFinalChunkRef.current(processedChunk.trim());
+              onFinalChunkRef.current(casedChunk.trim());
             }
           }
         }
 
         if (isRecordingRef.current && !isStoppingManuallyRef.current) {
-          setInterimTranscript(interimStr);
+          const casedInterim = formatProperSentenceCasing(interimStr, liveTranscriptRef.current);
+          setInterimTranscript(casedInterim);
           if (onInterimRef.current) {
-            onInterimRef.current(interimStr);
+            onInterimRef.current(casedInterim);
           }
         }
       };
@@ -411,12 +414,13 @@ export function useVoiceRecorderWithSTT({
             ? applyVoicePunctuation(cleaned, selectedLangRef.current, { smart: enableSmartPunctuation })
             : cleaned;
 
-          const updatedFull = appendTranscriptToContent(liveTranscriptRef.current, processed);
+          const casedChunk = formatProperSentenceCasing(processed, liveTranscriptRef.current);
+          const updatedFull = appendTranscriptToContent(liveTranscriptRef.current, casedChunk);
           liveTranscriptRef.current = updatedFull;
           setLiveTranscript(updatedFull);
 
           if (onFinalChunkRef.current) {
-            onFinalChunkRef.current(processed);
+            onFinalChunkRef.current(casedChunk);
           }
 
           if (onCompleteRef.current) {

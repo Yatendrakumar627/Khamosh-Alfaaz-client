@@ -13,6 +13,7 @@ import {
   autoCapitalizeText,
   normalizeSpeechText,
   deduplicateTranscriptChunk,
+  formatProperSentenceCasing,
 } from './audioUtils';
 
 describe('audioUtils', () => {
@@ -292,4 +293,68 @@ describe('audioUtils', () => {
       expect(content).toBe('Kya kar rahe ho');
     });
   });
+
+  describe('formatProperSentenceCasing - Core Sentence Wordsmithing Rules', () => {
+    it('always capitalizes the first letter of a sentence and keeps rest lowercase', () => {
+      const input = 'hello everyone hope you are having a wonderful day';
+      expect(formatProperSentenceCasing(input)).toBe('Hello everyone hope you are having a wonderful day');
+    });
+
+    it('fixes Title-Cased speech recognition artifacts inside sentences (reproducing user screenshot)', () => {
+      const input = 'Maine Yaar yah Socha Tha Ki Tum. Mujhe Itna.';
+      const expected = 'Maine yaar yah socha tha ki tum. Mujhe itna.';
+      expect(formatProperSentenceCasing(input)).toBe(expected);
+    });
+
+    it('corrects entire multi-sentence emotional transcript from user screenshot', () => {
+      const input = 'Maine Tumko Hamesha yah Socha Ki yaar main. Kya bolun kya Nahin bolo lekin Hamesha Maine Tumko Galti Samjha?';
+      const expected = 'Maine tumko hamesha yah socha ki yaar main. Kya bolun kya nahin bolo lekin hamesha maine tumko galti samjha?';
+      expect(formatProperSentenceCasing(input)).toBe(expected);
+    });
+
+    it('always capitalizes the standalone pronoun "I" and contractions', () => {
+      const input = "yesterday i thought i'm doing well but i've had doubts";
+      expect(formatProperSentenceCasing(input)).toBe("Yesterday I thought I'm doing well but I've had doubts");
+    });
+
+    it('capitalizes days of the week', () => {
+      const input = 'we are meeting on monday and friday';
+      expect(formatProperSentenceCasing(input)).toBe('We are meeting on Monday and Friday');
+    });
+
+    it('capitalizes months of the year', () => {
+      const input = 'my birthday is in july and her birthday is in december';
+      expect(formatProperSentenceCasing(input)).toBe('My birthday is in July and her birthday is in December');
+    });
+
+    it('capitalizes holidays and festivals', () => {
+      const input = 'we celebrated christmas, eid, and diwali this year';
+      expect(formatProperSentenceCasing(input)).toBe('We celebrated Christmas, Eid, and Diwali this year');
+    });
+
+    it('capitalizes proper nouns (people, cities, countries, languages, brands)', () => {
+      const input = 'john flew from paris to london speaking english and using google and apple';
+      expect(formatProperSentenceCasing(input)).toBe('John flew from Paris to London speaking English and using Google and Apple');
+    });
+
+    it('preserves known acronyms in uppercase (AI, USA, UK, TV)', () => {
+      const input = 'the ceo talked about ai in the usa and uk on tv';
+      expect(formatProperSentenceCasing(input)).toBe('The CEO talked about AI in the USA and UK on TV');
+    });
+
+    it('respects previousContext when chunk arrives in the middle of a sentence', () => {
+      const prevContext = 'Maine yaar yah ';
+      const newChunk = 'Socha Tha Ki Tum.';
+      // Since prevContext does not end with sentence punctuation, "Socha" must be lowercased
+      expect(formatProperSentenceCasing(newChunk, prevContext)).toBe('socha tha ki tum.');
+    });
+
+    it('respects previousContext when chunk arrives after terminal sentence punctuation', () => {
+      const prevContext = 'Kyon nahin mujhe pyar kiya yaar? ';
+      const newChunk = 'sorry i am really sorry yaar.';
+      // Since prevContext ends with ?, "sorry" must start with capital "Sorry", followed by "I"
+      expect(formatProperSentenceCasing(newChunk, prevContext)).toBe('Sorry I am really sorry yaar.');
+    });
+  });
 });
+

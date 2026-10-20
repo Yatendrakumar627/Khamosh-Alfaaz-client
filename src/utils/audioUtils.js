@@ -101,28 +101,178 @@ export function getSpeechRecognitionConstructor() {
 }
 
 /**
- * Automatically capitalizes Latin-script sentences cleanly.
- * Formats:
- * - Start of string
- * - After terminal punctuation (. ! ? ... \n)
- * - Standalone English pronoun "i" and common contractions (i'm, i've, i'll, i'd)
+ * Days of the week (full and standard abbreviations)
  */
-export function autoCapitalizeText(text = '') {
-  if (!text || typeof text !== 'string') return '';
+export const DAYS_OF_WEEK = new Set([
+  'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday',
+  'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'
+]);
 
-  let res = text;
+/**
+ * Months of the year (full and standard abbreviations)
+ */
+export const MONTHS_OF_YEAR = new Set([
+  'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august',
+  'september', 'october', 'november', 'december',
+  'jan', 'feb', 'mar', 'apr', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct', 'nov', 'dec'
+]);
 
-  // Capitalize start of text
-  res = res.replace(/^(\s*)([a-z])/i, (match, prefix, char) => prefix + char.toUpperCase());
+/**
+ * Common major holidays and festivals
+ */
+export const HOLIDAYS = new Set([
+  'christmas', 'eid', 'diwali', 'deepavali', 'holi', 'easter', 'thanksgiving',
+  'halloween', 'ramadan', 'ramzan', 'navratri', 'dussehra', 'new year', "new year's",
+  'valentine', "valentine's", 'hanukkah', 'onam', 'pongal', 'baisakhi', 'rakhi',
+  'raksha bandhan', 'independence day', 'republic day'
+]);
 
-  // Capitalize after terminal punctuation (. ! ? ... \n)
-  res = res.replace(/([.!?।۔؟…]\s+)([a-z])/g, (match, punct, char) => punct + char.toUpperCase());
-  res = res.replace(/(\n+\s*)([a-z])/g, (match, newline, char) => newline + char.toUpperCase());
+/**
+ * Common languages and nationalities
+ */
+export const LANGUAGES_AND_NATIONALITIES = new Set([
+  'english', 'hindi', 'urdu', 'spanish', 'french', 'german', 'arabic', 'bengali',
+  'punjabi', 'marathi', 'tamil', 'telugu', 'gujarati', 'persian', 'chinese',
+  'japanese', 'russian', 'italian', 'portuguese', 'korean', 'latin', 'sanskrit',
+  'indian', 'pakistani', 'american', 'british', 'canadian', 'australian', 'european',
+  'asian', 'african'
+]);
 
-  // Capitalize English standalone 'i' pronoun and its contractions
-  res = res.replace(/\b(i)('m|'ve|'ll|'d|'d've)?\b/g, (match, p1, p2) => 'I' + (p2 || ''));
+/**
+ * Common proper nouns: Notable countries, cities, people, and brands
+ */
+export const PROPER_NOUNS = new Set([
+  // Countries and regions
+  'india', 'pakistan', 'america', 'usa', 'uk', 'canada', 'australia', 'england',
+  'germany', 'france', 'spain', 'italy', 'japan', 'china', 'russia', 'brazil',
+  'uae', 'dubai', 'saudi arabia',
+  // Prominent cities
+  'delhi', 'new delhi', 'mumbai', 'bangalore', 'bengaluru', 'kolkata', 'chennai',
+  'hyderabad', 'pune', 'karachi', 'lahore', 'islamabad', 'london', 'paris',
+  'new york', 'tokyo', 'berlin', 'rome', 'madrid', 'beijing', 'sydney', 'toronto',
+  // Common personal names & honorifics
+  'john', 'david', 'michael', 'mary', 'sarah', 'emma', 'james', 'robert', 'william',
+  'rahul', 'rohit', 'priya', 'ananya', 'ali', 'ahmed', 'fatima', 'zain', 'ayesha',
+  'mohammed', 'muhammad',
+  'allah', 'khuda', 'bhagwan', 'god', 'lord', 'jesus', 'krishna', 'ram', 'shiva',
+  'mr', 'mrs', 'ms', 'dr', 'prof',
+  // Tech / Global Brands
+  'google', 'apple', 'microsoft', 'android', 'youtube', 'whatsapp', 'instagram',
+  'facebook', 'twitter', 'amazon', 'netflix', 'spotify', 'github'
+]);
 
-  return res;
+/**
+ * Acronyms that should remain uppercase
+ */
+export const KNOWN_ACRONYMS = new Set([
+  'ai', 'usa', 'uk', 'uae', 'tv', 'ceo', 'cto', 'coo', 'id', 'url', 'api', 'stt', 'ui', 'ux', 'ok', 'nasa', 'fbi', 'cia'
+]);
+
+/**
+ * Formats a single word according to sentence casing rules and exceptions:
+ * - Standalone "I" and its contractions (I'm, I've, I'll, I'd)
+ * - Known acronyms (AI, USA, UK, TV, etc.)
+ * - Proper nouns: Days, months, holidays, languages, countries, cities, brands
+ * - First word of a sentence: Capitalized first letter, rest lowercase
+ * - Middle of a sentence: All lowercase
+ */
+export function formatWordByCasingRules(word, isStartOfSentence) {
+  if (!word || typeof word !== 'string') return word;
+
+  const lower = word.toLowerCase();
+
+  // 1. Standalone English pronoun "I" and contractions
+  if (/^i('(m|ve|ll|d|d've))?$/i.test(word)) {
+    return 'I' + word.slice(1).toLowerCase();
+  }
+
+  // 2. Acronyms (e.g. AI, USA, UK, TV, OK)
+  if (KNOWN_ACRONYMS.has(lower)) {
+    return lower.toUpperCase();
+  }
+
+  // 3. Proper nouns (Names, cities, countries, languages, brands, days, months, holidays)
+  const isProperNoun =
+    PROPER_NOUNS.has(lower) ||
+    DAYS_OF_WEEK.has(lower) ||
+    MONTHS_OF_YEAR.has(lower) ||
+    HOLIDAYS.has(lower) ||
+    LANGUAGES_AND_NATIONALITIES.has(lower);
+
+  if (isProperNoun) {
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  }
+
+  // 4. Start of a new sentence: Capitalize very first letter, rest lowercase
+  if (isStartOfSentence) {
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  }
+
+  // 5. Normal word within a sentence: Small (lowercase) letters
+  return word.toLowerCase();
+}
+
+/**
+ * Formats full sentences according to proper wordsmithing rules:
+ * - First Letter: Always capitalize the very first letter of the first word in a new sentence.
+ * - Rest of the Sentence: Small (lowercase) letters, except:
+ *   - Proper Nouns (John, Paris, English, India, Google)
+ *   - Standalone Pronoun "I" (I, I'm, I've, I'll, I'd)
+ *   - Days, Months, and Holidays (Monday, July, Christmas, Eid, Diwali)
+ *   - Acronyms (AI, USA, UK, TV, OK)
+ *
+ * @param {string} text - The text to format.
+ * @param {string} previousContext - Preceding text to determine if this text continues a sentence.
+ * @returns {string} The properly wordsmithed text.
+ */
+export function formatProperSentenceCasing(text = '', previousContext = '') {
+  if (!text || typeof text !== 'string') return text || '';
+  if (!text.trim()) return text;
+
+  // Determine if we begin at the start of a sentence based on previousContext
+  let isStartOfSentence = true;
+  if (previousContext && typeof previousContext === 'string' && previousContext.trim()) {
+    const trimmedPrev = previousContext.trimEnd();
+    // A sentence starts if previous context ended with terminal punctuation or newline
+    isStartOfSentence = /[.!?।۔؟…]$|\n$/.test(trimmedPrev);
+  }
+
+  // Tokenize into words and non-words (preserving whitespace, punctuation, symbols)
+  // Word regex matches sequences of Latin alphabetic letters including internal apostrophes
+  const tokens = text.split(/([a-zA-Z\u00C0-\u024F]+(?:['’][a-zA-Z\u00C0-\u024F]+)*)/);
+
+  const resultTokens = [];
+
+  for (let i = 0; i < tokens.length; i++) {
+    const token = tokens[i];
+    if (!token) continue;
+
+    // Check if token is a word
+    const isWord = /^[a-zA-Z\u00C0-\u024F]/.test(token);
+
+    if (isWord) {
+      const formatted = formatWordByCasingRules(token, isStartOfSentence);
+      resultTokens.push(formatted);
+      // Once a word has been placed, subsequent words within the sentence are NOT sentence starters
+      isStartOfSentence = false;
+    } else {
+      resultTokens.push(token);
+      // If this non-word token contains terminal sentence punctuation or newline,
+      // the NEXT word begins a new sentence!
+      if (/[.!?।۔؟…\n]/.test(token)) {
+        isStartOfSentence = true;
+      }
+    }
+  }
+
+  return resultTokens.join('');
+}
+
+/**
+ * Automatically capitalizes Latin-script sentences cleanly using wordsmithing rules.
+ */
+export function autoCapitalizeText(text = '', previousContext = '') {
+  return formatProperSentenceCasing(text, previousContext);
 }
 
 /**
@@ -297,9 +447,9 @@ export function smartPunctuateSentence(sentence = '', language = 'en-US', option
     }
   }
 
-  // Auto-capitalization for Latin scripts
+  // Auto-capitalization for Latin scripts using wordsmithing rules
   if (isLatin && options.autoCapitalize !== false) {
-    trimmed = autoCapitalizeText(trimmed);
+    trimmed = autoCapitalizeText(trimmed, options.previousContext);
   }
 
   return trimmed;
@@ -523,7 +673,7 @@ export function appendTranscriptToContent(currentContent = '', newChunk = '') {
 
   const trimmedContent = currentContent || '';
   if (!trimmedContent) {
-    return trimmedChunk;
+    return formatProperSentenceCasing(trimmedChunk);
   }
 
   // Guard against duplicate transcript chunk appending
@@ -532,23 +682,26 @@ export function appendTranscriptToContent(currentContent = '', newChunk = '') {
     return currentContent;
   }
 
+  // Wordsmith the newly appended chunk with sentence casing aware of preceding content context
+  const casedChunk = formatProperSentenceCasing(cleanedChunk, trimmedContent);
+
   // If content ends with newline, preserve newline
   if (/\n$/.test(trimmedContent)) {
-    return trimmedContent + cleanedChunk;
+    return trimmedContent + casedChunk;
   }
 
   // If content ends with space, append directly
   if (/\s$/.test(trimmedContent)) {
-    return trimmedContent + cleanedChunk;
+    return trimmedContent + casedChunk;
   }
 
   // If ends with sentence punctuation, separate with a single space
   if (/[.!?।۔؟…]$|\.\.\.$/.test(trimmedContent)) {
-    return trimmedContent + ' ' + cleanedChunk;
+    return trimmedContent + ' ' + casedChunk;
   }
 
   // Otherwise separate with a single space
-  return trimmedContent + ' ' + cleanedChunk;
+  return trimmedContent + ' ' + casedChunk;
 }
 
 
