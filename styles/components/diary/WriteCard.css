@@ -1,0 +1,105 @@
+/* ──────────────────────────────────────────────────────────
+   WriteCard
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.write-card {
+  position: relative;
+  box-shadow: var(--shadow-md) !important;
+  border: 1px solid var(--border) !important;
+  background-image: linear-gradient(180deg, var(--paper) 0%, var(--paper-dark) 100%) !important;
+  border-radius: 12px !important;
+}
+
+.write-card::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+  opacity: 0.6;
+  border-radius: 0 0 2px 2px;
+  pointer-events: none;
+}
+
+.write-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background-color: var(--hover-bg);
+  border: 1px solid var(--border);
+  color: var(--ink-muted);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.write-status .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--ink-light);
+  transition: background-color 0.2s ease;
+}
+
+.write-status.saving {
+  color: var(--gold-dark);
+  border-color: rgba(216, 168, 91, 0.4);
+}
+
+.write-status.saving .dot {
+  background-color: var(--gold);
+  animation: pulseGentle 1.2s ease-in-out infinite;
+}
+
+.write-status.saved {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 40%, var(--border));
+}
+
+.write-status.saved .dot {
+  background-color: var(--success);
+}
+
+@media (max-width: 767.98px) {
+  /* Write card — full width, 16px internal padding, header stays one row */
+  .write-card {
+    padding: 16px !important;
+  }
+  .write-card-header {
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    align-items: center !important;
+  }
+  .write-card-header .mantine-TextInput-label,
+  .write-card-header h2 {
+    font-size: 1.02rem !important;
+  }
+  /* Mobile Write Card styling */
+  .write-card {
+    padding: 14px 12px !important;
+    border-radius: 12px !important;
+  }
+  .write-card-header {
+    margin-bottom: 10px !important;
+    gap: 8px !important;
+  }
+  .write-card-pen-badge {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 9px !important;
+  }
+  .write-card-title {
+    font-size: 1.05rem !important;
+  }
+  .write-card-subtitle {
+    font-size: 0.8rem !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: 100% !important;
+    line-height: 1.4 !important;
+  }
+}

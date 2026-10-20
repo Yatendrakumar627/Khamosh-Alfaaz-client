@@ -1,0 +1,366 @@
+/* ──────────────────────────────────────────────────────────
+   RecentMemories
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+/* ──────────────────────────────────────────────────────────
+   RecentMemories Header (Interactive Title)
+   ────────────────────────────────────────────────────────── */
+
+.recent-mem-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  user-select: none;
+  transition: background-color 0.15s ease;
+  outline: none;
+}
+
+.recent-mem-header:hover {
+  background-color: rgba(223, 178, 100, 0.04);
+}
+
+.recent-mem-header:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.recent-mem-header-iconbox {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background-color: rgba(223, 178, 100, 0.12);
+  border: 1px solid rgba(223, 178, 100, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.recent-mem-header:hover .recent-mem-header-iconbox {
+  border-color: rgba(223, 178, 100, 0.45);
+  transform: scale(1.05);
+}
+
+.recent-mem-title {
+  font-family: var(--font-family-heading);
+  font-size: 0.94rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.2;
+  transition: color 0.15s ease;
+}
+
+.recent-mem-header:hover .recent-mem-title {
+  color: var(--gold);
+}
+
+/* ──────────────────────────────────────────────────────────
+   RecentMemories Filter Grid (Justified Layout)
+   ────────────────────────────────────────────────────────── */
+
+.recent-mem-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.recent-mem-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--paper-dark);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.recent-mem-btn:hover {
+  border-color: rgba(223, 178, 100, 0.45);
+  background-color: var(--active-bg);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.recent-mem-btn:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.recent-mem-btn-span-full {
+  grid-column: 1 / -1;
+}
+
+.recent-mem-btn-label {
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 6px;
+  padding-left: 2px;
+}
+
+.recent-mem-btn-count {
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  background: rgba(223, 178, 100, 0.14);
+  color: var(--gold);
+  border: 1px solid rgba(223, 178, 100, 0.25);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  flex-shrink: 0;
+  min-width: 18px;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.recent-mem-btn:hover .recent-mem-btn-count {
+  background: rgba(223, 178, 100, 0.24);
+  border-color: rgba(223, 178, 100, 0.45);
+}
+
+/* Active Button State (Used in OnThisDay & selectable tabs) */
+.recent-mem-btn-active,
+.recent-mem-btn-active:hover {
+  background: rgba(223, 178, 100, 0.15) !important;
+  border-color: rgba(223, 178, 100, 0.5) !important;
+  box-shadow: 0 0 0 1px rgba(223, 178, 100, 0.25), 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.recent-mem-btn-active .recent-mem-btn-label {
+  color: var(--gold) !important;
+  font-weight: 600;
+}
+
+.recent-mem-btn-active .recent-mem-btn-count {
+  background: var(--gold) !important;
+  color: #1a1612 !important;
+  border-color: var(--gold) !important;
+}
+
+/* Reusable Memory Card Styles */
+.recent-mem-card {
+  padding: 9px 11px;
+  background-color: var(--paper-dark);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  user-select: none;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.recent-mem-card:hover {
+  border-color: rgba(223, 178, 100, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+}
+
+.recent-mem-card:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.recent-mem-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.recent-mem-card-tag {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--gold);
+  background-color: rgba(223, 178, 100, 0.14);
+  padding: 1px 7px;
+  border-radius: 9999px;
+  letter-spacing: 0.03em;
+}
+
+.recent-mem-card-date {
+  font-size: 0.70rem;
+  color: var(--ink-muted);
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.recent-mem-card-title {
+  font-family: var(--font-family-heading);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0 0 2px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.recent-mem-card-snippet {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: 1.45;
+  font-size: 0.78rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Modal Filter Pills Container (Horizontal Swipeable Strip) */
+.rm-pills-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 2px 2px 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rm-pills-container::-webkit-scrollbar {
+  display: none;
+}
+
+.rm-count-label {
+  font-size: 0.74rem;
+  color: var(--ink-muted);
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Custom Sleek Scrollbar for Modal List */
+.rm-list-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(223, 178, 100, 0.25) transparent;
+}
+
+.rm-list-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.rm-list-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rm-list-scroll::-webkit-scrollbar-thumb {
+  background: rgba(223, 178, 100, 0.25);
+  border-radius: 4px;
+}
+
+.rm-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(223, 178, 100, 0.45);
+}
+
+/* Modal Filter Pills */
+.rm-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--paper-dark);
+  color: var(--ink-muted);
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rm-pill:hover {
+  border-color: rgba(223, 178, 100, 0.45);
+  color: var(--ink);
+  background: var(--active-bg);
+}
+
+.rm-pill-active,
+.rm-pill-active:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #1a1612;
+  font-weight: 600;
+}
+
+.rm-pill-badge {
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(223, 178, 100, 0.15);
+  color: var(--gold);
+  border: 1px solid rgba(223, 178, 100, 0.25);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+.rm-pill-active .rm-pill-badge,
+.rm-pill-active:hover .rm-pill-badge {
+  background: rgba(0, 0, 0, 0.2);
+  color: #1a1612;
+  border-color: transparent;
+}
+
+.rm-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--paper-dark);
+  color: var(--ink);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.rm-row:hover {
+  border-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 8%, var(--paper-dark));
+}
+
+.rm-iconbox {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--active-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

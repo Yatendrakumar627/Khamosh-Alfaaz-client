@@ -1,0 +1,1331 @@
+/* ──────────────────────────────────────────────────────────
+   Global foundation stylesheet
+   Design tokens (:root / [data-theme]), font schemes, base
+   elements, textures, keyframes, shared utility classes and
+   cross-cutting layout rules. Component- and page-specific
+   rules live in src/styles/ (imported from main.jsx).
+   ────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+  /* Palette — Luxury European Stationery & Warm Amber */
+  --paper: #ffffff;
+  --paper-dark: #fbf8f3;
+  --paper-darker: #f5efe6;
+  --ink: #1f1b16;
+  --ink-muted: #6b6154;
+  --ink-light: #998d7e;
+  --brown: #8a6538;
+  --brown-dark: #664721;
+  --brown-light: #ad8755;
+  --gold: #c29b4e;
+  --gold-light: #ecd49c;
+  --gold-dark: #99732b;
+  --border: #e8ded2;
+  --border-dark: #d8c7b3;
+  --background: #faf7f2;
+  --background-alt: #f3ece1;
+  --accent: #c29b4e;
+  --accent-hover: #a68038;
+  --leather: #8a6538;
+  --gold-muted: #bfa063;
+
+  /* Status */
+  --success: #5c8a45;
+  --error: #b54d3b;
+  --warning: #bf8e2e;
+  --info: #4d7d96;
+
+  /* Surfaces */
+  --sidebar-bg: #f6f0e6;
+  --card-bg: #ffffff;
+  --hover-bg: #f5efe4;
+  --active-bg: rgba(194, 155, 78, 0.12);
+  --overlay: rgba(31, 27, 22, 0.45);
+
+  /* Inputs */
+  --input-bg: #ffffff;
+  --input-border: #e0d5c5;
+  --input-focus-border: #c29b4e;
+
+  /* Focus */
+  --focus: #c29b4e;
+
+  /* Shadows — warm ambient light */
+  --shadow-sm: 0 1px 3px rgba(31, 27, 22, 0.05), 0 2px 8px rgba(31, 27, 22, 0.04);
+  --shadow-md: 0 4px 12px rgba(31, 27, 22, 0.06), 0 16px 32px rgba(31, 27, 22, 0.05);
+  --shadow-lg: 0 8px 24px rgba(31, 27, 22, 0.08), 0 32px 64px rgba(31, 27, 22, 0.06);
+  --ring: rgba(194, 155, 78, 0.25);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --sidebar-footer-veil: linear-gradient(180deg, rgba(138, 101, 56, 0.03) 0%, rgba(138, 101, 56, 0.12) 100%);
+
+  /* Rhythm */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-full: 9999px;
+
+  /* Type — font scheme stacks */
+  --font-family-heading: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-family-body: 'Lora', 'Cormorant Garamond', Georgia, serif;
+  --font-family-ui: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --font-family-handwriting: 'Dancing Script', 'Great Vibes', cursive;
+
+  /* Z */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 1000;
+  --z-toast: 1100;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  /* Palette — Luxury Obsidian Noir & Champagne Amber */
+  --paper: #151210;
+  --paper-dark: #1a1613;
+  --paper-darker: #120f0d;
+  --ink: #f7f2ea;
+  --ink-muted: #aca193;
+  --ink-light: #786e62;
+  --brown: #d4a359;
+  --brown-dark: #b8853b;
+  --brown-light: #e4bc78;
+  --gold: #dfb264;
+  --gold-light: #f5d699;
+  --gold-dark: #b5873a;
+  --border: rgba(223, 178, 100, 0.12);
+  --border-dark: rgba(223, 178, 100, 0.22);
+  --background: #0d0b09;
+  --background-alt: #120f0d;
+  --accent: #dfb264;
+  --accent-hover: #f5d699;
+  --leather: #d4a359;
+  --gold-muted: #9e7b3c;
+
+  --success: #7ea859;
+  --error: #c75a46;
+  --warning: #dca644;
+  --info: #689bb0;
+
+  --sidebar-bg: #110e0c;
+  --card-bg: #151210;
+  --hover-bg: #1d1915;
+  --active-bg: rgba(223, 178, 100, 0.12);
+  --overlay: rgba(6, 5, 4, 0.78);
+
+  --input-bg: rgba(21, 18, 16, 0.85);
+  --input-border: rgba(223, 178, 100, 0.16);
+  --input-focus-border: #dfb264;
+
+  --focus: #dfb264;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.55), 0 16px 36px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.65), 0 32px 72px rgba(0, 0, 0, 0.55);
+  --ring: rgba(223, 178, 100, 0.25);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --sidebar-footer-veil: linear-gradient(180deg, rgba(223, 178, 100, 0.02) 0%, rgba(223, 178, 100, 0.08) 100%);
+}
+
+/* ---------- Font schemes (applied via data-font on <html> by FontProvider) ---------- */
+
+:root[data-font="editorial"] {
+  --font-family-heading: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --font-family-body: 'Lora', 'Cormorant Garamond', Georgia, serif;
+  --font-family-ui: 'DM Sans', 'Inter', system-ui, sans-serif;
+}
+
+:root[data-font="classic"] {
+  --font-family-heading: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+  --font-family-body: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+  --font-family-ui: 'DM Sans', 'Inter', system-ui, sans-serif;
+}
+
+:root[data-font="vintage"] {
+  --font-family-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-family-body: 'Cormorant Garamond', 'Lora', Georgia, serif;
+  --font-family-ui: 'DM Sans', 'Inter', system-ui, sans-serif;
+}
+
+:root[data-font="modern"] {
+  --font-family-heading: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --font-family-body: 'DM Sans', 'Inter', system-ui, sans-serif;
+  --font-family-ui: 'DM Sans', 'Inter', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-variant-numeric: oldstyle-nums;
+  font-feature-settings: 'liga', 'kern';
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.01em;
+  background-color: var(--background);
+  background-image:
+    radial-gradient(1200px 800px at 82% -12%, rgba(217, 178, 92, 0.16), transparent 62%),
+    radial-gradient(1000px 720px at -14% 108%, rgba(125, 96, 60, 0.16), transparent 62%),
+    radial-gradient(760px 520px at 8% 42%, rgba(203, 170, 120, 0.07), transparent 60%),
+    radial-gradient(900px 560px at 50% 118%, rgba(118, 88, 98, 0.07), transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--background) 92%, #f6ecd6) 0%, var(--background) 100%);
+  background-attachment: fixed;
+  color: var(--ink);
+  line-height: 1.5;
+  overscroll-behavior-y: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(1200px 800px at 82% -12%, rgba(216, 168, 91, 0.11), transparent 62%),
+    radial-gradient(1000px 720px at -14% 108%, rgba(125, 96, 60, 0.2), transparent 62%),
+    radial-gradient(760px 520px at 8% 42%, rgba(216, 168, 91, 0.05), transparent 60%),
+    radial-gradient(900px 560px at 50% 118%, rgba(84, 42, 52, 0.18), transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--background) 85%, #0b0806) 0%, var(--background) 100%);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-heading);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+  margin: 0 0 0.5em;
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: clamp(2.5rem, 5vw, 3.5rem); }
+
+h2 { font-size: clamp(2rem, 4vw, 2.5rem); }
+
+h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
+
+h4 { font-size: clamp(1.25rem, 2.5vw, 1.5rem); }
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+button {
+  font-family: inherit;
+}
+
+input, textarea, select {
+  font-family: inherit;
+}
+
+/* Smooth theme switch on structural surfaces (components keep their own inline transitions) */
+
+main{
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+}
+
+::selection {
+  background-color: var(--gold);
+  color: var(--ink);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-alt);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--focus);
+}
+
+.serif {
+  font-family: var(--font-family-heading);
+}
+
+.small-caps {
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+}
+
+/* ---------- Parchment texture ---------- */
+
+.paper-texture {
+  position: relative;
+}
+
+.paper-texture::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 28% 18%, rgba(230, 207, 146, 0.28), transparent 58%),
+    radial-gradient(ellipse at 82% 88%, rgba(110, 84, 48, 0.22), transparent 62%),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 251, 240, 0.12), transparent 70%);
+  opacity: 0.05;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+[data-theme="dark"] .paper-texture::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 30% 15%, rgba(217, 178, 92, 0.1), transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(0, 0, 0, 0.35), transparent 65%);
+  opacity: 0.08;
+}
+
+/* ---------- Diary page (physical page / leather binding) ---------- */
+
+.diary-page {
+  background: linear-gradient(180deg, var(--paper) 0%, var(--paper-dark) 100%);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 251, 240, 0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.03),
+    0 4px 16px var(--shadow-sm),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+[data-theme="dark"] .diary-page {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 235, 200, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* Seamless writing area — the diary's focal point */
+
+.quick-write {
+  width: 100%;
+  min-height: 160px;
+  padding: var(--spacing-md);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--ink);
+  font-family: var(--font-family-body);
+  font-size: 1.1rem;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  resize: vertical;
+  outline: none;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.quick-write::placeholder {
+  color: var(--ink-light);
+}
+
+.quick-write:focus {
+  border-color: var(--input-focus-border);
+  box-shadow: inset 0 -2px 0 var(--focus);
+}
+
+/* ---------- Sidebar texture ---------- */
+
+.sidebar-texture {
+  position: relative;
+}
+
+.sidebar-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 10%, rgba(216, 168, 91, 0.06), transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(0, 0, 0, 0.4), transparent 60%);
+  pointer-events: none;
+}
+
+/* ---------- Dashboard layout (three-column desktop) ---------- */
+
+.dashboard-grid {
+  display: flex;
+  gap: 20px;
+  align-items: start;
+  width: 100%;
+}
+
+.quick-action {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  color: var(--ink-muted);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.quick-action:hover {
+  background-color: var(--hover-bg);
+  color: var(--ink);
+}
+
+/* Reading sheet for entry content (parchment + hairline frame) */
+
+.entry-page {
+  background: linear-gradient(180deg, var(--paper) 0%, var(--paper-dark) 100%);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Classic old-book drop cap for the opening letter */
+
+/* Gold ornament rule */
+
+.gold-rule {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.gold-rule::before,
+.gold-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+}
+
+.gold-rule .diamond {
+  width: 6px;
+  height: 6px;
+  transform: rotate(45deg);
+  background: var(--gold);
+}
+
+/* Tactile Parchment & Editorial Card Aesthetics */
+
+.paper-texture {
+  background-color: var(--paper);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.22);
+}
+
+.diary-page {
+  position: relative;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-theme="dark"] .paper-texture {
+  background-color: var(--paper);
+  border-color: rgba(223, 178, 100, 0.14);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(223, 178, 100, 0.08);
+}
+
+/* Classical Literary Drop Cap */
+
+.reading-dropcap::first-letter {
+  font-family: var(--font-family-heading);
+  font-size: 2.35em;
+  font-weight: 600;
+  float: left;
+  line-height: 0.85;
+  padding: 0.06em 0.12em 0 0;
+  color: var(--gold);
+}
+
+/* Candle Glow Animation */
+
+@keyframes candleFlicker {
+  0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(223, 178, 100, 0.6)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(223, 178, 100, 0.95)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(223, 178, 100, 0.6)); }
+}
+
+/* ---------- Sidebar ---------- */
+
+/* ---------- Animations ---------- */
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Dashboard card stagger: opacity-only so no stacking context is created */
+
+@keyframes dashCardIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.scale-in {
+  animation: scaleIn 0.2s ease;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.pulse-gentle {
+  animation: pulseGentle 3s ease-in-out infinite;
+}
+
+@keyframes pulseGentle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mobile drawer */
+
+@keyframes drawerIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes drawerOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   Responsive layout (Khamosh Alfaaz reference)
+   Desktop (>1200): 300px fixed sidebar | main + 350px right rail
+   ============================================================ */
+
+/* Offset fixed sidebar */
+
+.page-container {
+  padding: 20px 24px 48px;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Custom micro-scrollbar for expanded sidebar */
+
+/* Collapsed sidebar: zero native scrollbar, perfectly centered icons */
+
+/* Floating tooltip for collapsed rail */
+
+/* Item interactive micro-animations */
+
+/* Sidebar Count Badges */
+
+.sidebar-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-family-ui);
+  padding: 1.5px 7px;
+  border-radius: 10px;
+  min-width: 20px;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  background-color: rgba(223, 178, 100, 0.08);
+  color: var(--ink-muted);
+  border: 1px solid rgba(223, 178, 100, 0.14);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+/* Symmetrical circular action buttons */
+
+/* User profile button - pill on desktop, clean circle on mobile */
+
+.navbar-search {
+  flex: 0 0 460px;
+}
+
+.navbar-search-box {
+  max-width: 460px;
+}
+
+.mobile-menu-btn {
+  display: flex;
+}
+
+.bottom-nav {
+  display: none;
+}
+
+/* Entry card hover lift */
+
+/* When a card's dropdown is open, flatten the card so the menu stacks above it.
+   The hover transform otherwise promotes the card to a compositor layer that can
+   paint above the absolutely-positioned sibling menu. */
+
+.menu-open,
+.menu-open:hover {
+  z-index: 100 !important;
+  position: relative !important;
+}
+
+/* Quick actions (right rail) */
+
+/* ================================================================
+   ENTRIES PAGE — compact, information-dense, professional layout
+   ================================================================ */
+
+/* Page shell */
+
+/* ── Header ── */
+
+/* New entry CTA */
+
+/* ── Toolbar row: search + controls ── */
+
+/* Make SearchBar fill its parent */
+
+/* Popovers in entries toolbar (DatePicker & Filter) */
+
+.datepicker-popover{
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  z-index: 1100;
+  width: min(320px, calc(100vw - 24px));
+  max-height: calc(100dvh - 120px);
+  overflow-y: auto;
+  border-radius: 12px;
+  background-color: var(--paper-dark);
+  border: 1px solid var(--border-dark);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+  padding: var(--spacing-md);
+  animation: popoverFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top right;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Compact control buttons (Filter / Date) */
+
+/* ── Active filter chips ── */
+
+/* ── Entries list ── */
+
+/* ── Entry tag chips (compact, inside card) ── */
+
+/* ── Pagination ── */
+
+/* ---------- Polished components ---------- */
+
+/* Icon buttons — ubiquitous circular affordances */
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--ink-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-family-ui);
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.icon-btn:hover {
+  background-color: var(--hover-bg);
+  color: var(--ink);
+}
+
+.icon-btn:active {
+  transform: scale(0.9);
+}
+
+/* Navbar search focus */
+
+.navbar-search-input {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.navbar-search-input:focus {
+  border-color: var(--input-focus-border) !important;
+  box-shadow: 0 0 0 3px var(--ring) !important;
+}
+
+/* Theme switcher pills */
+
+.theme-pill {
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.theme-pill:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.theme-pill:active {
+  transform: scale(0.92);
+}
+
+.theme-pill[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 1px rgba(216, 168, 91, 0.4);
+}
+
+/* Primary gradient call-to-action */
+
+.btn-primary {
+  background-image: linear-gradient(135deg, #d4a755 0%, #eac278 50%, #c49642 100%) !important;
+  border: 1px solid rgba(245, 214, 153, 0.45) !important;
+  color: #120f0c !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 16px rgba(223, 178, 100, 0.25), 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(223, 178, 100, 0.38), 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Tag chips */
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-family-ui);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+  background-color: var(--hover-bg);
+  border: 1px solid var(--border);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.tag-chip-gold {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.68rem;
+  color: var(--gold-light);
+  background-color: rgba(216, 168, 91, 0.1);
+  border: 1px solid rgba(216, 168, 91, 0.22);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+/* Native select with custom chevron */
+
+/* Textarea wrapper */
+
+/* Justified text alignment while typing in the writing area */
+
+/* Write card — the diary's focal point, treated like an open page */
+
+/* ---------- Redesigned Space-Smart Entry Editor ---------- */
+
+/* 1. Header row: Title + Date side by side */
+
+.entry-field {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  background-color: var(--input-bg);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.92rem;
+  box-sizing: border-box;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.entry-field:focus{
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(223, 178, 100, 0.18);
+  background-color: var(--paper);
+}
+
+.entry-field::placeholder {
+  color: var(--ink-light);
+  opacity: 0.65;
+}
+
+.entry-date-input {
+  cursor: pointer;
+}
+
+.entry-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.18s ease;
+}
+
+.entry-date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* 2. Textarea Canvas */
+
+/* 3. Tier 1: Attributes & Metadata Strip */
+
+/* Tag chips */
+
+/* 4. Tier 2: Unified Telemetry & Action Footer */
+
+/* Auto-save status chip */
+
+/* Dropdown / drawer nav links */
+
+.drawer-nav-link {
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.drawer-nav-link:hover {
+  background-color: var(--hover-bg);
+}
+
+.drawer-nav-link:active {
+  transform: scale(0.99);
+}
+
+/* Overflow menus (entry card "More", etc.) */
+
+.menu-item {
+  font-family: var(--font-family-ui);
+  width: 100% !important;
+  height: auto !important;
+  min-height: 36px;
+  white-space: nowrap !important;
+  display: flex !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.15s ease;
+}
+
+.menu-item svg {
+  flex-shrink: 0 !important;
+}
+
+.menu-item:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+.menu-divider {
+  height: 1px;
+  margin: 5px 8px;
+  background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+}
+
+/* Calendar day hover */
+
+/* Calendar page — month navigation */
+
+/* Calendar day cells — hover/press feedback over inline backgrounds */
+
+/* View-all link arrow nudge */
+
+/* Welcome emblem entrance */
+
+@keyframes emblemIn {
+  0% { opacity: 0; transform: scale(0.7) rotate(-8deg); }
+  60% { transform: scale(1.06) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+/* Toast */
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Skeleton shimmer (referenced by LoadingState) */
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Scroll container stability for the main column */
+
+/* ---------- Up to 1200px: sidebar -> drawer, right rail stacks below main ---------- */
+
+/* ---------- Mobile (<=768px): single column + full-width search + bottom navigation ---------- */
+
+@media (max-width: 767.98px) {
+  .page-container{
+    padding: 8px 0 40px !important;
+    max-width: 100% !important;
+    gap: 14px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  
+}
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 54px;
+    background-color: var(--sidebar-bg);
+    border-top: 1px solid var(--border);
+    z-index: var(--z-sticky);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 54px;
+    position: relative;
+    color: var(--ink-light);
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+  .bottom-nav-item > * {
+    position: relative;
+    z-index: 1;
+  }
+  .bottom-nav-item svg {
+    transition: transform 0.2s ease;
+  }
+  .bottom-nav-item:active {
+    background-color: var(--hover-bg);
+  }
+  .bottom-nav-item.active {
+    color: var(--gold);
+  }
+  .bottom-nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 44px;
+    border-radius: 14px;
+    background-color: rgba(216, 168, 91, 0.16);
+    transition: background-color 0.2s ease;
+  }
+  .bottom-nav-item.active svg {
+    transform: translateY(-1px);
+  }
+  .entry-form-row {
+    flex-direction: column;
+    gap: 14px !important;
+    width: 100%;
+  }
+  .entry-form-row > div {
+    width: 100%;
+  }
+  .entry-field{
+    height: 44px !important;
+    font-size: 0.95rem !important;
+  
+}
+  .entry-field {
+    height: 38px !important;
+    font-size: 0.86rem !important;
+    padding: 0 10px !important;
+    border-radius: 8px !important;
+  }
+  .entry-date-input{
+    font-size: 0.8rem !important;
+    padding: 0 8px !important;
+    height: 38px !important;
+  
+}
+  .voice-soundwave {
+    height: 18px !important;
+    padding: 0 2px !important;
+    gap: 2px !important;
+  }
+  .datepicker-popover{
+    right: 0 !important;
+    left: auto !important;
+    width: min(310px, calc(100vw - 24px)) !important;
+    max-width: calc(100vw - 24px) !important;
+  
+}
+  /* Editor toolbar — comfortable touch targets, tighter inline rhythm */
+  .entry-toolbar {
+    gap: 10px;
+    padding: 10px;
+  }
+  .entry-tool-groups {
+    gap: 10px;
+  }
+  /* Dropdown menu — consistent inline rhythm */
+  .menu-item {
+    gap: var(--spacing-sm) !important;
+    font-size: 0.86rem;
+  }
+  .menu-divider {
+    margin: 4px 6px;
+  }
+  /* Entry detail actions become icon-only for a compact touch row */
+  .entry-actions .mantine-Button-label {
+    display: none;
+  }
+  .entry-actions .mantine-Button-root {
+    min-width: 34px;
+    padding: 8px 10px;
+  }
+}
+
+/* ---------- Small phones (<=480px): tighter gutters ---------- */
+
+/* ---------- Compact entry rows on narrow phones (<=560px) ---------- */
+
+/* ===========================
+   Visitor Mode
+   =========================== */
+
+/* Visitor layout header */
+
+.visitor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.visitor-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-family-heading);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.visitor-header-title svg {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.visitor-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.visitor-nav a,
+.visitor-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+.visitor-nav a:hover,
+.visitor-nav button:hover {
+  color: var(--ink);
+  background-color: var(--hover-bg);
+}
+
+.visitor-nav a.active,
+.visitor-nav button.active {
+  color: var(--gold);
+  background-color: rgba(216, 168, 91, 0.12);
+}
+
+/* Visitor hero */
+
+/* CTA banner */
+
+/* Public grid */
+
+.public-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+/* Visitor footer */
+
+.visitor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 16px 32px;
+  font-size: 0.8rem;
+  color: var(--ink-light);
+}
+
+.visitor-footer a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.visitor-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Writer main bottom clearance for bottom nav */
+
+@media (max-width: 767.98px) {
+  .entry-detail-main, .page-content{
+    padding-bottom: 96px !important;
+  
+}
+}
+
+@media (max-width: 767.98px) {
+  .visitor-header-inner {
+    padding: 10px 14px !important;
+    gap: 10px !important;
+  }
+  .visitor-nav,
+  .visitor-cta {
+    display: none !important;
+  }
+  .public-grid{
+    grid-template-columns: 1fr !important;
+  
+}
+  .visitor-footer {
+    padding: 20px 14px 28px !important;
+    margin-bottom: calc(54px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 479.98px) {
+  .visitor-header-inner {
+    padding: 10px 12px;
+  }
+  .visitor-brand span:last-child {
+    display: none;
+  }
+}
+
+@media (min-width: 1200px) {
+  .visitor-header {
+    padding: 12px 24px;
+  }
+  .public-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+/* ---------- Recent Memories modal ---------- */
+
+/* Category Hub & Section styles */
+
+/* Category & Quotes Hero Banner */
+
+/* Prompt Box */
+
+/* Quotes tabs styling */
+
+/* Category Hub Grids */
+
+/* Category Section Toolbar & Search/Filter */
+
+.category-search-wrap .search-bar-root{
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* EntryCard Header and Meta layout */
+
+/* Favorites Page */
+
+/* Calendar Page Container */
+
+/* Entry Detail Page Container */
+
+.entry-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Edit Entry Page Container */
+
+/* Mobile responsive rules (< 640px) */
+
+@media (max-width: 640px) {
+  .entry-actions {
+    width: 100% !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+  }
+  .mantine-Badge-root {
+    padding: 2px 7px !important;
+    font-size: 0.68rem !important;
+    height: 20px !important;
+  }
+}
+
+/* ==========================================================================
+   Voice Dictation & Speech-to-Text Studio (Khamosh Alfaaz)
+   ========================================================================== */
+
+/* Microphone activation trigger button */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes micPulseRing {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.65);
+    opacity: 0;
+  }
+}
+
+/* Soundwave visualizer bars */
+
+.voice-soundwave {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+  padding: 0 4px;
+}
+
+/* Language selector button & dropdown */
+
+/* Compact tool buttons (Info, Reset, Audio) */
+
+.voice-lang-text-mobile {
+  display: none;
+}
+
+/* Error banner */
+
+/* Support hint */
+
+/* Voice tips & punctuation guide card */
+
+.gold-icon {
+  color: var(--gold);
+}
+
+/* Live subtitles card (as user speaks) */
+
+/* Audio preview drawer */
+
+.voice-audio-element {
+  width: 100%;
+  height: 38px;
+  border-radius: 8px;
+}
+
+/* ==========================================================================
+   VoiceRecorderCard (Standalone Studio Card)
+   ========================================================================== */
+
+/* Central mic arena in card */
+
+/* Transcript card */
+
+/* Playback card */
+

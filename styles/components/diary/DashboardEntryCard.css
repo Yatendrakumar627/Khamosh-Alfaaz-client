@@ -1,0 +1,82 @@
+/* ──────────────────────────────────────────────────────────
+   DashboardEntryCard
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.dashboard-entry-card {
+  position: relative;
+}
+
+.dashboard-entry-card:hover {
+  border-color: var(--gold) !important;
+  background-color: var(--paper-dark) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.menu-open > .dashboard-entry-card, .menu-open:hover > .dashboard-entry-card{
+  transform: none !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+@media (max-width: 767.98px) {
+  /* Recent entries — vertical mobile cards */
+  .dashboard-entry-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'date actions'
+      'content content';
+    padding: 14px !important;
+    gap: 12px !important;
+    min-height: 0;
+  }
+  .dashboard-entry-card .dash-date {
+    grid-area: date;
+    width: 54px !important;
+    height: 66px !important;
+  }
+  .dashboard-entry-card .dash-date > span:first-child {
+    font-size: 1.35rem !important;
+  }
+  .dashboard-entry-card .dash-content {
+    grid-area: content;
+    padding: 0;
+  }
+  .dashboard-entry-card .dash-actions {
+    grid-area: actions;
+    width: auto !important;
+    padding: 0;
+  }
+  .dashboard-entry-card .dash-actions button.icon-btn {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  .dashboard-entry-card .dash-content h3 {
+    white-space: normal !important;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+}
+
+@media (max-width: 559.98px) {
+  .dashboard-entry-card {
+    padding: 14px !important;
+    gap: 12px !important;
+  }
+  .dash-date {
+    width: 52px !important;
+    height: 62px !important;
+  }
+  .dash-date > span:first-child {
+    font-size: 1.3rem !important;
+  }
+  .dash-actions {
+    width: 46px !important;
+  }
+  .dash-actions button.icon-btn {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}

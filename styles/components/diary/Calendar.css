@@ -1,0 +1,8 @@
+/* ──────────────────────────────────────────────────────────
+   Calendar
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.cal-day:hover {
+  background-color: var(--hover-bg);
+}

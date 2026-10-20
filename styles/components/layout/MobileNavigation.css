@@ -1,0 +1,53 @@
+/* ──────────────────────────────────────────────────────────
+   MobileNavigation
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.sidebar-item {
+  position: relative;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.18s ease;
+  border-radius: 8px;
+  margin: 2px 8px;
+}
+
+.sidebar-item .lucide {
+  transition: transform 0.18s ease;
+}
+
+.sidebar-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.sidebar-item:hover .lucide {
+  transform: translateX(1px);
+}
+
+.sidebar-item.active {
+  background-color: var(--active-bg);
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 22px;
+  border-radius: 0 3px 3px 0;
+  background: var(--gold);
+}
+
+.sidebar-item.active .sidebar-icon {
+  color: var(--gold);
+}
+
+.drawer-panel {
+  animation: drawerIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.drawer-overlay {
+  animation: drawerOverlayIn 0.25s ease;
+}

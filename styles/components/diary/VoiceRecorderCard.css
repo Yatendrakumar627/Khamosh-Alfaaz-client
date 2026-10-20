@@ -1,0 +1,308 @@
+/* ──────────────────────────────────────────────────────────
+   VoiceRecorderCard
+   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   ────────────────────────────────────────────────────────── */
+
+.voice-recorder-card {
+  background-color: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.voice-recorder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.voice-recorder-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.voice-recorder-badge-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(223, 178, 100, 0.22) 0%, rgba(223, 178, 100, 0.06) 100%);
+  border: 1px solid rgba(223, 178, 100, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.voice-recorder-title {
+  font-family: var(--font-family-heading);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.voice-recorder-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+.voice-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.voice-status-pill.recording {
+  background-color: rgba(229, 72, 77, 0.12);
+  border: 1px solid rgba(229, 72, 77, 0.35);
+  color: #e5484d;
+}
+
+.voice-status-pill.idle {
+  background-color: var(--paper-dark);
+  border: 1px solid var(--border);
+  color: var(--ink-light);
+}
+
+.voice-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.voice-status-pill.recording .voice-status-dot {
+  animation: pulseGentle 1.2s infinite;
+}
+
+.voice-error-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: rgba(181, 77, 59, 0.1);
+  border: 1px solid rgba(181, 77, 59, 0.3);
+  border-radius: var(--radius-md);
+  color: var(--error);
+  font-size: 0.82rem;
+}
+
+.voice-error-close {
+  background: none;
+  border: none;
+  color: var(--error);
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.voice-recorder-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.voice-recorder-lang-select-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--paper-dark);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0 10px;
+  height: 36px;
+}
+
+.voice-recorder-lang-select-wrap .lang-icon {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.voice-recorder-lang-select {
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.84rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.voice-recorder-timer-display {
+  font-family: var(--font-family-ui);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: 0.03em;
+}
+
+.voice-mic-arena {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 26px 16px;
+  background: radial-gradient(circle, var(--paper-dark) 0%, var(--paper) 100%);
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+}
+
+.voice-arena-mic-btn {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  background: var(--paper);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(223, 178, 100, 0.22);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.voice-arena-mic-btn:hover {
+  transform: scale(1.06);
+  background-color: var(--paper-dark);
+}
+
+.voice-arena-mic-btn.active {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: #ffffff;
+  border-color: var(--gold-light);
+  box-shadow: 0 0 24px rgba(223, 178, 100, 0.45);
+}
+
+.arena-pulse-ring {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  pointer-events: none;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+.voice-arena-label {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+}
+
+.voice-retake-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background-color: var(--paper);
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.voice-retake-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.voice-transcript-card {
+  padding: 14px 16px;
+  background-color: var(--paper-dark);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.voice-transcript-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.transcript-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.voice-insert-text-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background-color: var(--gold);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+.voice-insert-text-btn:hover {
+  background-color: var(--accent-hover);
+}
+
+.voice-transcript-card-text {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--ink);
+  font-style: italic;
+}
+
+.voice-playback-card {
+  padding: 14px 16px;
+  background-color: var(--paper-dark);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.voice-playback-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.voice-playback-header h4 {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--ink);
+}
