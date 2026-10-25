@@ -6,39 +6,67 @@ const SessionContext = createContext(null);
 
 const getErrorMessage = (err) => err?.response?.data?.error || err?.response?.data?.message || err?.message || 'Request failed';
 
+const getInitialVisitor = () => {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem('ka_token');
+  if (!token) return null;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.VISITOR);
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+};
+
 export const SessionProvider = ({ children }) => {
-  const [visitor, setVisitor] = useState(null);
-  const [name, setNameState] = useState('');
-  // Non-blocking: Unauthenticated visitors (no ka_token) load the UI immediately without waiting for server cold boot
+  const initialVisitor = getInitialVisitor();
+  const [visitor, setVisitor] = useState(initialVisitor);
+  const [name, setNameState] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem(STORAGE_KEYS.NAME) || initialVisitor?.name || '';
+  });
   const hasStoredToken = typeof window !== 'undefined' && Boolean(localStorage.getItem('ka_token'));
-  const [loading, setLoading] = useState(hasStoredToken);
+  const [loading, setLoading] = useState(false);
+  const [isValidating, setIsValidating] = useState(hasStoredToken);
+  // If no token, or if we have token and cached visitor profile, session is checked immediately (non-blocking)
+  const [sessionChecked, setSessionChecked] = useState(!hasStoredToken || Boolean(initialVisitor));
   const [error, setError] = useState(null);
 
   const fetchSession = useCallback(async () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('ka_token') : null;
     if (!token) {
-      // No credentials stored: Visitor mode is active. Silently pre-warm server in background.
       setLoading(false);
+      setIsValidating(false);
+      setSessionChecked(true);
       healthApi.check().catch(() => {});
       return;
     }
 
     try {
-      setLoading(true);
+      setIsValidating(true);
       const response = await sessionApi.get();
       const { visitor: visitorData, name: visitorName } = response.data;
       setVisitor(visitorData);
       setNameState(visitorName || '');
       setError(null);
-    } catch (err) {
-      setVisitor(null);
-      setNameState('');
-      setError(getErrorMessage(err));
-      if (err?.response?.status === 401 && typeof window !== 'undefined') {
-        localStorage.removeItem('ka_token');
+      if (visitorData && typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(STORAGE_KEYS.VISITOR, JSON.stringify(visitorData));
+          if (visitorName) localStorage.setItem(STORAGE_KEYS.NAME, visitorName);
+        } catch {}
       }
+    } catch (err) {
+      if (err?.response?.status === 401 && typeof window !== 'undefined') {
+        setVisitor(null);
+        setNameState('');
+        localStorage.removeItem('ka_token');
+        localStorage.removeItem(STORAGE_KEYS.VISITOR);
+      }
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
+      setIsValidating(false);
+      setSessionChecked(true);
     }
   }, []);
 
@@ -46,6 +74,12 @@ export const SessionProvider = ({ children }) => {
     setVisitor(visitorData);
     setNameState(visitorName || visitorData?.name || '');
     setError(null);
+    if (visitorData && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(STORAGE_KEYS.VISITOR, JSON.stringify(visitorData));
+        if (visitorName) localStorage.setItem(STORAGE_KEYS.NAME, visitorName);
+      } catch {}
+    }
   }, []);
 
   const initializeSession = useCallback(async (credentials) => {
@@ -84,6 +118,8 @@ export const SessionProvider = ({ children }) => {
     setVisitor(null);
     setNameState('');
     localStorage.removeItem(STORAGE_KEYS.NAME);
+    localStorage.removeItem(STORAGE_KEYS.VISITOR);
+    localStorage.removeItem('ka_token');
   }, []);
 
   const deleteSession = useCallback(async () => {
@@ -160,6 +196,8 @@ export const SessionProvider = ({ children }) => {
     visitor,
     name,
     loading,
+    isValidating,
+    sessionChecked,
     error,
     initializeSession,
     login,

@@ -13,18 +13,18 @@ import { About } from './pages/About';
 import { SplashScreen } from './components/ui/SplashScreen';
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useSession();
+  const { isAuthenticated, sessionChecked } = useSession();
 
-  if (loading) return <SplashScreen message="Opening your diary..." />;
+  if (!sessionChecked) return <SplashScreen message="Opening your diary..." />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   return children;
 };
 
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useSession();
+  const { isAuthenticated, sessionChecked } = useSession();
 
-  if (loading) return <SplashScreen message="Opening your diary..." />;
+  if (!sessionChecked) return <SplashScreen message="Opening your diary..." />;
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return children;
@@ -32,10 +32,9 @@ const PublicRoute = ({ children }) => {
 
 // Visitor Mode — not signed in (redirects writers to their dashboard)
 const VisitorOnlyRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useSession();
+  const { isAuthenticated, sessionChecked } = useSession();
 
-  if (loading) return <SplashScreen message="Opening the quiet pages..." />;
-  if (isAuthenticated) return <Navigate to="/dashboard" replace />;
+  if (sessionChecked && isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return children;
 };

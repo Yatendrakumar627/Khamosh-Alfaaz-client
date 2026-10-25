@@ -9,7 +9,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 60000, // 60s to accommodate Render.com cold starts
+  timeout: 40000, // 40s - handles Render free tier cold boot without multi-minute hangs
 });
 
 const isSessionRequest = (url) => {
@@ -48,17 +48,17 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     if (!originalRequest) return Promise.reject(error);
 
-    // Auto-retry on timeout (cold starts), network connection drops, or gateway 502/503/504
+    // Auto-retry once on cold starts (timeouts), network drops, or gateway 502/503/504
     const isTimeout = error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout');
     const isNetworkError = !error.response && Boolean(error.request);
     const isGatewayError = error.response && [502, 503, 504].includes(error.response.status);
 
     const shouldRetry = (isTimeout || isNetworkError || isGatewayError) &&
-      (!originalRequest._retryCount || originalRequest._retryCount < 2);
+      (!originalRequest._retryCount || originalRequest._retryCount < 1);
 
     if (shouldRetry) {
       originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
-      const delay = originalRequest._retryCount * 2000;
+      const delay = 2000;
       await new Promise(resolve => setTimeout(resolve, delay));
       return api(originalRequest);
     }
@@ -66,6 +66,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isSessionRequest(originalRequest.url) && !originalRequest._authRetry) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('ka_token');
+        localStorage.removeItem('ka_visitor');
       }
       originalRequest._authRetry = true;
       // If user is currently composing or editing, avoid a hard page reload that destroys their written draft

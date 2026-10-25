@@ -1,3 +1,4 @@
+// ThemeContext for application styling & theme
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { STORAGE_KEYS, THEMES } from '../constants';
 

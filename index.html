@@ -15,12 +15,33 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <script>
+      // Clear any legacy Service Workers or CacheStorage registered on localhost
+      if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (var reg of registrations) reg.unregister();
+        }).catch(function(){});
+      }
+      if (typeof window !== 'undefined' && 'caches' in window) {
+        caches.keys().then(function(names) {
+          for (var name of names) caches.delete(name);
+        }).catch(function(){});
+      }
       (function() {
         try {
-          var apiUrl = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+          var loc = (typeof window !== 'undefined' && window.location) ? window.location : {};
+          var hostname = loc.hostname || '';
+          var apiUrl = (hostname === 'localhost' || hostname === '127.0.0.1')
             ? 'http://localhost:5001'
             : 'https://khamosh-alfaaz-server.onrender.com';
-          fetch(apiUrl + '/api/health', { mode: 'cors', credentials: 'omit' }).catch(function(){});
+          // Pre-warm backend to reduce cold start time
+          fetch(apiUrl + '/api/health', { mode: 'cors', credentials: 'omit' })
+            .then(function(){ 
+              // Once health check succeeds, try to keep connection alive
+              setTimeout(function(){
+                fetch(apiUrl + '/api/health', { mode: 'cors', credentials: 'omit' }).catch(function(){});
+              }, 1000);
+            })
+            .catch(function(){});
         } catch(e) {}
       })();
     </script>

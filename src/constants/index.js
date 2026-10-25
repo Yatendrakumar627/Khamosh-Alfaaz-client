@@ -63,6 +63,8 @@ export const STORAGE_KEYS = {
   EDIT_DRAFT: (id) => `khamosh_alfaaz_edit_draft_${id}`,
   NAME: 'khamosh-name',
   SIDEBAR_OPEN: 'khamosh-sidebar-open',
+  VISITOR: 'ka_visitor',
+  TOKEN: 'ka_token',
 };
 
 export const API_ENDPOINTS = {
