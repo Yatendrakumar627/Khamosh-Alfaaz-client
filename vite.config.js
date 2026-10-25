@@ -9,17 +9,24 @@ export default defineConfig({
     hmr: {
       clientPort: 5173,
     },
-    headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0',
-    },
     proxy: {
       '/api': {
         target: 'http://localhost:5001',
         changeOrigin: true,
       },
     },
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@mantine/core',
+      '@mantine/hooks',
+      'lucide-react',
+      'axios',
+      'dayjs',
+    ],
   },
   legacy: {
     skipWebSocketTokenCheck: true,

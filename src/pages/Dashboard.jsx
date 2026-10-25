@@ -30,11 +30,7 @@ const OrnamentDivider = () => (
 export const Dashboard = () => {
   const { name } = useSession();
   const { date } = useDateFilter();
-  const { entries, loading, refresh, setFilters } = useEntries({ limit: 5, sort: 'newest', date });
-
-  useEffect(() => {
-    setFilters({ date });
-  }, [date, setFilters]);
+  const { entries, loading, refresh } = useEntries({ limit: 5, sort: 'newest', date });
 
   const displayName = name || 'Anonymous Writer';
 
