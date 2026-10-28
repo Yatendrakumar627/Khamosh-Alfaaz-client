@@ -9,6 +9,7 @@ import { PublicEntry } from './pages/PublicEntry';
 import { PublicQuotes } from './pages/PublicQuotes';
 import { PublicCategories } from './pages/PublicCategories';
 import { About } from './pages/About';
+import { Explore } from './pages/Explore';
 import { NotFound } from './pages/NotFound';
 
 import { SplashScreen } from './components/ui/SplashScreen';
@@ -31,13 +32,24 @@ const PublicRoute = ({ children }) => {
   return children;
 };
 
-// Visitor Mode — not signed in (redirects writers to their dashboard)
-const VisitorOnlyRoute = ({ children }) => {
+// Visitor Mode — only root "/" redirects authenticated writers to their dashboard
+const VisitorLandingRoute = () => {
   const { isAuthenticated, sessionChecked } = useSession();
 
   if (sessionChecked && isAuthenticated) return <Navigate to="/dashboard" replace />;
 
-  return children;
+  return <VisitorHome />;
+};
+
+// Explore route: authenticated writers get the internal Explore dashboard; visitors get public Explore home
+const ExploreRoute = () => {
+  const { isAuthenticated, sessionChecked } = useSession();
+
+  if (sessionChecked && isAuthenticated) {
+    return <MainLayout><Explore /></MainLayout>;
+  }
+
+  return <VisitorLayout><VisitorHome /></VisitorLayout>;
 };
 
 function App() {
@@ -46,9 +58,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<PublicRoute><Welcome /></PublicRoute>} />
 
-        <Route element={<VisitorOnlyRoute><VisitorLayout /></VisitorOnlyRoute>}>
-          <Route path="/" element={<VisitorHome />} />
-          <Route path="/explore" element={<VisitorHome />} />
+        {/* Public Visitor Layout Routes (Accessible by all, zero false redirects) */}
+        <Route element={<VisitorLayout />}>
+          <Route path="/" element={<VisitorLandingRoute />} />
           <Route path="/quotes" element={<Navigate to="/explore/quotes" replace />} />
           <Route path="/explore/quotes" element={<PublicQuotes />} />
           <Route path="/explore/categories" element={<PublicCategories />} />
@@ -57,8 +69,12 @@ function App() {
           <Route path="/404" element={<NotFound />} />
         </Route>
 
+        {/* Dynamic Explore Route for both writers and visitors */}
+        <Route path="/explore" element={<ExploreRoute />} />
+
+        {/* Protected Authenticated Writer Routes */}
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-          {routes.map(route => (
+          {routes.filter(r => r.path !== 'explore').map(route => (
             <Route key={route.path} path={route.path} element={route.element} />
           ))}
         </Route>

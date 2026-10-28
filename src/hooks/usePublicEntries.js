@@ -11,13 +11,15 @@ export const usePublicEntries = (initialParams = {}) => {
 
   const fetchEntries = useCallback(async (fetchParams = params, append = false) => {
     if (abortRef.current) abortRef.current.abort();
-    abortRef.current = new AbortController();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     setLoading(true);
     setError(null);
     try {
       const { signal, ...queryParams } = fetchParams;
-      const response = await publicApi.list({ ...queryParams, _t: Date.now() });
+      const response = await publicApi.list({ ...queryParams, _t: Date.now() }, { signal: controller.signal });
+      if (controller.signal.aborted) return;
       const { entries: data, pagination: pag } = response.data;
       if (append) {
         setEntries(prev => [...prev, ...data]);
@@ -26,11 +28,14 @@ export const usePublicEntries = (initialParams = {}) => {
       }
       if (pag) setPagination(pag);
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        setError(err.message);
+      if (err.name === 'AbortError' || err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || controller.signal.aborted) {
+        return;
       }
+      setError(err.message);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     }
   }, [params]);
 

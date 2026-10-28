@@ -95,16 +95,16 @@ export const sessionApi = {
 };
 
 export const entriesApi = {
-  list: (params = {}) => api.get(API_ENDPOINTS.ENTRIES, { params }),
-  get: (id) => api.get(API_ENDPOINTS.ENTRY(id)),
-  create: (data) => api.post(API_ENDPOINTS.ENTRIES, data),
-  update: (id, data) => api.patch(API_ENDPOINTS.ENTRY(id), data),
-  delete: (id) => api.delete(API_ENDPOINTS.ENTRY(id)),
-  toggleFavorite: (id, value) => api.patch(API_ENDPOINTS.ENTRY_FAVORITE(id), { isFavorite: value }),
-  togglePin: (id, value) => api.patch(API_ENDPOINTS.ENTRY_PIN(id), { isPinned: value }),
-  search: (query, params = {}) => api.get(API_ENDPOINTS.SEARCH, { params: { q: query, ...params } }),
-  calendar: (month) => api.get(API_ENDPOINTS.CALENDAR, { params: { month } }),
-  onThisDay: () => api.get(API_ENDPOINTS.ON_THIS_DAY),
+  list: (params = {}, config = {}) => api.get(API_ENDPOINTS.ENTRIES, { params, ...config }),
+  get: (id, config = {}) => api.get(API_ENDPOINTS.ENTRY(id), config),
+  create: (data, config = {}) => api.post(API_ENDPOINTS.ENTRIES, data, config),
+  update: (id, data, config = {}) => api.patch(API_ENDPOINTS.ENTRY(id), data, config),
+  delete: (id, config = {}) => api.delete(API_ENDPOINTS.ENTRY(id), config),
+  toggleFavorite: (id, value, config = {}) => api.patch(API_ENDPOINTS.ENTRY_FAVORITE(id), { isFavorite: value }, config),
+  togglePin: (id, value, config = {}) => api.patch(API_ENDPOINTS.ENTRY_PIN(id), { isPinned: value }, config),
+  search: (query, params = {}, config = {}) => api.get(API_ENDPOINTS.SEARCH, { params: { q: query, ...params }, ...config }),
+  calendar: (month, config = {}) => api.get(API_ENDPOINTS.CALENDAR, { params: { month }, ...config }),
+  onThisDay: (params = {}, config = {}) => api.get(API_ENDPOINTS.ON_THIS_DAY, { params, ...config }),
 };
 
 export const categoriesApi = {
@@ -151,10 +151,10 @@ export const statisticsApi = {
 };
 
 export const publicApi = {
-  list: (params = {}) => api.get(API_ENDPOINTS.PUBLIC_ENTRIES, { params }),
-  get: (id) => api.get(API_ENDPOINTS.PUBLIC_ENTRY(id)),
-  quotes: (params = {}) => api.get(API_ENDPOINTS.PUBLIC_QUOTES, { params }),
-  categories: () => api.get(API_ENDPOINTS.PUBLIC_CATEGORIES),
+  list: (params = {}, config = {}) => api.get(API_ENDPOINTS.PUBLIC_ENTRIES, { params, ...config }),
+  get: (id, config = {}) => api.get(API_ENDPOINTS.PUBLIC_ENTRY(id), config),
+  quotes: (params = {}, config = {}) => api.get(API_ENDPOINTS.PUBLIC_QUOTES, { params, ...config }),
+  categories: (config = {}) => api.get(API_ENDPOINTS.PUBLIC_CATEGORIES, config),
 };
 
 export const healthApi = {

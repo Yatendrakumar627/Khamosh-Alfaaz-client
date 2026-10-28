@@ -125,12 +125,13 @@ export const SessionProvider = ({ children }) => {
   const deleteSession = useCallback(async () => {
     try {
       await sessionApi.delete();
-      clearSession();
       return { success: true };
     } catch (err) {
       const message = getErrorMessage(err);
       setError(message);
       return { success: false, error: message };
+    } finally {
+      clearSession();
     }
   }, [clearSession]);
 

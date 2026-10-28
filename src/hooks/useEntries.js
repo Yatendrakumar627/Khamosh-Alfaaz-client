@@ -44,7 +44,8 @@ export const useEntries = (initialParams = {}) => {
 
   const fetchEntries = useCallback(async (fetchParams = paramsRef.current, append = false) => {
     if (abortRef.current) abortRef.current.abort();
-    abortRef.current = new AbortController();
+    const controller = new AbortController();
+    abortRef.current = controller;
 
     if (append) {
       setLoadingMore(true);
@@ -55,12 +56,14 @@ export const useEntries = (initialParams = {}) => {
 
     try {
       const queryParams = sanitizeParams(fetchParams);
+      const reqConfig = { signal: controller.signal };
       let response;
       if (queryParams.search && queryParams.search.trim()) {
-        response = await entriesApi.search(queryParams.search.trim(), queryParams);
+        response = await entriesApi.search(queryParams.search.trim(), queryParams, reqConfig);
       } else {
-        response = await entriesApi.list(queryParams);
+        response = await entriesApi.list(queryParams, reqConfig);
       }
+      if (controller.signal.aborted) return;
       const { entries: data, pagination: pag } = response.data;
       if (append) {
         setEntries(prev => {
@@ -75,15 +78,18 @@ export const useEntries = (initialParams = {}) => {
         setPagination(pag);
       }
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        setError(err.message);
-        showError(append ? 'Failed to load more entries' : 'Failed to load entries');
+      if (err.name === 'AbortError' || err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || controller.signal.aborted) {
+        return;
       }
+      setError(err.message);
+      showError(append ? 'Failed to load more entries' : 'Failed to load entries');
     } finally {
-      if (append) {
-        setLoadingMore(false);
-      } else {
-        setLoading(false);
+      if (!controller.signal.aborted) {
+        if (append) {
+          setLoadingMore(false);
+        } else {
+          setLoading(false);
+        }
       }
     }
   }, [showError]);
@@ -301,7 +307,8 @@ export const useCategories = () => {
 };
 
 export const useCalendar = (month) => {
-  const [days, setDays] = useState([]);
+  const [byDay, setByDay] = useState({});
+  const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { error: showError } = useToast();
@@ -312,7 +319,8 @@ export const useCalendar = (month) => {
     setError(null);
     try {
       const response = await entriesApi.calendar(month);
-      setDays(response.data.days || []);
+      setByDay(response.data.byDay || {});
+      setEntries(response.data.entries || []);
     } catch (err) {
       setError(err.message);
       showError('Failed to load calendar');
@@ -325,5 +333,6 @@ export const useCalendar = (month) => {
     fetchCalendar();
   }, [fetchCalendar]);
 
-  return { days, loading, error, refresh: fetchCalendar };
+  const days = Object.keys(byDay).map(Number);
+  return { byDay, entries, days, loading, error, refresh: fetchCalendar };
 };

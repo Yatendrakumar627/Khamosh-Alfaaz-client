@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useEntries } from '../hooks/useEntries';
+import { useCalendar } from '../hooks/useEntries';
 import { CalendarDay } from '../components/diary/Calendar';
 import { EmptyState } from '../components/diary/SearchAndFilter';
 import { LoadingState } from '../components/ui/LoadingState';
@@ -15,11 +15,12 @@ export const Calendar = () => {
   const [showDayView, setShowDayView] = useState(false);
   const gridRef = useRef(null);
 
-  const { entries, loading } = useEntries({ limit: 100 });
+  const monthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
+  const { byDay, entries, loading } = useCalendar(monthKey);
 
   const entriesByDate = useMemo(() => {
     const map = {};
-    for (const entry of entries) {
+    for (const entry of (entries || [])) {
       const raw = entry.entryDate || entry.createdAt;
       if (!raw) continue;
       const d = new Date(raw);
@@ -37,14 +38,7 @@ export const Calendar = () => {
     currentMonth.getFullYear() === today.getFullYear() &&
     currentMonth.getMonth() === today.getMonth();
 
-  const monthKey = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
-  const monthEntryCount = useMemo(
-    () =>
-      Object.entries(entriesByDate)
-        .filter(([date]) => date.startsWith(monthKey))
-        .reduce((total, [, list]) => total + list.length, 0),
-    [entriesByDate, monthKey],
-  );
+  const monthEntryCount = entries.length;
 
   const navigateMonth = (direction) => {
     setCurrentMonth(prev => {
@@ -122,7 +116,7 @@ export const Calendar = () => {
       date: dateStr,
       day,
       isCurrentMonth: true,
-      count: (entriesByDate[dateStr] || []).length,
+      count: (entriesByDate[dateStr] || []).length || byDay[day] || 0,
       isToday: dateStr === todayStr,
       isSelected: selectedDate === dateStr,
     });

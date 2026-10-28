@@ -30,16 +30,18 @@ const OrnamentDivider = () => (
 export const Dashboard = () => {
   const { name } = useSession();
   const { date } = useDateFilter();
-  const { entries, loading, refresh } = useEntries({ limit: 5, sort: 'newest', date });
+  const { entries, loading, pagination, refresh } = useEntries({ limit: 5, sort: 'newest', date });
 
   const displayName = name || 'Anonymous Writer';
 
   const stats = useMemo(() => {
     const today = getLocalDateString();
     const todayEntries = entries.filter(e => (e.entryDate || '').slice(0, 10) === today);
-    const words = entries.reduce((acc, e) => acc + (e.content ? e.content.trim().split(/\s+/).filter(Boolean).length : 0), 0);
-    return { todayCount: todayEntries.length, words };
-  }, [entries]);
+    return {
+      todayCount: todayEntries.length,
+      totalEntries: pagination?.total ?? entries.length,
+    };
+  }, [entries, pagination]);
 
   return (
     <div
@@ -116,7 +118,7 @@ export const Dashboard = () => {
         <div className="dash-stat-chips" style={{ display: 'flex', gap: '10px', flexShrink: 0, alignItems: 'center', flexWrap: 'wrap' }}>
           {[
             { Icon: FileText, value: stats.todayCount, label: stats.todayCount === 1 ? 'entry today' : 'entries today' },
-            { Icon: TrendingUp, value: stats.words.toLocaleString(), label: 'total words' },
+            { Icon: TrendingUp, value: stats.totalEntries.toLocaleString(), label: stats.totalEntries === 1 ? 'total entry' : 'total entries' },
           ].map(({ Icon, value, label }) => (
             <div
               key={label}
