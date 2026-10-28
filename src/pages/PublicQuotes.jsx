@@ -3,10 +3,16 @@ import { QUOTES } from '../constants';
 import { usePublicQuotes } from '../hooks/usePublicEntries';
 import { PublicEntryCard } from '../components/visitor/PublicEntryCard';
 import { LoadingState } from '../components/ui/LoadingState';
+import { useSEO } from '../utils/useSEO';
 
 const DISPLAY_QUOTES = QUOTES.slice(0, 6);
 
 export const PublicQuotes = () => {
+  useSEO({
+    title: 'Public Quotes & Whispers — Khamosh Alfaaz',
+    description: 'Read words worth keeping — reflections, thoughts, and quiet quotes shared openly by anonymous writers.',
+    canonicalUrl: 'https://khamosh-alfaaz-client.vercel.app/explore/quotes',
+  });
   const { quotes, loading } = usePublicQuotes(30);
 
   return (

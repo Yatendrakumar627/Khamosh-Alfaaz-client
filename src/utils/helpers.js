@@ -26,8 +26,15 @@ export const formatDate = (date, format = 'DISPLAY') => {
 export const formatRelativeTime = (date) => {
   if (!date) return '';
   const d = new Date(date);
+  if (isNaN(d.getTime())) return '';
   const now = new Date();
   const diffMs = now - d;
+  if (diffMs < 0) {
+    if (Math.abs(diffMs) > 30000) {
+      return formatDate(date, 'SHORT');
+    }
+    return 'Just now';
+  }
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
@@ -124,8 +131,12 @@ export const formatTags = (tags) => {
 };
 
 export const getInitials = (name) => {
-  if (!name) return '?';
-  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  if (!name || typeof name !== 'string') return '?';
+  const trimmed = name.trim();
+  if (!trimmed) return '?';
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  const initials = parts.map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  return initials || '?';
 };
 
 export const getGreeting = () => {

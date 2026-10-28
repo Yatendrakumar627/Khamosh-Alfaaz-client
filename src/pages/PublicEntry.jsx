@@ -7,6 +7,7 @@ import { usePublicEntry } from '../hooks/usePublicEntries';
 import { LoadingState } from '../components/ui/LoadingState';
 import { formatDate, getEntryTypeLabel } from '../utils/helpers';
 import { useToast } from '../context/ToastContext';
+import { useSEO } from '../utils/useSEO';
 
 const toParagraphs = (content) =>
   String(content || '').split(/\r?\n+/).map((p) => p.trim()).filter(Boolean);
@@ -15,6 +16,15 @@ export const PublicEntry = () => {
   const { id } = useParams();
   const toast = useToast();
   const { entry, loading, error } = usePublicEntry(id);
+
+  useSEO({
+    title: entry?.title ? `${entry.title} — Khamosh Alfaaz` : 'Public Whisper — Khamosh Alfaaz',
+    description: entry?.content
+      ? (entry.content.length > 150 ? entry.content.slice(0, 147) + '...' : entry.content)
+      : 'Read an anonymous thought or memoir shared on Khamosh Alfaaz.',
+    canonicalUrl: id ? `https://khamosh-alfaaz-client.vercel.app/explore/${id}` : undefined,
+    ogType: 'article',
+  });
 
   const [copied, setCopied] = useState(false);
   const [candleLit, setCandleLit] = useState(false);

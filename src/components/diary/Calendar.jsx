@@ -9,6 +9,7 @@ export const Calendar = ({ selectedDate, onDateSelect, entriesByDate = {}, month
   const navigateMonth = (direction) => {
     setCurrentMonth(prev => {
       const newDate = new Date(prev);
+      newDate.setDate(1);
       newDate.setMonth(newDate.getMonth() + direction);
       return newDate;
     });

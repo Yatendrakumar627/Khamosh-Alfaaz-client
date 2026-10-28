@@ -7,8 +7,14 @@ import { Input } from '../components/ui/Input';
 import { ArrowLeft, Eye, EyeOff, Sun, Moon } from 'lucide-react';
 import favicon from '../assets/favicon.png';
 import { STORAGE_KEYS } from '../constants';
+import { useSEO } from '../utils/useSEO';
 
 export const Welcome = () => {
+  useSEO({
+    title: 'Open Your Sanctuary Diary — Khamosh Alfaaz',
+    description: 'Sign in to your private anonymous diary or register with a unique username and 4-digit PIN. No email, no trackers.',
+    canonicalUrl: 'https://khamosh-alfaaz-client.vercel.app/login',
+  });
   const { initializeSession, login, loading: sessionLoading } = useSession();
   const { resolvedTheme, setTheme } = useTheme();
 

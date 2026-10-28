@@ -49,6 +49,7 @@ export const Calendar = () => {
   const navigateMonth = (direction) => {
     setCurrentMonth(prev => {
       const next = new Date(prev);
+      next.setDate(1);
       next.setMonth(next.getMonth() + direction);
       return next;
     });

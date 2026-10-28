@@ -7,7 +7,7 @@ export const VisitorBottomNavigation = ({ onMore, moreActive }) => {
     { path: '/', label: 'Home', icon: 'home', end: true },
     { path: '/explore', label: 'Explore', icon: 'explore' },
     { path: '/login', label: 'Write', icon: 'write' },
-    { path: '/quotes', label: 'Quotes', icon: 'quotes' },
+    { path: '/explore/quotes', label: 'Quotes', icon: 'quotes' },
     { path: null, label: 'More', icon: 'more' },
   ];
 

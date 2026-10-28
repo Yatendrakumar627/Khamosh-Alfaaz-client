@@ -1,0 +1,33 @@
+# Khamosh Alfaaz - Robots.txt
+# https://khamosh-alfaaz-client.vercel.app
+
+User-agent: *
+Allow: /
+Allow: /explore
+Allow: /explore/quotes
+Allow: /explore/categories
+Allow: /about
+Allow: /login
+
+# Disallow private authenticated diary paths (protect crawl budget and personal data)
+Disallow: /dashboard
+Disallow: /entries
+Disallow: /entries/*
+Disallow: /diary
+Disallow: /thoughts
+Disallow: /ideas
+Disallow: /notes
+Disallow: /personal
+Disallow: /gratitude
+Disallow: /category/*
+Disallow: /favorites
+Disallow: /calendar
+Disallow: /categories
+Disallow: /statistics
+Disallow: /export
+Disallow: /settings
+Disallow: /api/
+
+# Official XML Sitemap
+Sitemap: https://khamosh-alfaaz-client.vercel.app/sitemap.xml
+

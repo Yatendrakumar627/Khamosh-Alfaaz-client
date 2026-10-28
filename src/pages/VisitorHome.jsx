@@ -7,6 +7,7 @@ import favicon from '../assets/favicon.png';
 import { usePublicEntries } from '../hooks/usePublicEntries';
 import { PublicEntryCard } from '../components/visitor/PublicEntryCard';
 import { LoadingState } from '../components/ui/LoadingState';
+import { useSEO } from '../utils/useSEO';
 
 const VALUES = [
   {
@@ -30,6 +31,11 @@ const VALUES = [
 ];
 
 export const VisitorHome = () => {
+  useSEO({
+    title: 'Khamosh Alfaaz — A Quiet Anonymous Digital Diary',
+    description: 'A quiet, anonymous digital diary for writing, preserving, and finding personal thoughts without judgment.',
+    canonicalUrl: 'https://khamosh-alfaaz-client.vercel.app/',
+  });
   const { entries, loading } = usePublicEntries({ limit: 6, sort: 'newest' });
 
   return (

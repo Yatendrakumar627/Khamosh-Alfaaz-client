@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Feather, LockKeyhole, BookOpen, Globe2 } from 'lucide-react';
+import { useSEO } from '../utils/useSEO';
 
 const PILLARS = [
   {
@@ -19,8 +20,15 @@ const PILLARS = [
   },
 ];
 
-export const About = () => (
-  <div className="visitor-about" style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+export const About = () => {
+  useSEO({
+    title: 'About the Sanctuary — Khamosh Alfaaz',
+    description: 'Learn why Khamosh Alfaaz was built: a quiet, judgment-free digital corner for unspoken thoughts and anonymous memoirs.',
+    canonicalUrl: 'https://khamosh-alfaaz-client.vercel.app/about',
+  });
+
+  return (
+    <div className="visitor-about" style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
     <header style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto' }}>
       <div className="welcome-emblem" style={{
         width: '72px', height: '72px', borderRadius: '50%', border: '2px solid var(--gold)',
@@ -70,6 +78,7 @@ export const About = () => (
       </Link>
     </section>
   </div>
-);
+  );
+};
 
 export default About;

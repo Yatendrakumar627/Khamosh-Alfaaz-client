@@ -9,6 +9,7 @@ import { PublicEntry } from './pages/PublicEntry';
 import { PublicQuotes } from './pages/PublicQuotes';
 import { PublicCategories } from './pages/PublicCategories';
 import { About } from './pages/About';
+import { NotFound } from './pages/NotFound';
 
 import { SplashScreen } from './components/ui/SplashScreen';
 
@@ -47,10 +48,13 @@ function App() {
 
         <Route element={<VisitorOnlyRoute><VisitorLayout /></VisitorOnlyRoute>}>
           <Route path="/" element={<VisitorHome />} />
+          <Route path="/explore" element={<VisitorHome />} />
+          <Route path="/quotes" element={<Navigate to="/explore/quotes" replace />} />
           <Route path="/explore/quotes" element={<PublicQuotes />} />
           <Route path="/explore/categories" element={<PublicCategories />} />
           <Route path="/explore/:id" element={<PublicEntry />} />
           <Route path="/about" element={<About />} />
+          <Route path="/404" element={<NotFound />} />
         </Route>
 
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
@@ -59,7 +63,10 @@ function App() {
           ))}
         </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Catch-all 404 Route */}
+        <Route element={<VisitorLayout />}>
+          <Route path="*" element={<NotFound />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

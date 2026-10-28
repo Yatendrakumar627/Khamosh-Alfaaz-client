@@ -3,8 +3,14 @@ import { Tag } from 'lucide-react';
 import { ENTRY_TYPES } from '../constants';
 import { usePublicCategories } from '../hooks/usePublicEntries';
 import { LoadingState } from '../components/ui/LoadingState';
+import { useSEO } from '../utils/useSEO';
 
 export const PublicCategories = () => {
+  useSEO({
+    title: 'Browse Diary Categories — Khamosh Alfaaz',
+    description: 'Explore public entries grouped by thoughts, memoirs, quotes, gratitude, ideas, and reflections.',
+    canonicalUrl: 'https://khamosh-alfaaz-client.vercel.app/explore/categories',
+  });
   const { categories, loading } = usePublicCategories();
 
   const byType = Object.fromEntries(categories.map(c => [c.type, c.count]));
