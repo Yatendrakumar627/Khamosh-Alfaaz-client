@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import {
   BookOpen, Eye, Feather, LockKeyhole, ArrowRight,
-  Sparkles, ShieldCheck, Quote, Clock, Compass
+  Sparkles, ShieldCheck, Quote, Clock, Compass, ChevronDown
 } from 'lucide-react';
 import favicon from '../assets/favicon.png';
 import { usePublicEntries } from '../hooks/usePublicEntries';
@@ -39,232 +39,498 @@ export const VisitorHome = () => {
   const { entries, loading } = usePublicEntries({ limit: 6, sort: 'newest' });
 
   return (
-    <div className="visitor-home" style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
-      {/* ── 1. HERO — The Sanctuary Invitation ── */}
-      <section
-        className="paper-texture diary-page visitor-hero"
+    <div className="visitor-home" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(32px, 4vw, 44px)' }}>
+      {/* ── 1. HERO STAGE — Dedicated Single Screen Viewport Frame ── */}
+      <div
+        className="visitor-hero-stage"
         style={{
-          position: 'relative',
-          overflow: 'hidden',
+          minHeight: 'calc(100dvh - clamp(24px, 4vw, 40px))',
           display: 'flex',
           flexDirection: 'column',
+          justifyContent: 'center',
           alignItems: 'center',
-          textAlign: 'center',
-          gap: '16px',
-          padding: 'clamp(40px, 6vw, 64px) 24px clamp(36px, 5vw, 52px)',
-          borderRadius: '20px',
-          border: '1px solid var(--border)',
-          boxShadow: '0 8px 32px -4px rgba(0, 0, 0, 0.25)',
+          width: '100%',
+          position: 'relative',
+          boxSizing: 'border-box',
+          padding: '6px 0 34px',
         }}
       >
-        {/* Subtle radial ambient warmth */}
+        <section
+          className="paper-texture diary-page visitor-hero"
+          style={{
+            position: 'relative',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+            gap: 'clamp(12px, 2vh, 22px)',
+            padding: 'clamp(28px, 4.5vh, 48px) clamp(20px, 4vw, 48px) clamp(22px, 3.5vh, 36px)',
+            borderRadius: '20px',
+            border: '1px solid var(--border)',
+            boxShadow: '0 12px 40px -6px rgba(0, 0, 0, 0.32)',
+            width: '100%',
+            maxWidth: '1040px',
+            minHeight: 'calc(100dvh - clamp(64px, 9vh, 96px))',
+            boxSizing: 'border-box',
+          }}
+        >
+          {/* Subtle radial ambient warmth */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              pointerEvents: 'none',
+              background:
+                'radial-gradient(ellipse at 50% -10%, rgba(223, 178, 100, 0.18) 0%, transparent 65%), linear-gradient(180deg, color-mix(in srgb, var(--paper) 95%, var(--gold)) 0%, var(--paper) 100%)',
+              opacity: 0.45,
+            }}
+          />
+
+          {/* Top Floating Badge */}
+          <div
+            className="hero-top-badge"
+            style={{
+              position: 'relative',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              padding: '5px 14px',
+              borderRadius: '9999px',
+              backgroundColor: 'rgba(223, 178, 100, 0.1)',
+              border: '1px solid rgba(223, 178, 100, 0.25)',
+              color: 'var(--gold)',
+              fontSize: 'clamp(0.70rem, 2.2vw, 0.78rem)',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              whiteSpace: 'nowrap',
+              maxWidth: '100%',
+              boxSizing: 'border-box',
+            }}
+          >
+            <Sparkles size={13} style={{ flexShrink: 0 }} />
+            <span>An Anonymous Sanctuary for Unspoken Words</span>
+          </div>
+
+          {/* Logo Emblem */}
+          <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img
+              src={favicon}
+              alt="Khamosh Alfaaz emblem"
+              style={{
+                width: 52,
+                height: 52,
+                objectFit: 'contain',
+                filter: 'drop-shadow(0 3px 14px rgba(223, 178, 100, 0.48)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25))',
+                display: 'block',
+              }}
+            />
+          </div>
+
+          {/* Brand Heading */}
+          <h1
+            style={{
+              position: 'relative',
+              fontFamily: 'var(--font-family-heading)',
+              fontWeight: 600,
+              color: 'var(--ink)',
+              fontSize: 'clamp(2.3rem, 5.2vw, 3.4rem)',
+              margin: '0',
+              letterSpacing: '-0.015em',
+              lineHeight: 1.15,
+            }}
+          >
+            Khamosh Alfaaz
+          </h1>
+
+          {/* Golden Diamond Divider */}
+          <div className="gold-rule" style={{ position: 'relative', margin: '0 auto', maxWidth: '180px' }}>
+            <span className="diamond" />
+          </div>
+
+          {/* Subtitle / Poetic Hook */}
+          <p
+            style={{
+              position: 'relative',
+              fontFamily: 'var(--font-family-heading)',
+              fontStyle: 'italic',
+              fontSize: 'clamp(1.15rem, 2.5vw, 1.45rem)',
+              color: 'var(--gold)',
+              margin: 0,
+              textShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            }}
+          >
+            Jo keh nahi paaye, likh do.
+          </p>
+
+          {/* Main Philosophy Copy */}
+          <p
+            style={{
+              position: 'relative',
+              margin: '0 auto',
+              fontSize: 'clamp(0.92rem, 1.8vw, 1.05rem)',
+              color: 'var(--ink-muted)',
+              lineHeight: 1.6,
+              maxWidth: '640px',
+            }}
+          >
+            This is a quiet sanctuary where unspoken words find peace. Strangers share their deepest
+            reflections anonymously — read their quiet pages, or preserve your own memories in silence.
+          </p>
+
+          {/* ── Primary & Secondary Hero Action Buttons ── */}
+          <div
+            className="hero-cta-group"
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              flexWrap: 'wrap',
+              marginTop: '4px',
+              width: '100%',
+            }}
+          >
+            <Link
+              to="/login"
+              className="hero-btn-primary"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '11px 24px',
+                borderRadius: '12px',
+                backgroundColor: 'var(--gold)',
+                color: '#1a140d',
+                fontWeight: 600,
+                fontSize: '0.94rem',
+                textDecoration: 'none',
+                boxShadow: '0 4px 18px rgba(223, 178, 100, 0.35)',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 24px rgba(223, 178, 100, 0.45)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 18px rgba(223, 178, 100, 0.35)';
+              }}
+            >
+              <Feather size={16} />
+              <span>Start Writing in Silence</span>
+              <ArrowRight size={15} />
+            </Link>
+
+            <a
+              href="#quiet-pages"
+              onClick={(e) => {
+                const el = document.getElementById('quiet-pages');
+                if (el) {
+                  e.preventDefault();
+                  el.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="hero-btn-secondary"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '11px 20px',
+                borderRadius: '12px',
+                backgroundColor: 'var(--paper)',
+                border: '1px solid var(--border)',
+                color: 'var(--ink)',
+                fontWeight: 500,
+                fontSize: '0.92rem',
+                textDecoration: 'none',
+                transition: 'all 0.2s ease',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--gold)';
+                e.currentTarget.style.color = 'var(--gold)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--ink)';
+              }}
+            >
+              <BookOpen size={16} />
+              <span>Read Public Musings</span>
+              <ChevronDown size={14} className="hero-scroll-chevron" style={{ color: 'var(--gold)' }} />
+            </a>
+          </div>
+
+          {/* Trust Badges */}
+          <div
+            className="hero-trust-row"
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 'clamp(8px, 2vw, 14px)',
+              flexWrap: 'wrap',
+              marginTop: '8px',
+              paddingTop: '12px',
+              borderTop: '1px solid rgba(223, 178, 100, 0.12)',
+              fontSize: 'clamp(0.70rem, 2vw, 0.76rem)',
+              color: 'var(--ink-light)',
+              width: '100%',
+            }}
+          >
+            <span className="hero-trust-item" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+              <LockKeyhole size={12} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+              100% Private Diary
+            </span>
+            <span className="hero-trust-dot">•</span>
+            <span className="hero-trust-item" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+              <ShieldCheck size={12} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+              No Email or Phone
+            </span>
+            <span className="hero-trust-dot">•</span>
+            <span className="hero-trust-item" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+              <Clock size={12} style={{ color: 'var(--gold)', flexShrink: 0 }} />
+              Instant 10-Second Entry
+            </span>
+          </div>
+        </section>
+
+        {/* Floating Bottom Scroll Cue */}
         <div
           style={{
             position: 'absolute',
-            inset: 0,
-            pointerEvents: 'none',
-            background:
-              'radial-gradient(ellipse at 50% -10%, rgba(223, 178, 100, 0.18) 0%, transparent 65%), linear-gradient(180deg, color-mix(in srgb, var(--paper) 95%, var(--gold)) 0%, var(--paper) 100%)',
-            opacity: 0.45,
-          }}
-        />
-
-        {/* Top Floating Badge */}
-        <div
-          style={{
-            position: 'relative',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '7px',
-            padding: '5px 14px',
-            borderRadius: '9999px',
-            backgroundColor: 'rgba(223, 178, 100, 0.1)',
-            border: '1px solid rgba(223, 178, 100, 0.25)',
-            color: 'var(--gold)',
-            fontSize: '0.78rem',
-            fontWeight: 600,
-            letterSpacing: '0.04em',
-          }}
-        >
-          <Sparkles size={13} />
-          <span>An Anonymous Sanctuary for Unspoken Words</span>
-        </div>
-
-        {/* Logo Emblem */}
-        <div style={{ position: 'relative', marginTop: '4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img
-            src={favicon}
-            alt="Khamosh Alfaaz emblem"
-            style={{
-              width: 64,
-              height: 64,
-              objectFit: 'contain',
-              filter: 'drop-shadow(0 4px 16px rgba(223, 178, 100, 0.45)) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2))',
-              display: 'block',
-            }}
-          />
-        </div>
-
-        {/* Brand Heading */}
-        <h1
-          style={{
-            position: 'relative',
-            fontFamily: 'var(--font-family-heading)',
-            fontWeight: 600,
-            color: 'var(--ink)',
-            fontSize: 'clamp(2.4rem, 6.5vw, 3.8rem)',
-            margin: '2px 0 0',
-            letterSpacing: '-0.015em',
-            lineHeight: 1.15,
-          }}
-        >
-          Khamosh Alfaaz
-        </h1>
-
-        {/* Golden Diamond Divider */}
-        <div className="gold-rule" style={{ position: 'relative', margin: '2px auto 4px', maxWidth: '180px' }}>
-          <span className="diamond" />
-        </div>
-
-        {/* Subtitle / Poetic Hook */}
-        <p
-          style={{
-            position: 'relative',
-            fontFamily: 'var(--font-family-heading)',
-            fontStyle: 'italic',
-            fontSize: 'clamp(1.2rem, 2.8vw, 1.5rem)',
-            color: 'var(--gold)',
-            margin: 0,
-            textShadow: '0 2px 8px rgba(0,0,0,0.2)',
-          }}
-        >
-          Jo keh nahi paaye, likh do.
-        </p>
-
-        {/* Main Philosophy Copy */}
-        <p
-          style={{
-            position: 'relative',
-            margin: '4px auto 8px',
-            fontSize: 'clamp(0.92rem, 2vw, 1.05rem)',
-            color: 'var(--ink-muted)',
-            lineHeight: 1.6,
-            maxWidth: '640px',
-          }}
-        >
-          This is a quiet corner of the internet where words that were never spoken
-          finally find a sanctuary. Strangers write their deepest reflections — openly,
-          honestly, and completely anonymously. You can read them, write your own private memories,
-          and leave whenever you like.
-        </p>
-
-        {/* ── Primary & Secondary Hero Action Buttons ── */}
-        <div
-          style={{
-            position: 'relative',
+            bottom: '6px',
+            left: '50%',
+            transform: 'translateX(-50%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '12px',
-            flexWrap: 'wrap',
-            marginTop: '8px',
-            width: '100%',
+            zIndex: 2,
+            width: 'max-content',
+            maxWidth: '90vw',
           }}
         >
-          <Link
-            to="/login"
+          <a
+            href="#quiet-pages"
+            onClick={(e) => {
+              const el = document.getElementById('quiet-pages');
+              if (el) {
+                e.preventDefault();
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            aria-label="Scroll to wander quiet pages"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '9px',
-              padding: '12px 28px',
-              borderRadius: '12px',
-              backgroundColor: 'var(--gold)',
-              color: '#1a140d',
-              fontWeight: 600,
-              fontSize: '0.96rem',
+              gap: '6px',
+              fontSize: 'clamp(0.70rem, 2vw, 0.76rem)',
+              color: 'var(--ink-light)',
               textDecoration: 'none',
-              boxShadow: '0 4px 18px rgba(223, 178, 100, 0.35)',
+              padding: '5px 14px',
+              borderRadius: '9999px',
+              backgroundColor: 'color-mix(in srgb, var(--paper) 75%, transparent)',
+              border: '1px solid var(--border)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
               transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 6px 24px rgba(223, 178, 100, 0.45)';
+              e.currentTarget.style.color = 'var(--gold)';
+              e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.4)';
+              e.currentTarget.style.transform = 'translateY(2px)';
             }}
             onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--ink-light)';
+              e.currentTarget.style.borderColor = 'var(--border)';
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 18px rgba(223, 178, 100, 0.35)';
             }}
           >
-            <Feather size={17} />
-            <span>Start Writing in Silence</span>
-            <ArrowRight size={16} />
-          </Link>
+            <span>Explore quiet pages</span>
+            <ChevronDown size={13} className="hero-scroll-chevron" style={{ color: 'var(--gold)', flexShrink: 0 }} />
+          </a>
+        </div>
+      </div>
+
+      {/* ── 2. LATEST PUBLIC ENTRIES: FROM THE QUIET PAGES ── */}
+      <section
+        id="quiet-pages"
+        className="visitor-latest"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '18px',
+          scrollMarginTop: '24px',
+          paddingTop: '24px',
+        }}
+      >
+        <header
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '14px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(223, 178, 100, 0.14)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--gold)',
+                flexShrink: 0,
+              }}
+            >
+              <BookOpen size={19} />
+            </div>
+            <div>
+              <h2
+                style={{
+                  margin: 0,
+                  fontFamily: 'var(--font-family-heading)',
+                  fontSize: '1.4rem',
+                  fontWeight: 600,
+                  color: 'var(--ink)',
+                }}
+              >
+                From the quiet pages
+              </h2>
+              <p style={{ margin: '2px 0 0', fontSize: '0.80rem', color: 'var(--ink-light)' }}>
+                Real thoughts released anonymously by writers into the world.
+              </p>
+            </div>
+          </div>
 
           <Link
             to="/explore"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '8px',
-              padding: '12px 22px',
-              borderRadius: '12px',
-              backgroundColor: 'var(--paper)',
-              border: '1px solid var(--border)',
-              color: 'var(--ink)',
+              gap: '6px',
+              fontSize: '0.84rem',
               fontWeight: 500,
-              fontSize: '0.94rem',
+              color: 'var(--gold)',
               textDecoration: 'none',
-              transition: 'all 0.2s ease',
+              padding: '6px 14px',
+              borderRadius: '9999px',
+              border: '1px solid rgba(223, 178, 100, 0.25)',
+              backgroundColor: 'rgba(223, 178, 100, 0.08)',
+              transition: 'all 0.15s ease',
             }}
             onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.18)';
               e.currentTarget.style.borderColor = 'var(--gold)';
-              e.currentTarget.style.color = 'var(--gold)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--border)';
-              e.currentTarget.style.color = 'var(--ink)';
+              e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.08)';
+              e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.25)';
             }}
           >
-            <BookOpen size={16} />
-            <span>Read Public Musings</span>
+            <span>Explore All</span>
+            <ArrowRight size={13} />
           </Link>
-        </div>
+        </header>
 
-        {/* Trust Badges */}
-        <div
-          style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '16px',
-            flexWrap: 'wrap',
-            marginTop: '12px',
-            paddingTop: '16px',
-            borderTop: '1px solid rgba(223, 178, 100, 0.12)',
-            fontSize: '0.78rem',
-            color: 'var(--ink-light)',
-          }}
-        >
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-            <LockKeyhole size={13} style={{ color: 'var(--gold)' }} />
-            100% Private Diary
-          </span>
-          <span>•</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-            <ShieldCheck size={13} style={{ color: 'var(--gold)' }} />
-            No Email or Phone
-          </span>
-          <span>•</span>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-            <Clock size={13} style={{ color: 'var(--gold)' }} />
-            Instant 10-Second Entry
-          </span>
+        {loading && entries.length === 0 ? (
+          <LoadingState message="Opening the quiet pages..." centered={false} />
+        ) : entries.length === 0 ? (
+          <div
+            className="paper-texture"
+            style={{
+              padding: '38px 24px',
+              textAlign: 'center',
+              backgroundColor: 'var(--paper)',
+              border: '1px solid var(--border)',
+              borderRadius: '14px',
+            }}
+          >
+            <p style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: '1.15rem', color: 'var(--ink)' }}>
+              No one has left a public word yet.
+            </p>
+            <p style={{ margin: '8px 0 16px', fontSize: '0.86rem', color: 'var(--ink-muted)' }}>
+              Be the first writer to leave your anonymous mark.
+            </p>
+            <Link
+              to="/login"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 18px',
+                borderRadius: '8px',
+                backgroundColor: 'var(--gold)',
+                color: '#1a140d',
+                fontWeight: 600,
+                fontSize: '0.84rem',
+                textDecoration: 'none',
+              }}
+            >
+              Write First Reflection
+            </Link>
+          </div>
+        ) : (
+          <div
+            className="public-grid"
+            style={{
+              display: 'grid',
+              gap: '16px',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))',
+              alignItems: 'stretch',
+            }}
+          >
+            {entries.map((entry) => (
+              <PublicEntryCard key={entry._id} entry={entry} />
+            ))}
+          </div>
+        )}
+
+        <div style={{ textAlign: 'center', marginTop: '6px' }}>
+          <Link
+            to="/explore"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.88rem',
+              fontWeight: 600,
+              color: 'var(--gold)',
+              textDecoration: 'none',
+              padding: '8px 18px',
+              borderRadius: '9999px',
+              border: '1px solid rgba(223, 178, 100, 0.3)',
+              backgroundColor: 'rgba(223, 178, 100, 0.08)',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.18)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.08)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <span>Wander all public memories in Explore</span>
+            <ArrowRight size={14} />
+          </Link>
         </div>
       </section>
 
-      {/* ── 2. DISCOVERY PORTALS: Explore Khamosh Alfaaz ── */}
+      {/* ── 3. DISCOVERY PORTALS: Explore Khamosh Alfaaz ── */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', padding: '0 4px' }}>
           <span style={{ fontSize: '0.74rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gold)', fontWeight: 600 }}>
@@ -364,7 +630,7 @@ export const VisitorHome = () => {
         </div>
       </section>
 
-      {/* ── 3. FEATURED SOUL QUOTE ── */}
+      {/* ── 4. FEATURED SOUL QUOTE ── */}
       <section
         className="paper-texture"
         style={{
@@ -432,7 +698,7 @@ export const VisitorHome = () => {
         </Link>
       </section>
 
-      {/* ── 4. THE 3 SANCTUARY PILLARS ── */}
+      {/* ── 5. THE 3 SANCTUARY PILLARS ── */}
       <div
         className="visitor-values"
         style={{
@@ -518,137 +784,6 @@ export const VisitorHome = () => {
           </div>
         ))}
       </div>
-
-      {/* ── 5. LATEST PUBLIC ENTRIES WITH DYNAMIC CATEGORY FILTER TABS ── */}
-      <section className="visitor-latest" style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-        <header
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '14px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                backgroundColor: 'rgba(223, 178, 100, 0.14)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--gold)',
-                flexShrink: 0,
-              }}
-            >
-              <BookOpen size={19} />
-            </div>
-            <div>
-              <h2
-                style={{
-                  margin: 0,
-                  fontFamily: 'var(--font-family-heading)',
-                  fontSize: '1.4rem',
-                  fontWeight: 600,
-                  color: 'var(--ink)',
-                }}
-              >
-                From the quiet pages
-              </h2>
-              <p style={{ margin: '2px 0 0', fontSize: '0.80rem', color: 'var(--ink-light)' }}>
-                Real thoughts released anonymously by writers into the world.
-              </p>
-            </div>
-          </div>
-        </header>
-
-        {loading && entries.length === 0 ? (
-          <LoadingState message="Opening the quiet pages..." centered={false} />
-        ) : entries.length === 0 ? (
-          <div
-            className="paper-texture"
-            style={{
-              padding: '38px 24px',
-              textAlign: 'center',
-              backgroundColor: 'var(--paper)',
-              border: '1px solid var(--border)',
-              borderRadius: '14px',
-            }}
-          >
-            <p style={{ margin: 0, fontFamily: 'var(--font-family-heading)', fontStyle: 'italic', fontSize: '1.15rem', color: 'var(--ink)' }}>
-              No one has left a public word yet.
-            </p>
-            <p style={{ margin: '8px 0 16px', fontSize: '0.86rem', color: 'var(--ink-muted)' }}>
-              Be the first writer to leave your anonymous mark.
-            </p>
-            <Link
-              to="/login"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 18px',
-                borderRadius: '8px',
-                backgroundColor: 'var(--gold)',
-                color: '#1a140d',
-                fontWeight: 600,
-                fontSize: '0.84rem',
-                textDecoration: 'none',
-              }}
-            >
-              Write First Reflection
-            </Link>
-          </div>
-        ) : (
-          <div
-            className="public-grid"
-            style={{
-              display: 'grid',
-              gap: '16px',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))',
-              alignItems: 'stretch',
-            }}
-          >
-            {entries.map((entry) => (
-              <PublicEntryCard key={entry._id} entry={entry} />
-            ))}
-          </div>
-        )}
-
-        <div style={{ textAlign: 'center', marginTop: '6px' }}>
-          <Link
-            to="/explore"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.88rem',
-              fontWeight: 600,
-              color: 'var(--gold)',
-              textDecoration: 'none',
-              padding: '8px 18px',
-              borderRadius: '9999px',
-              border: '1px solid rgba(223, 178, 100, 0.3)',
-              backgroundColor: 'rgba(223, 178, 100, 0.08)',
-              transition: 'all 0.15s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.18)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.08)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <span>Wander all public memories in Explore</span>
-            <ArrowRight size={14} />
-          </Link>
-        </div>
-      </section>
 
       {/* ── 6. COMPARISON: THE SANCTUARY PHILOSOPHY ── */}
       <section

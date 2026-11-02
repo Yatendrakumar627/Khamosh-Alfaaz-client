@@ -3,7 +3,7 @@ import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { VisitorFooter } from '../components/visitor/VisitorFooter';
 
-export const VisitorLayout = () => {
+export const VisitorLayout = ({ children }) => {
   const { resolvedTheme, toggleTheme } = useTheme();
 
   return (
@@ -68,14 +68,14 @@ export const VisitorLayout = () => {
         className="visitor-body"
         style={{
           flex: 1,
-          padding: 'clamp(24px, 4vw, 44px) 20px 48px',
+          padding: 'clamp(12px, 2.5vw, 24px) clamp(12px, 2.5vw, 20px) 48px',
           maxWidth: '1080px',
           width: '100%',
           margin: '0 auto',
           minWidth: 0,
         }}
       >
-        <Outlet />
+        {children || <Outlet />}
       </main>
 
       {/* Logical, High-Converting & Professional Visitor Footer */}

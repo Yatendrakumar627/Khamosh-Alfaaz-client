@@ -7,7 +7,7 @@ import { BottomNavigation } from '../components/layout/BottomNavigation';
 import { Toaster } from '../components/ui/Toast';
 import { useSidebar } from '../context/SidebarContext';
 
-export const MainLayout = () => {
+export const MainLayout = ({ children }) => {
   const { expanded } = useSidebar();
 
   return (
@@ -27,7 +27,7 @@ export const MainLayout = () => {
 
         <div className="layout-main-row">
           <main className="dashboard-main">
-            <Outlet />
+            {children || <Outlet />}
           </main>
 
           <RightPanel />

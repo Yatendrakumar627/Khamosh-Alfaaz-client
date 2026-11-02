@@ -42,15 +42,27 @@ const VisitorLandingRoute = () => {
   return <VisitorHome />;
 };
 
-// Explore route: authenticated writers get the internal Explore dashboard; visitors get public Explore home
+// Explore route: authenticated writers get the internal Explore dashboard; visitors get public Explore feed
 const ExploreRoute = () => {
   const { isAuthenticated, sessionChecked } = useSession();
 
-  if (sessionChecked && isAuthenticated) {
-    return <MainLayout><Explore /></MainLayout>;
+  if (!sessionChecked) {
+    return <SplashScreen message="Opening your sanctuary..." />;
   }
 
-  return <VisitorLayout><VisitorHome /></VisitorLayout>;
+  if (isAuthenticated) {
+    return (
+      <MainLayout>
+        <Explore />
+      </MainLayout>
+    );
+  }
+
+  return (
+    <VisitorLayout>
+      <Explore />
+    </VisitorLayout>
+  );
 };
 
 function App() {

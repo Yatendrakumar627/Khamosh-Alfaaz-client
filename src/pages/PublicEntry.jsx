@@ -147,12 +147,15 @@ export const PublicEntry = () => {
     <div
       className="public-entry-page"
       style={{
-        maxWidth: '720px',
+        width: '100%',
+        maxWidth: '1040px',
         margin: '0 auto',
+        minHeight: 'calc(100dvh - clamp(100px, 14vh, 160px))',
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
         paddingBottom: '32px',
+        boxSizing: 'border-box',
         animation: 'fadeIn 0.25s var(--ease-out)',
       }}
     >
@@ -165,7 +168,7 @@ export const PublicEntry = () => {
             alignItems: 'center',
             gap: '6px',
             color: 'var(--ink-muted)',
-            fontSize: '0.84rem',
+            fontSize: '0.86rem',
             textDecoration: 'none',
             padding: '6px 0',
             transition: 'color 0.15s ease',
@@ -173,7 +176,7 @@ export const PublicEntry = () => {
           onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--gold)'; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--ink-muted)'; }}
         >
-          <ArrowLeft size={15} />
+          <ArrowLeft size={16} />
           <span>Back to Explore</span>
         </Link>
       </div>
@@ -182,145 +185,153 @@ export const PublicEntry = () => {
       <article
         className="paper-texture"
         style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
           backgroundColor: 'var(--paper)',
           border: '1px solid var(--border)',
           borderRadius: '16px',
-          padding: 'clamp(24px, 5vw, 42px)',
+          padding: 'clamp(28px, 4vw, 48px)',
           boxShadow: 'var(--shadow-sm)',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
-        {/* Simple, Understated Metadata */}
-        <header style={{ marginBottom: '22px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              fontSize: '0.78rem',
-              color: 'var(--gold)',
-              fontWeight: 500,
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-              marginBottom: '10px',
-            }}
-          >
-            <span>{getEntryTypeLabel(entry.type)}</span>
-            <span>•</span>
-            <span style={{ color: 'var(--ink-muted)' }}>{formatDate(rawDate, 'DISPLAY')}</span>
-          </div>
-
-          {/* Title */}
-          {entry.title ? (
-            <h1
+        <div>
+          {/* Simple, Understated Metadata */}
+          <header style={{ marginBottom: '22px' }}>
+            <div
               style={{
-                margin: '0 0 14px',
-                fontFamily: 'var(--font-family-heading)',
-                fontSize: 'clamp(1.5rem, 4vw, 2.1rem)',
-                fontWeight: 600,
-                color: 'var(--ink)',
-                lineHeight: 1.25,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.8rem',
+                color: 'var(--gold)',
+                fontWeight: 500,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+                marginBottom: '10px',
               }}
             >
-              {entry.title}
-            </h1>
-          ) : null}
+              <span>{getEntryTypeLabel(entry.type)}</span>
+              <span>•</span>
+              <span style={{ color: 'var(--ink-muted)' }}>{formatDate(rawDate, 'DISPLAY')}</span>
+            </div>
 
-          {/* Delicate Divider Line */}
-          <div
-            style={{
-              height: '1px',
-              background: 'linear-gradient(90deg, var(--border), transparent)',
-              width: '100%',
-            }}
-          />
-        </header>
-
-        {/* Prose Body (Clean, Natural, Emotion-First) */}
-        {isQuote ? (
-          <div
-            style={{
-              padding: '20px 0',
-              textAlign: 'center',
-              fontFamily: 'var(--font-family-heading)',
-              fontStyle: 'italic',
-              fontSize: '1.18rem',
-              lineHeight: 1.7,
-              color: 'var(--ink)',
-            }}
-          >
-            {paragraphs.map((p, i) => (
-              <p key={i} style={{ margin: '0 0 14px 0' }}>
-                “{p}”
-              </p>
-            ))}
-          </div>
-        ) : (
-          <div
-            className="public-entry-body"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '15px',
-              fontSize: '0.98rem',
-              lineHeight: 1.68,
-              color: 'var(--ink)',
-              textAlign: 'justify',
-              textJustify: 'inter-word',
-              hyphens: 'auto',
-              fontFamily: 'var(--font-family-body)',
-              letterSpacing: '0.005em',
-            }}
-          >
-            {paragraphs.map((paragraph, i) => (
-              <p
-                key={i}
+            {/* Title */}
+            {entry.title ? (
+              <h1
                 style={{
-                  margin: 0,
-                  whiteSpace: 'pre-wrap',
-                  wordWrap: 'break-word',
-                  textAlign: 'justify',
-                  textJustify: 'inter-word',
+                  margin: '0 0 14px',
+                  fontFamily: 'var(--font-family-heading)',
+                  fontSize: 'clamp(1.6rem, 3.5vw, 2.2rem)',
+                  fontWeight: 600,
+                  color: 'var(--ink)',
+                  lineHeight: 1.25,
                 }}
               >
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        )}
+                {entry.title}
+              </h1>
+            ) : null}
 
-        {/* Tags (if any) */}
-        {entry.tags && entry.tags.length > 0 && (
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '6px',
-              marginTop: '28px',
-              paddingTop: '16px',
-              borderTop: '1px solid var(--border)',
-            }}
-          >
-            {entry.tags.map((tag) => (
-              <Link
-                key={tag}
-                to={`/explore?search=%23${encodeURIComponent(tag)}`}
-                style={{
-                  fontSize: '0.74rem',
-                  color: 'var(--gold)',
-                  textDecoration: 'none',
-                  opacity: 0.85,
-                }}
-              >
-                #{tag}
-              </Link>
-            ))}
-          </div>
-        )}
+            {/* Delicate Divider Line */}
+            <div
+              style={{
+                height: '1px',
+                background: 'linear-gradient(90deg, var(--border), transparent)',
+                width: '100%',
+              }}
+            />
+          </header>
+
+          {/* Prose Body (Clean, Natural, Emotion-First) */}
+          {isQuote ? (
+            <div
+              style={{
+                padding: '24px 0',
+                textAlign: 'center',
+                fontFamily: 'var(--font-family-heading)',
+                fontStyle: 'italic',
+                fontSize: '1.25rem',
+                lineHeight: 1.7,
+                color: 'var(--ink)',
+                maxWidth: '920px',
+                margin: '0 auto',
+              }}
+            >
+              {paragraphs.map((p, i) => (
+                <p key={i} style={{ margin: '0 0 14px 0' }}>
+                  “{p}”
+                </p>
+              ))}
+            </div>
+          ) : (
+            <div
+              className="public-entry-body"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                fontSize: 'clamp(1rem, 1.1vw, 1.08rem)',
+                lineHeight: 1.75,
+                color: 'var(--ink)',
+                textAlign: 'left',
+                fontFamily: 'var(--font-family-body)',
+                letterSpacing: '0.005em',
+                maxWidth: '960px',
+              }}
+            >
+              {paragraphs.map((paragraph, i) => (
+                <p
+                  key={i}
+                  style={{
+                    margin: 0,
+                    whiteSpace: 'pre-wrap',
+                    wordWrap: 'break-word',
+                    textAlign: 'left',
+                  }}
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* Tags (if any) */}
+          {entry.tags && entry.tags.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '6px',
+                marginTop: '28px',
+                paddingTop: '16px',
+                borderTop: '1px solid var(--border)',
+              }}
+            >
+              {entry.tags.map((tag) => (
+                <Link
+                  key={tag}
+                  to={`/explore?search=%23${encodeURIComponent(tag)}`}
+                  style={{
+                    fontSize: '0.76rem',
+                    color: 'var(--gold)',
+                    textDecoration: 'none',
+                    opacity: 0.85,
+                  }}
+                >
+                  #{tag}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* ── Quiet Emotional Touchpoint at the End ── */}
         <div
           style={{
-            marginTop: '32px',
+            marginTop: '36px',
             paddingTop: '18px',
             borderTop: '1px solid var(--border)',
             display: 'flex',
