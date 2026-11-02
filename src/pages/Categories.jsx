@@ -8,8 +8,10 @@ import { Input } from '../components/ui/Input';
 import { Plus, Edit, Trash2, Tag, ArrowRight, Sparkles, Layers } from 'lucide-react';
 import { DEFAULT_CATEGORIES } from '../constants';
 import { statisticsApi } from '../services/api';
+import { useToast } from '../context/ToastContext';
 
 export const Categories = () => {
+  const toast = useToast();
   const { categories, loading, error, createCategory, updateCategory, deleteCategory } = useCategories();
   const [statsByType, setStatsByType] = useState({});
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -48,10 +50,11 @@ export const Categories = () => {
     setCreateError('');
     try {
       await createCategory({ name: newCategoryName.trim() });
+      toast?.success?.('Category created successfully');
       setShowCreateModal(false);
       setNewCategoryName('');
     } catch (err) {
-      setCreateError(err.response?.data?.message || 'Failed to create category');
+      setCreateError(err.response?.data?.error || err.response?.data?.message || 'Failed to create category');
     }
   };
 
@@ -60,10 +63,11 @@ export const Categories = () => {
     setEditError('');
     try {
       await updateCategory(editingCategory._id, { name: editCategoryName.trim() });
+      toast?.success?.('Category updated successfully');
       setEditingCategory(null);
       setEditCategoryName('');
     } catch (err) {
-      setEditError(err.response?.data?.message || 'Failed to update category');
+      setEditError(err.response?.data?.error || err.response?.data?.message || 'Failed to update category');
     }
   };
 
@@ -71,8 +75,9 @@ export const Categories = () => {
     if (!window.confirm('Delete this category? Entries using it will keep the tag but the category will be removed.')) return;
     try {
       await deleteCategory(id);
+      toast?.success?.('Category deleted successfully');
     } catch (err) {
-      alert('Failed to delete category');
+      toast?.error?.(err.response?.data?.error || err.response?.data?.message || 'Failed to delete category');
     }
   };
 
@@ -88,9 +93,9 @@ export const Categories = () => {
   const customCategories = categories.filter(c => !isDefault(c.name.toLowerCase()));
 
   return (
-    <div className="page-container" style={{ maxWidth: '1080px', margin: '0 auto', paddingBottom: '60px' }}>
+    <div className="page-container" style={{ width: '100%', maxWidth: '100%', margin: 0, paddingBottom: '48px' }}>
       {/* Header */}
-      <header style={{ marginBottom: 'var(--spacing-xl)' }}>
+      <header style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <Layers size={22} style={{ color: 'var(--gold)' }} />
           <span style={{ fontSize: '0.82rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--gold)' }}>

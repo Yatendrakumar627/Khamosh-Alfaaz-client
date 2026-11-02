@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Compass, Search, Tag } from 'lucide-react';
 import { ENTRY_TYPES } from '../constants';
@@ -28,13 +28,18 @@ export const Explore = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  const handleSearchChange = debounce((value) => {
-    const next = value.trim() || undefined;
-    const query = new URLSearchParams(searchParams);
-    if (next) query.set('search', next); else query.delete('search');
-    query.delete('page');
-    setSearchParams(query, { replace: true });
-  }, 350);
+  const handleSearchChange = useMemo(
+    () =>
+      debounce((value) => {
+        const next = value.trim() || undefined;
+        const query = new URLSearchParams(searchParams);
+        if (next) query.set('search', next);
+        else query.delete('search');
+        query.delete('page');
+        setSearchParams(query, { replace: true });
+      }, 350),
+    [searchParams, setSearchParams]
+  );
 
   const handleType = (value) => {
     const query = new URLSearchParams(searchParams);
@@ -48,7 +53,7 @@ export const Explore = () => {
   };
 
   const loadMore = () => {
-    fetchEntries({ ...params, page: pagination.page + 1, _t: Date.now() }, true);
+    fetchEntries({ ...params, page: pagination.page + 1 }, true);
     setPage(pagination.page + 1);
   };
 

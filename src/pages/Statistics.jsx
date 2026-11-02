@@ -323,12 +323,13 @@ export const Statistics = () => {
   return (
     <div
       style={{
-        padding: 'clamp(14px, 3vw, 32px)',
-        maxWidth: '1080px',
-        margin: '0 auto',
+        padding: '0 0 48px',
+        width: '100%',
+        maxWidth: '100%',
+        margin: 0,
         display: 'flex',
         flexDirection: 'column',
-        gap: '24px',
+        gap: '20px',
         animation: 'fadeIn 0.4s var(--ease-out)',
       }}
     >

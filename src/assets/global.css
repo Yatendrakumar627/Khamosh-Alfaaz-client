@@ -866,32 +866,67 @@ main{
   transform: scale(0.99);
 }
 
-/* Overflow menus (entry card "More", etc.) */
+/* Overflow menus (entry card "More", dropdowns, etc.) */
 
 .menu-item {
-  font-family: var(--font-family-ui);
+  font-family: var(--font-family-ui), inherit;
   width: 100% !important;
   height: auto !important;
   min-height: 36px;
   white-space: nowrap !important;
   display: flex !important;
   align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 12px !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  color: var(--ink) !important;
+  font-size: 0.85rem !important;
+  border-radius: 7px !important;
+  cursor: pointer !important;
+  text-align: left !important;
   box-sizing: border-box !important;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .menu-item svg {
   flex-shrink: 0 !important;
+  opacity: 0.85;
+  transition: opacity 0.15s ease, color 0.15s ease;
 }
 
 .menu-item:hover {
   background-color: var(--hover-bg) !important;
+  color: var(--gold) !important;
+  transform: translateX(2px);
+}
+
+.menu-item:hover svg {
+  opacity: 1;
+  color: var(--gold);
+}
+
+.menu-item.menu-item-danger,
+.menu-item.is-danger {
+  color: var(--error) !important;
+}
+
+.menu-item.menu-item-danger:hover,
+.menu-item.is-danger:hover {
+  background-color: rgba(239, 68, 68, 0.14) !important;
+  color: #ff6b6b !important;
+}
+
+.menu-item.is-active {
+  color: var(--gold) !important;
+  font-weight: 600;
 }
 
 .menu-divider {
   height: 1px;
-  margin: 5px 8px;
-  background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+  margin: 4px 6px;
+  background: linear-gradient(90deg, transparent, rgba(223, 178, 100, 0.22) 20%, rgba(223, 178, 100, 0.22) 80%, transparent);
 }
 
 /* Calendar day hover */

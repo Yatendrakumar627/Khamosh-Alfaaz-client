@@ -191,7 +191,7 @@ export const EntryEditor = ({
           onChange={(e) => handleChange('content', e.target.value)}
           error={errors.content}
           required
-          minRows={10}
+          minRows={8}
           maxRows={22}
           className="entry-textarea"
         />

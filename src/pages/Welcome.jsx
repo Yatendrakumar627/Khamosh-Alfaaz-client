@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSession } from '../context/SessionContext';
 import { sessionApi } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
@@ -17,6 +17,7 @@ export const Welcome = () => {
   });
   const { initializeSession, login, loading: sessionLoading } = useSession();
   const { resolvedTheme, setTheme } = useTheme();
+  const navigate = useNavigate();
 
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [displayName, setDisplayName] = useState('');
@@ -79,7 +80,7 @@ export const Welcome = () => {
       }
 
       localStorage.setItem(STORAGE_KEYS.NAME, result.name || displayName.trim());
-      window.location.href = '/dashboard';
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err?.response?.data?.error || err?.message || 'Unable to open diary. Please try again.');
     } finally {

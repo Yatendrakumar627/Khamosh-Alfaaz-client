@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { FileText, ArrowRight, Feather, TrendingUp } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 import { useEntries } from '../hooks/useEntries';
@@ -8,23 +8,24 @@ import { WriteCard } from '../components/diary/WriteCard';
 import { DashboardEntryCard } from '../components/diary/DashboardEntryCard';
 import { LoadingState } from '../components/ui/LoadingState';
 import { getGreeting, getLocalDateString } from '../utils/helpers';
+import { entriesApi } from '../services/api';
 
 const OrnamentDivider = () => (
-  <span
+  <div
+    className="dash-recent-rule"
     aria-hidden="true"
-    className="ornament-divider"
     style={{
-      display: 'inline-flex',
+      flex: 1,
+      display: 'flex',
       alignItems: 'center',
-      gap: '6px',
-      color: 'var(--gold)',
-      opacity: 0.85,
+      gap: '8px',
+      minWidth: '24px',
+      opacity: 0.45,
     }}
   >
-    <span style={{ height: '1px', width: '18px', background: 'linear-gradient(90deg, transparent, var(--gold))' }} />
-    <span style={{ width: '5px', height: '5px', transform: 'rotate(45deg)', background: 'var(--gold)', borderRadius: '1px' }} />
-    <span style={{ height: '1px', width: '18px', background: 'linear-gradient(90deg, var(--gold), transparent)' }} />
-  </span>
+    <span style={{ height: '1px', flex: 1, background: 'linear-gradient(90deg, rgba(223, 178, 100, 0.6) 0%, rgba(223, 178, 100, 0.1) 100%)' }} />
+    <span style={{ width: '4px', height: '4px', transform: 'rotate(45deg)', background: 'var(--gold)', borderRadius: '1px', flexShrink: 0 }} />
+  </div>
 );
 
 export const Dashboard = () => {
@@ -33,15 +34,32 @@ export const Dashboard = () => {
   const { entries, loading, pagination, refresh } = useEntries({ limit: 5, sort: 'newest', date });
 
   const displayName = name || 'Anonymous Writer';
+  const [todayTotal, setTodayTotal] = useState(0);
+
+  const fetchTodayCount = useCallback(() => {
+    const today = getLocalDateString();
+    entriesApi.list({ date: today, limit: 1 })
+      .then((res) => {
+        if (typeof res.data?.pagination?.total === 'number') {
+          setTodayTotal(res.data.pagination.total);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetchTodayCount();
+    const handleUpdate = () => fetchTodayCount();
+    window.addEventListener('entries-updated', handleUpdate);
+    return () => window.removeEventListener('entries-updated', handleUpdate);
+  }, [fetchTodayCount]);
 
   const stats = useMemo(() => {
-    const today = getLocalDateString();
-    const todayEntries = entries.filter(e => (e.entryDate || '').slice(0, 10) === today);
     return {
-      todayCount: todayEntries.length,
+      todayCount: todayTotal,
       totalEntries: pagination?.total ?? entries.length,
     };
-  }, [entries, pagination]);
+  }, [todayTotal, pagination, entries.length]);
 
   return (
     <div
@@ -162,37 +180,53 @@ export const Dashboard = () => {
       {/* ── Recent entries ── */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <header className="dash-recent-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', paddingBottom: '2px' }}>
-          <h2 style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            fontFamily: 'var(--font-family-heading)',
-            fontSize: '1.12rem', fontWeight: 600,
-            color: 'var(--ink)', margin: 0,
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flexShrink: 0 }}>
             <span style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               width: '28px', height: '28px', borderRadius: '8px',
               backgroundColor: 'var(--active-bg)',
+              border: '1px solid rgba(223, 178, 100, 0.22)',
             }}>
               <FileText size={15} style={{ color: 'var(--gold)' }} />
             </span>
-            Recent Entries
-            <OrnamentDivider />
-          </h2>
+            <h2 style={{
+              fontFamily: 'var(--font-family-heading)',
+              fontSize: '1.15rem', fontWeight: 600,
+              color: 'var(--ink)', margin: 0,
+              letterSpacing: '-0.01em',
+            }}>
+              Recent Entries
+            </h2>
+          </div>
+
+          <OrnamentDivider />
+
           <Link
             to="/entries"
             className="view-all-link"
             style={{
-              display: 'flex', alignItems: 'center', gap: '5px',
-              fontSize: '0.82rem', fontWeight: 500, color: 'var(--gold)',
-              textDecoration: 'none', padding: '4px 10px',
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              fontSize: '0.82rem', fontWeight: 600, color: 'var(--gold)',
+              textDecoration: 'none', padding: '5px 12px',
               borderRadius: 'var(--radius-full)',
-              transition: 'background-color 0.2s ease',
+              backgroundColor: 'rgba(223, 178, 100, 0.08)',
+              border: '1px solid rgba(223, 178, 100, 0.22)',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+              flexShrink: 0,
             }}
-            onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--active-bg)'; }}
-            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+            onMouseEnter={e => {
+              e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.18)';
+              e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.4)';
+              e.currentTarget.style.transform = 'translateX(2px)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.08)';
+              e.currentTarget.style.borderColor = 'rgba(223, 178, 100, 0.22)';
+              e.currentTarget.style.transform = 'translateX(0)';
+            }}
           >
-            View All
-            <ArrowRight size={14} aria-hidden="true" />
+            <span>View All</span>
+            <ArrowRight size={13} aria-hidden="true" />
           </Link>
         </header>
 

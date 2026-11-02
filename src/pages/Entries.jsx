@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useEntries } from '../hooks/useEntries';
 import { EntryCard } from '../components/diary/EntryCard';
 import { SearchBar, FilterPopover, DatePickerPopover, EmptyState, ErrorState } from '../components/diary/SearchAndFilter';
@@ -29,6 +29,7 @@ const FilterChip = ({ label, onClear }) => (
 const PAGE_SIZE = 12;
 
 export const Entries = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { date: selectedDate, setDate: setSelectedDate } = useDateFilter();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
@@ -398,7 +399,7 @@ export const Entries = () => {
           title={searchQuery ? 'Nothing found. Try another word.' : 'Your pages are still waiting for their first story.'}
           message={searchQuery ? 'No entries match your search.' : 'Start writing to fill these pages with your thoughts, memories, and reflections.'}
           actionLabel="Write Your First Entry"
-          onAction={() => window.location.href = '/dashboard'}
+          onAction={() => navigate('/dashboard')}
         />
       ) : (
         <>
@@ -408,7 +409,7 @@ export const Entries = () => {
                 key={entry._id}
                 entry={entry}
                 index={index}
-                onEdit={(e) => window.location.href = `/entries/${e._id}/edit?from=${encodeURIComponent('/entries')}`}
+                onEdit={(e) => navigate(`/entries/${e._id}/edit?from=${encodeURIComponent('/entries')}`)}
                 onDelete={async (id) => {
                   await deleteEntry(id);
                 }}

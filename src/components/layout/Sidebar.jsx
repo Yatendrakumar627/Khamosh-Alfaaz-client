@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Feather, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Feather } from 'lucide-react';
 import { useSidebar } from '../../context/SidebarContext';
 import { MAIN_NAV_ITEMS, CATEGORY_NAV_ITEMS, TOOL_NAV_ITEMS } from '../../routes';
 import { getNavIcon } from '../../constants/navIcons';
@@ -31,10 +31,6 @@ export const Sidebar = () => {
       window.removeEventListener('entries-updated', handleUpdate);
     };
   }, [fetchStats]);
-
-  useEffect(() => {
-    fetchStats();
-  }, [location.pathname, fetchStats]);
 
   const getItemCount = useCallback((item) => {
     if (!stats) return null;
@@ -241,94 +237,62 @@ export const Sidebar = () => {
           minHeight: '76px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: expanded ? 'space-between' : 'center',
+          justifyContent: expanded ? 'flex-start' : 'center',
           gap: '10px',
           boxSizing: 'border-box',
         }}
       >
         {expanded ? (
-          <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '11px', minWidth: 0 }}>
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, rgba(223, 178, 100, 0.28) 0%, rgba(223, 178, 100, 0.08) 100%)',
-                  border: '1px solid rgba(223, 178, 100, 0.32)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
-                }}
-              >
-                <img src={favicon} alt="Khamosh Alfaaz" style={{ width: 22, height: 22, objectFit: 'contain', filter: 'drop-shadow(0 1px 3px rgba(223, 178, 100, 0.35))' }} />
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <h1
-                  style={{
-                    fontFamily: 'var(--font-family-heading)',
-                    fontSize: '1.22rem',
-                    fontWeight: 600,
-                    color: 'var(--ink)',
-                    margin: 0,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    lineHeight: 1.2,
-                    letterSpacing: '-0.01em',
-                  }}
-                >
-                  Khamosh Alfaaz
-                </h1>
-                <p
-                  style={{
-                    margin: '2px 0 0',
-                    fontSize: '0.72rem',
-                    color: 'var(--ink-muted)',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    fontFamily: 'var(--font-family-ui)',
-                    letterSpacing: '0.01em',
-                  }}
-                >
-                  Jo keh nahi paaye, likh do.
-                </p>
-              </div>
-            </div>
-
-            {/* Quick Pin / Collapse Toggle Button */}
-            <button
-              type="button"
-              onClick={toggle}
-              title={isOpen ? 'Collapse sidebar' : 'Pin sidebar'}
-              aria-label={isOpen ? 'Collapse sidebar' : 'Pin sidebar'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '11px', minWidth: 0, width: '100%' }}>
+            <div
               style={{
-                background: 'rgba(223, 178, 100, 0.06)',
-                border: '1px solid rgba(223, 178, 100, 0.16)',
-                borderRadius: '8px',
-                width: '28px',
-                height: '28px',
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, rgba(223, 178, 100, 0.28) 0%, rgba(223, 178, 100, 0.08) 100%)',
+                border: '1px solid rgba(223, 178, 100, 0.32)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--ink-muted)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
                 flexShrink: 0,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.16)';
-                e.currentTarget.style.color = 'var(--gold)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(223, 178, 100, 0.06)';
-                e.currentTarget.style.color = 'var(--ink-muted)';
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
               }}
             >
-              <ChevronLeft size={16} />
-            </button>
-          </>
+              <img src={favicon} alt="Khamosh Alfaaz" style={{ width: 22, height: 22, objectFit: 'contain', filter: 'drop-shadow(0 1px 3px rgba(223, 178, 100, 0.35))' }} />
+            </div>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <h1
+                style={{
+                  fontFamily: 'var(--font-family-heading)',
+                  fontSize: '1.22rem',
+                  fontWeight: 600,
+                  color: 'var(--ink)',
+                  margin: 0,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  lineHeight: 1.2,
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                Khamosh Alfaaz
+              </h1>
+              <p
+                style={{
+                  margin: '2px 0 0',
+                  fontSize: '0.72rem',
+                  color: 'var(--ink-muted)',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  fontFamily: 'var(--font-family-ui)',
+                  letterSpacing: '0.01em',
+                }}
+              >
+                Jo keh nahi paaye, likh do.
+              </p>
+            </div>
+          </div>
         ) : (
           <div className="sidebar-item-wrapper">
             <div

@@ -9,7 +9,7 @@ import favicon from '../../assets/favicon.png';
 import { classNames } from '../../utils/helpers';
 
 export const MobileNavigation = () => {
-  const { isOpen, close } = useSidebar();
+  const { isMobileOpen, closeMobile } = useSidebar();
   const location = useLocation();
   const [stats, setStats] = useState(null);
 
@@ -32,10 +32,6 @@ export const MobileNavigation = () => {
     };
   }, [fetchStats]);
 
-  useEffect(() => {
-    fetchStats();
-  }, [location.pathname, fetchStats]);
-
   const getItemCount = useCallback((item) => {
     if (!stats) return null;
     if (item.path === '/entries') {
@@ -52,30 +48,37 @@ export const MobileNavigation = () => {
     return null;
   }, [stats]);
 
+  // Lock body scroll ONLY when the mobile modal drawer is actually open
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isMobileOpen) {
+      document.body.style.overflow = '';
+      return;
+    }
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
-      document.body.style.overflow = prev;
+      document.body.style.overflow = prev || '';
     };
-  }, [isOpen]);
+  }, [isMobileOpen]);
 
+  // Close on Escape key press
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isMobileOpen) return;
     const onKey = (e) => {
-      if (e.key === 'Escape') close();
+      if (e.key === 'Escape') closeMobile();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, close]);
+  }, [isMobileOpen, closeMobile]);
 
+  // Close mobile drawer on route navigation
   useEffect(() => {
-    close();
-  }, [location.pathname, close]);
+    closeMobile();
+  }, [location.pathname, closeMobile]);
 
+  // Never render mobile drawer on desktop
   if (typeof window !== 'undefined' && window.innerWidth >= 1200) return null;
-  if (!isOpen) return null;
+  if (!isMobileOpen) return null;
 
   const renderNavGroup = (items, groupLabel = null) => (
     <div style={{ marginBottom: '14px' }}>
@@ -103,7 +106,7 @@ export const MobileNavigation = () => {
             <li key={item.path} style={{ marginBottom: '2px' }}>
               <NavLink
                 to={item.path}
-                onClick={close}
+                onClick={closeMobile}
                 style={() => ({
                   display: 'flex',
                   alignItems: 'center',
@@ -132,14 +135,29 @@ export const MobileNavigation = () => {
                   style={{
                     fontWeight: 500,
                     fontSize: '0.88rem',
-                    fontFamily: 'var(--font-family-ui)',
-                    letterSpacing: '0.02em',
+                    letterSpacing: '0.01em',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
                   }}
                 >
                   {item.label}
                 </span>
                 {hasCount && (
-                  <span className="sidebar-count-badge">
+                  <span
+                    className="sidebar-count-badge"
+                    style={{
+                      marginLeft: 'auto',
+                      fontSize: '0.70rem',
+                      fontWeight: 600,
+                      color: isActive ? 'var(--gold)' : 'var(--ink-muted)',
+                      backgroundColor: isActive ? 'rgba(216,168,91,0.2)' : 'var(--active-bg)',
+                      padding: '2px 8px',
+                      borderRadius: 'var(--radius-full)',
+                      minWidth: '20px',
+                      textAlign: 'center',
+                      lineHeight: '1.2',
+                    }}
+                  >
                     {count}
                   </span>
                 )}
@@ -164,7 +182,7 @@ export const MobileNavigation = () => {
           backgroundColor: 'var(--overlay)',
           zIndex: 'var(--z-sticky)',
         }}
-        onClick={close}
+        onClick={closeMobile}
         aria-hidden="true"
       />
       <aside
@@ -227,7 +245,7 @@ export const MobileNavigation = () => {
             </div>
           </div>
           <button
-            onClick={close}
+            onClick={closeMobile}
             className="icon-btn"
             style={{
               padding: 'var(--spacing-sm)',

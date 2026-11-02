@@ -5,7 +5,7 @@ import { entriesApi } from '../services/api';
 import { EntryEditor } from '../components/diary/EntryEditor';
 import { Button } from '../components/ui/Button';
 import { useToast } from '../context/ToastContext';
-import { ArrowLeft, Save, AlertCircle, RefreshCw, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Save, AlertCircle, RefreshCw, CheckCircle, Feather } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
 import { STORAGE_KEYS } from '../constants';
 
@@ -31,7 +31,16 @@ export const EditEntry = () => {
   const returnTo = isSafePath(from) ? from : `/entries/${id}`;
   const draftKey = STORAGE_KEYS.EDIT_DRAFT(id);
   const draftSaveTimeoutRef = useRef(null);
+  const navigateTimeoutRef = useRef(null);
   const currentFormDataRef = useRef(null);
+
+  // Clean up timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (draftSaveTimeoutRef.current) clearTimeout(draftSaveTimeoutRef.current);
+      if (navigateTimeoutRef.current) clearTimeout(navigateTimeoutRef.current);
+    };
+  }, []);
 
   // Load draft from localStorage if available
   const localDraft = useMemo(() => {
@@ -116,7 +125,7 @@ export const EditEntry = () => {
       setSaved(true);
       clearLocalDraft();
       toast?.success?.('Saved successfully.');
-      setTimeout(() => navigate(returnTo), 800);
+      navigateTimeoutRef.current = setTimeout(() => navigate(returnTo), 800);
     } catch (err) {
       console.error('Update failed:', err);
 
@@ -149,6 +158,7 @@ export const EditEntry = () => {
   const editorInitialData = useMemo(() => {
     if (!entry) return {};
     const base = {
+      _id: entry._id,
       title: entry.title,
       content: entry.content,
       type: entry.type,
@@ -157,6 +167,7 @@ export const EditEntry = () => {
       isPinned: entry.isPinned,
       visibility: entry.visibility || 'private',
       entryDate: entry.entryDate,
+      updatedAt: entry.updatedAt,
     };
     if (localDraft) {
       return { ...base, ...localDraft };
@@ -190,18 +201,32 @@ export const EditEntry = () => {
 
   return (
     <div className="edit-entry-page-container">
-      <header style={{ marginBottom: 'var(--spacing-xl)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
-        <div>
-          <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 600, color: 'var(--ink)', margin: '0 0 var(--spacing-xs)' }}>
-            Edit Entry
-          </h1>
-          <p style={{ margin: 0, color: 'var(--ink-muted)' }}>
-            {formatDate(entry.updatedAt, 'DATETIME')}
-          </p>
+      <header className="edit-entry-header">
+        <div className="edit-entry-header-top">
+          <h1 className="edit-entry-title">Edit Entry</h1>
+
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={saving}
+            className="edit-entry-cancel-btn"
+            aria-label="Cancel editing"
+          >
+            <ArrowLeft size={14} />
+            <span>Cancel</span>
+          </button>
         </div>
-        <Button variant="subtle" onClick={handleCancel} leftIcon={<ArrowLeft size={18} />} disabled={saving}>
-          Cancel
-        </Button>
+
+        <div className="edit-entry-header-meta">
+          <span className="edit-entry-pill">
+            <Feather size={11} style={{ color: 'var(--gold)' }} />
+            Editing Chapter
+          </span>
+          <span className="edit-entry-meta-sep">•</span>
+          <span className="edit-entry-timestamp">
+            Last saved {formatDate(entry.updatedAt || entry.entryDate, 'SHORT')}
+          </span>
+        </div>
       </header>
 
       {/* Draft recovery notice */}

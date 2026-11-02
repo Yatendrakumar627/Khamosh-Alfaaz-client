@@ -18,7 +18,7 @@ export const usePublicEntries = (initialParams = {}) => {
     setError(null);
     try {
       const { signal, ...queryParams } = fetchParams;
-      const response = await publicApi.list({ ...queryParams, _t: Date.now() }, { signal: controller.signal });
+      const response = await publicApi.list(queryParams, { signal: controller.signal });
       if (controller.signal.aborted) return;
       const { entries: data, pagination: pag } = response.data;
       if (append) {

@@ -1,82 +1,431 @@
 /* ──────────────────────────────────────────────────────────
-   DashboardEntryCard
-   Split from src/assets/global.css (see scripts/split-styles.mjs)
+   DashboardEntryCard Component Styles
+   Senior Editorial & High-Polish Dashboard Entry Card
    ────────────────────────────────────────────────────────── */
+
+.dash-card-wrapper {
+  position: relative;
+  transition: z-index 0.2s ease;
+}
 
 .dashboard-entry-card {
   position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  min-height: 96px;
+  background-color: var(--paper);
+  border: 1px solid rgba(223, 178, 100, 0.14);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+  transition: border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: visible;
 }
 
 .dashboard-entry-card:hover {
-  border-color: var(--gold) !important;
-  background-color: var(--paper-dark) !important;
+  border-color: rgba(223, 178, 100, 0.45) !important;
+  background: linear-gradient(135deg, rgba(223, 178, 100, 0.03) 0%, rgba(0, 0, 0, 0.18) 100%), var(--paper) !important;
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.32), 0 0 18px rgba(223, 178, 100, 0.08) !important;
 }
 
-.menu-open > .dashboard-entry-card, .menu-open:hover > .dashboard-entry-card{
-  transform: none !important;
-  box-shadow: var(--shadow-sm) !important;
+.dashboard-entry-card.is-pinned {
+  border-left: 3px solid var(--gold) !important;
 }
+
+.menu-open > .dashboard-entry-card,
+.menu-open:hover > .dashboard-entry-card {
+  transform: none !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22) !important;
+}
+
+/* ── Date Block ── */
+.dash-date {
+  width: 64px;
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: 80px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(223, 178, 100, 0.09) 0%, rgba(223, 178, 100, 0.02) 100%);
+  border: 1px solid rgba(223, 178, 100, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6px 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.dashboard-entry-card:hover .dash-date {
+  border-color: rgba(223, 178, 100, 0.35);
+  background: linear-gradient(180deg, rgba(223, 178, 100, 0.14) 0%, rgba(223, 178, 100, 0.04) 100%);
+}
+
+.dash-date-day {
+  font-family: var(--font-family-heading);
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+}
+
+.dash-date-month {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  margin-top: 3px;
+}
+
+.dash-date-year {
+  font-size: 0.62rem;
+  color: var(--ink-muted);
+  margin-top: 1px;
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Content Area ── */
+.dash-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+/* ── Top Row: Category + Pinned + Title + Actions ── */
+.dash-card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dash-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.dash-card-title {
+  font-family: var(--font-family-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-card-title.is-untitled {
+  font-style: italic;
+  opacity: 0.75;
+  font-weight: 500;
+}
+
+.dash-pinned-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: rgba(223, 178, 100, 0.14);
+  border: 1px solid rgba(223, 178, 100, 0.32);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Action buttons bar ── */
+.dash-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.dash-action-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0;
+}
+
+.dash-action-btn:hover {
+  background: rgba(223, 178, 100, 0.12);
+  color: var(--gold);
+  border-color: rgba(223, 178, 100, 0.25);
+  transform: translateY(-1px);
+}
+
+.dash-action-btn.is-active,
+.dash-action-btn.is-public {
+  color: var(--gold) !important;
+}
+
+/* ── Content Snippet ── */
+.dash-card-snippet {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--ink-muted);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* ── Footer Meta Row ── */
+.dash-card-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  flex-wrap: wrap;
+}
+
+.dash-card-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dash-meta-icon {
+  opacity: 0.75;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.dash-meta-bullet {
+  opacity: 0.4;
+  font-size: 0.7rem;
+  color: var(--ink-light);
+}
+
+.dash-card-tags {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.dash-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  font-size: 0.67rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(223, 178, 100, 0.16);
+  color: var(--ink-muted);
+  transition: all 0.18s ease;
+  cursor: default;
+}
+
+.dash-tag-pill:hover {
+  background: rgba(223, 178, 100, 0.12);
+  border-color: rgba(223, 178, 100, 0.35);
+  color: var(--gold);
+}
+
+.dash-tag-pill-more {
+  font-size: 0.68rem;
+  color: var(--ink-light);
+  padding: 1px 4px;
+}
+
+/* ── Dropdown Menu ── */
+.dash-menu-dropdown {
+  position: absolute;
+  right: 0;
+  background-color: var(--paper-dark);
+  background: linear-gradient(145deg, rgba(30, 27, 24, 0.98), rgba(20, 18, 16, 0.98));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(223, 178, 100, 0.28);
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), 0 0 16px rgba(223, 178, 100, 0.08);
+  min-width: 190px;
+  width: max-content;
+  padding: 5px;
+  z-index: 100;
+  animation: scaleIn 0.15s ease;
+}
+
+.dash-menu-dropdown.open-down {
+  top: calc(100% + 4px);
+}
+
+.dash-menu-dropdown.open-up {
+  bottom: calc(100% + 4px);
+}
+
+.dash-menu-dropdown button.menu-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 8px 12px !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  color: var(--ink) !important;
+  border-radius: 7px !important;
+  cursor: pointer !important;
+  font-size: 0.85rem !important;
+  font-family: inherit !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.dash-menu-dropdown button.menu-item svg {
+  flex-shrink: 0 !important;
+  opacity: 0.85;
+}
+
+.dash-menu-dropdown button.menu-item:hover {
+  background-color: rgba(223, 178, 100, 0.12) !important;
+  color: var(--gold) !important;
+  transform: translateX(2px);
+}
+
+.dash-menu-dropdown button.menu-item:hover svg {
+  opacity: 1;
+  color: var(--gold);
+}
+
+.dash-menu-dropdown button.menu-item.is-active {
+  color: var(--gold) !important;
+  font-weight: 600;
+}
+
+.dash-menu-dropdown button.menu-item.is-danger {
+  color: var(--error) !important;
+}
+
+.dash-menu-dropdown button.menu-item.is-danger:hover {
+  background-color: rgba(239, 68, 68, 0.14) !important;
+  color: #ff6b6b !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   Mobile & Responsive Adaptations
+   ────────────────────────────────────────────────────────── */
 
 @media (max-width: 767.98px) {
-  /* Recent entries — vertical mobile cards */
   .dashboard-entry-card {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-areas:
-      'date actions'
-      'content content';
-    padding: 14px !important;
-    gap: 12px !important;
-    min-height: 0;
+    gap: 12px;
+    padding: 12px 14px;
   }
-  .dashboard-entry-card .dash-date {
-    grid-area: date;
-    width: 54px !important;
-    height: 66px !important;
+
+  .dash-date {
+    width: 56px;
+    min-height: 72px;
   }
-  .dashboard-entry-card .dash-date > span:first-child {
-    font-size: 1.35rem !important;
+
+  .dash-date-day {
+    font-size: 1.45rem;
   }
-  .dashboard-entry-card .dash-content {
-    grid-area: content;
-    padding: 0;
+
+  .dash-date-month {
+    font-size: 0.64rem;
   }
-  .dashboard-entry-card .dash-actions {
-    grid-area: actions;
-    width: auto !important;
-    padding: 0;
+
+  .dash-card-title {
+    font-size: 0.94rem;
   }
-  .dashboard-entry-card .dash-actions button.icon-btn {
-    width: 28px !important;
-    height: 28px !important;
-  }
-  .dashboard-entry-card .dash-content h3 {
-    white-space: normal !important;
-    -webkit-line-clamp: 2;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
+
+  .dash-action-btn {
+    width: 26px;
+    height: 26px;
   }
 }
 
 @media (max-width: 559.98px) {
   .dashboard-entry-card {
-    padding: 14px !important;
-    gap: 12px !important;
+    gap: 10px;
+    padding: 12px;
   }
+
   .dash-date {
-    width: 52px !important;
-    height: 62px !important;
+    width: 50px;
+    min-height: 68px;
+    padding: 4px 2px;
   }
-  .dash-date > span:first-child {
-    font-size: 1.3rem !important;
+
+  .dash-date-day {
+    font-size: 1.35rem;
   }
-  .dash-actions {
-    width: 46px !important;
+
+  .dash-date-month {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
   }
-  .dash-actions button.icon-btn {
-    width: 40px !important;
-    height: 40px !important;
+
+  .dash-date-year {
+    font-size: 0.58rem;
+  }
+
+  .dash-card-title {
+    font-size: 0.9rem;
+  }
+
+  .dash-card-snippet {
+    font-size: 0.81rem;
+    line-height: 1.5;
+  }
+
+  .dash-card-meta-row {
+    margin-top: 2px;
+    padding-top: 4px;
+    gap: 6px;
+  }
+
+  .dash-card-meta-left {
+    font-size: 0.7rem;
   }
 }

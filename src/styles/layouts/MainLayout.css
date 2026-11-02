@@ -41,7 +41,7 @@
 .dashboard-main {
   flex: 1;
   min-width: 0;
-  overflow-y: auto;
+  overflow-y: visible;
   padding: 16px 0 40px;
   box-sizing: border-box;
 }

@@ -72,23 +72,46 @@ export const CategorySection = ({ type: propType }) => {
   const popoverRef = useRef(null);
 
   // Hook for category entries
+  const loadMoreRef = useRef(null);
+
   const {
     entries,
     loading,
+    loadingMore,
+    hasMore,
+    loadMore,
     error,
     pagination,
     searchEntries,
     refresh,
     deleteEntry,
     updateEntry,
-    setPage,
   } = useEntries({
     type: categoryConfig.type,
     sort: sortOrder,
     favorite: favoritesOnly,
     pinned: pinnedOnly,
-    limit: 1000,
+    limit: 12,
   });
+
+  // Infinite scroll trigger when sentinel comes into viewport
+  useEffect(() => {
+    if (!hasMore || loading || loadingMore) return;
+    const sentinel = loadMoreRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (observerEntries) => {
+        if (observerEntries[0]?.isIntersecting && hasMore && !loadingMore && !loading) {
+          loadMore();
+        }
+      },
+      { rootMargin: '250px', threshold: 0.1 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadingMore, loadMore]);
 
   // Re-sync compose initial data when category changes
   useEffect(() => {
@@ -208,13 +231,13 @@ export const CategorySection = ({ type: propType }) => {
   };
 
   const handleEdit = (entry) => {
-    navigate(`/entries/${entry._id}/edit`);
+    navigate(`/entries/${entry._id}/edit?from=${encodeURIComponent(location.pathname)}`);
   };
 
   return (
-    <div key={categoryConfig.type} className="page-container category-section-page" style={{ maxWidth: '1080px', margin: '0 auto', paddingBottom: '60px' }}>
+    <div key={categoryConfig.type} className="page-container category-section-page" style={{ width: '100%', maxWidth: '100%', margin: 0, paddingBottom: '48px' }}>
       {/* Top Breadcrumb navigation */}
-      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px', fontSize: '0.84rem', color: 'var(--ink-muted)' }}>
+      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', fontSize: '0.84rem', color: 'var(--ink-muted)' }}>
         <Link to="/categories" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: 'var(--ink-muted)', textDecoration: 'none' }}>
           <Layers size={14} />
           <span>Categories</span>
@@ -455,38 +478,42 @@ export const CategorySection = ({ type: propType }) => {
             ))}
           </div>
 
-          {/* Pagination */}
-          {pagination?.totalPages > 1 && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '12px',
-                marginTop: '36px',
-              }}
-            >
-              <Button
-                variant="subtle"
-                size="sm"
-                onClick={() => setPage(pagination.page - 1)}
-                disabled={pagination.page <= 1}
-                leftIcon={<ChevronLeft size={16} />}
+          {/* ── Infinite Scroll Sentinel / Load More ── */}
+          {hasMore && (
+            <div className="entries-load-more-section" ref={loadMoreRef}>
+              <button
+                type="button"
+                className={`entries-load-more-btn${loadingMore ? ' loading' : ''}`}
+                onClick={loadMore}
+                disabled={loadingMore}
+                aria-label={`Load more ${categoryConfig.label}`}
               >
-                Previous
-              </Button>
-              <span style={{ fontSize: '0.85rem', color: 'var(--ink-muted)' }}>
-                Page {pagination.page} of {pagination.totalPages}
-              </span>
-              <Button
-                variant="subtle"
-                size="sm"
-                onClick={() => setPage(pagination.page + 1)}
-                disabled={pagination.page >= pagination.totalPages}
-                rightIcon={<ChevronRight size={16} />}
-              >
-                Next
-              </Button>
+                {loadingMore ? (
+                  <span className="entries-load-more-spinner-content">
+                    <span className="entries-load-more-spinner" aria-hidden="true" />
+                    <span>Loading more {categoryConfig.label.toLowerCase()}...</span>
+                  </span>
+                ) : (
+                  <span className="entries-load-more-content">
+                    <span>Load More {categoryConfig.label}</span>
+                    <span className="entries-load-more-badge">
+                      +{Math.min(12, (pagination.total || 0) - entries.length)}
+                    </span>
+                  </span>
+                )}
+              </button>
+
+              <p className="entries-load-more-progress">
+                Showing {entries.length} of {pagination.total} {categoryConfig.label.toLowerCase()}
+              </p>
+            </div>
+          )}
+
+          {!hasMore && entries.length > 0 && (pagination.total || 0) > 12 && (
+            <div className="entries-caught-up-banner">
+              <span className="entries-caught-up-line" />
+              <span className="entries-caught-up-text">✦ All {pagination.total} {categoryConfig.label.toLowerCase()} loaded · You're all caught up ✦</span>
+              <span className="entries-caught-up-line" />
             </div>
           )}
         </>

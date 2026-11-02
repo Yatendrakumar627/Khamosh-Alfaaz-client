@@ -12,12 +12,12 @@
 .entry-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .entry-header-row {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   align-items: flex-start;
   width: 100%;
 }
@@ -39,7 +39,7 @@
   font-size: 0.80rem;
   font-weight: 600;
   color: var(--ink-muted);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   letter-spacing: 0.01em;
 }
 

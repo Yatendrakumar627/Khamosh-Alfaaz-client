@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useEntries } from '../hooks/useEntries';
 import { EntryCard } from '../components/diary/EntryCard';
 import { EmptyState, ErrorState } from '../components/diary/SearchAndFilter';
@@ -11,6 +11,7 @@ import { entriesApi } from '../services/api';
 import { ENTRY_TYPES, SORT_OPTIONS } from '../constants';
 
 export const Favorites = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
@@ -18,14 +19,46 @@ export const Favorites = () => {
     sort: searchParams.get('sort') || 'newest',
   });
   const [showFilters, setShowFilters] = useState(false);
+  const loadMoreRef = useRef(null);
 
-  const { entries, loading, error, pagination, params, searchEntries, setFilters: setApiFilters, setPage, refresh } = useEntries({
-    page: parseInt(searchParams.get('page')) || 1,
-    limit: 1000,
+  const {
+    entries,
+    loading,
+    loadingMore,
+    hasMore,
+    loadMore,
+    error,
+    pagination,
+    params,
+    searchEntries,
+    setFilters: setApiFilters,
+    setPage,
+    refresh,
+  } = useEntries({
+    limit: 12,
     type: filters.type,
     sort: filters.sort,
     favorite: true,
   });
+
+  // Infinite scroll trigger when sentinel comes into viewport
+  useEffect(() => {
+    if (!hasMore || loading || loadingMore) return;
+    const sentinel = loadMoreRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (observerEntries) => {
+        if (observerEntries[0]?.isIntersecting && hasMore && !loadingMore && !loading) {
+          loadMore();
+        }
+      },
+      { rootMargin: '250px', threshold: 0.1 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loading, loadingMore, loadMore]);
 
   const debouncedSearch = useCallback(
     debounce((query) => {
@@ -36,8 +69,10 @@ export const Favorites = () => {
   );
 
   useEffect(() => {
-    debouncedSearch(searchQuery);
-  }, [debouncedSearch]);
+    if (searchQuery.trim()) {
+      debouncedSearch(searchQuery.trim());
+    }
+  }, [searchQuery, debouncedSearch]);
 
   useEffect(() => {
     const newParams = new URLSearchParams();
@@ -54,11 +89,6 @@ export const Favorites = () => {
     setApiFilters({ ...nextFilters, page: 1, favorite: true });
   };
 
-  const handlePageChange = (page) => {
-    setPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   if (loading && entries.length === 0) {
     return <LoadingState message="Loading favorites..." />;
   }
@@ -68,8 +98,8 @@ export const Favorites = () => {
   }
 
   return (
-    <div className="page-container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <header style={{ marginBottom: 'var(--spacing-xl)' }}>
+    <div className="page-container" style={{ width: '100%', maxWidth: '100%', margin: 0, paddingBottom: '48px' }}>
+      <header style={{ marginBottom: '18px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-lg)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
             <div style={{
@@ -149,7 +179,7 @@ export const Favorites = () => {
                 key={entry._id}
                 entry={entry}
                 index={index}
-                onEdit={(e) => window.location.href = `/entries/${e._id}/edit?from=${encodeURIComponent('/favorites')}`}
+                onEdit={(e) => navigate(`/entries/${e._id}/edit?from=${encodeURIComponent('/favorites')}`)}
                 onDelete={async (id) => {
                   await entriesApi.delete(id);
                   refresh();
@@ -170,21 +200,43 @@ export const Favorites = () => {
             ))}
           </div>
 
-          {pagination.totalPages > 1 && (
-            <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-xl)', paddingTop: 'var(--spacing-lg)', borderTop: '1px solid var(--border)' }}>
-              <Button variant="subtle" size="sm" onClick={() => handlePageChange(params.page - 1)} disabled={params.page <= 1}>Previous</Button>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-                {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (pagination.totalPages <= 5) pageNum = i + 1;
-                  else if (params.page <= 3) pageNum = i + 1;
-                  else if (params.page >= pagination.totalPages - 2) pageNum = pagination.totalPages - 4 + i;
-                  else pageNum = params.page - 2 + i;
-                  return <Button key={pageNum} variant={params.page === pageNum ? 'filled' : 'subtle'} size="sm" onClick={() => handlePageChange(pageNum)}>{pageNum}</Button>;
-                })}
-              </span>
-              <Button variant="subtle" size="sm" onClick={() => handlePageChange(params.page + 1)} disabled={params.page >= pagination.totalPages}>Next</Button>
-            </nav>
+          {/* ── Infinite Scroll Sentinel / Load More ── */}
+          {hasMore && (
+            <div className="entries-load-more-section" ref={loadMoreRef}>
+              <button
+                type="button"
+                className={`entries-load-more-btn${loadingMore ? ' loading' : ''}`}
+                onClick={loadMore}
+                disabled={loadingMore}
+                aria-label="Load more favorites"
+              >
+                {loadingMore ? (
+                  <span className="entries-load-more-spinner-content">
+                    <span className="entries-load-more-spinner" aria-hidden="true" />
+                    <span>Loading more favorites...</span>
+                  </span>
+                ) : (
+                  <span className="entries-load-more-content">
+                    <span>Load More Favorites</span>
+                    <span className="entries-load-more-badge">
+                      +{Math.min(12, (pagination.total || 0) - entries.length)}
+                    </span>
+                  </span>
+                )}
+              </button>
+
+              <p className="entries-load-more-progress">
+                Showing {entries.length} of {pagination.total} favorite{pagination.total === 1 ? '' : 's'}
+              </p>
+            </div>
+          )}
+
+          {!hasMore && entries.length > 0 && (pagination.total || 0) > 12 && (
+            <div className="entries-caught-up-banner">
+              <span className="entries-caught-up-line" />
+              <span className="entries-caught-up-text">✦ All {pagination.total} favorites loaded · You're all caught up ✦</span>
+              <span className="entries-caught-up-line" />
+            </div>
           )}
         </>
       )}

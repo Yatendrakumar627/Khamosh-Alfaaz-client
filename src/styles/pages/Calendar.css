@@ -117,9 +117,11 @@
 }
 
 .calendar-page-container {
-  padding: 24px 20px;
-  max-width: 1000px;
-  margin: 0 auto;
+  padding: 0 0 40px;
+  max-width: 100%;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 640px) {

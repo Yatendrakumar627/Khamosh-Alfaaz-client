@@ -1,18 +1,20 @@
+import { lazy } from 'react';
 import { CATEGORY_SECTIONS } from './constants/categorySections';
-import { Dashboard } from './pages/Dashboard';
-import { Entries } from './pages/Entries';
-import { EntryDetail } from './pages/EntryDetail';
-import { EditEntry } from './pages/EditEntry';
-import { Quotes } from './pages/Quotes';
-import { Favorites } from './pages/Favorites';
-import { Calendar } from './pages/Calendar';
-import { Categories } from './pages/Categories';
-import { CategorySection } from './pages/CategorySection';
-import { Statistics } from './pages/Statistics';
-import { Export } from './pages/Export';
-import { Settings } from './pages/Settings';
-import { Explore } from './pages/Explore';
-import { PublicEntry } from './pages/PublicEntry';
+
+const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard || m.default })));
+const Entries = lazy(() => import('./pages/Entries').then(m => ({ default: m.Entries || m.default })));
+const EntryDetail = lazy(() => import('./pages/EntryDetail').then(m => ({ default: m.EntryDetail || m.default })));
+const EditEntry = lazy(() => import('./pages/EditEntry').then(m => ({ default: m.EditEntry || m.default })));
+const Quotes = lazy(() => import('./pages/Quotes').then(m => ({ default: m.Quotes || m.default })));
+const Favorites = lazy(() => import('./pages/Favorites').then(m => ({ default: m.Favorites || m.default })));
+const Calendar = lazy(() => import('./pages/Calendar').then(m => ({ default: m.Calendar || m.default })));
+const Categories = lazy(() => import('./pages/Categories').then(m => ({ default: m.Categories || m.default })));
+const CategorySection = lazy(() => import('./pages/CategorySection').then(m => ({ default: m.CategorySection || m.default })));
+const Statistics = lazy(() => import('./pages/Statistics').then(m => ({ default: m.Statistics || m.default })));
+const Export = lazy(() => import('./pages/Export').then(m => ({ default: m.Export || m.default })));
+const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings || m.default })));
+const Explore = lazy(() => import('./pages/Explore').then(m => ({ default: m.Explore || m.default })));
+const PublicEntry = lazy(() => import('./pages/PublicEntry').then(m => ({ default: m.PublicEntry || m.default })));
 
 export const routes = [
   { path: 'dashboard', element: <Dashboard /> },

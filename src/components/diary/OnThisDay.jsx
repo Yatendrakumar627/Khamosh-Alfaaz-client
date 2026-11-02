@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMediaQuery } from '@mantine/hooks';
 import {
@@ -19,6 +19,7 @@ import {
 import { formatDate } from '../../utils/helpers';
 import { Modal } from '../ui/Modal';
 import { ENTRY_TYPES } from '../../constants';
+import { entriesApi } from '../../services/api';
 
 // ─── local date helpers ───────────────────────────────────────────────────────
 
@@ -104,10 +105,40 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
   const lastYearDate = getLastYearSameDay(today);
   const lastYearKey  = toDateKey(lastYearDate);
 
+  const [serverMemories, setServerMemories] = useState([]);
+
+  const fetchServerMemories = useCallback(() => {
+    entriesApi.onThisDay()
+      .then((res) => {
+        if (res.data?.entries && Array.isArray(res.data.entries)) {
+          setServerMemories(res.data.entries);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetchServerMemories();
+    const handleUpdate = () => fetchServerMemories();
+    window.addEventListener('entries-updated', handleUpdate);
+    return () => {
+      window.removeEventListener('entries-updated', handleUpdate);
+    };
+  }, [fetchServerMemories]);
+
   const byDate = (key) =>
     [...entries]
       .filter((e) => toDateKey(entryDay(e)) === key)
       .sort((a, b) => new Date(b.entryDate || b.createdAt) - new Date(a.entryDate || a.createdAt));
+
+  const lastYearEntries = (() => {
+    const localMatches = byDate(lastYearKey);
+    const idSet = new Set(localMatches.map(e => String(e._id)));
+    const additional = (serverMemories || []).filter(e => !idSet.has(String(e._id)));
+    return [...localMatches, ...additional].sort(
+      (a, b) => new Date(b.entryDate || b.createdAt) - new Date(a.entryDate || a.createdAt)
+    );
+  })();
 
   const tabs = [
     {
@@ -122,7 +153,7 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
       id: 'lastYear',
       label: 'Last Year',
       subtitle: formatDate(`${lastYearKey}T00:00:00`, 'SHORT'),
-      data: byDate(lastYearKey),
+      data: lastYearEntries,
       emptyMsg: 'Nothing written a year ago today.',
       emptyHint: 'This time last year was still waiting for your words.',
     },

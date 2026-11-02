@@ -79,7 +79,8 @@
     font-size: 1.05rem !important;
     gap: 8px !important;
   }
-  .dash-recent-header .ornament-divider {
+  .dash-recent-header .ornament-divider,
+  .dash-recent-header .dash-recent-rule {
     display: none !important;
   }
   .dash-recent-header .view-all-link {

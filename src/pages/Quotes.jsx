@@ -96,9 +96,9 @@ export const Quotes = () => {
   };
 
   return (
-    <div className="page-container" style={{ maxWidth: '1080px', margin: '0 auto', paddingBottom: '60px' }}>
+    <div className="page-container" style={{ width: '100%', maxWidth: '100%', margin: 0, paddingBottom: '48px' }}>
       {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px', fontSize: '0.84rem', color: 'var(--ink-muted)' }}>
+      <nav aria-label="Breadcrumb" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', fontSize: '0.84rem', color: 'var(--ink-muted)' }}>
         <Link to="/categories" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: 'var(--ink-muted)', textDecoration: 'none' }}>
           <Layers size={14} />
           <span>Categories</span>
@@ -251,7 +251,7 @@ export const Quotes = () => {
                   key={entry._id}
                   entry={entry}
                   index={index}
-                  onEdit={(e) => navigate(`/entries/${e._id}/edit`)}
+                  onEdit={(e) => navigate(`/entries/${e._id}/edit?from=${encodeURIComponent('/quotes')}`)}
                   onDelete={async (e) => {
                     await deleteEntry(e._id);
                     refreshUserQuotes();

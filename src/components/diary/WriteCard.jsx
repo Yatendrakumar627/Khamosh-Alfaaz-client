@@ -115,7 +115,11 @@ export const WriteCard = ({ onSaved }) => {
       onSaved?.();
     } catch (err) {
       console.error('Save failed:', err);
-      showError('Failed to save your entry. Please try again.');
+      const isTimeout = err.code === 'ECONNABORTED' || err.message?.toLowerCase().includes('timeout');
+      const errorMsg = isTimeout
+        ? 'Server took too long to respond. Your draft is preserved safely here.'
+        : err?.response?.data?.error || err?.response?.data?.message || 'Failed to save your entry. Please try again.';
+      showError(errorMsg);
     } finally {
       setSaving(false);
     }

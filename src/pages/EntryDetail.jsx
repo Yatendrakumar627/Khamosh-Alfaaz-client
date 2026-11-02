@@ -5,8 +5,7 @@ import { useEntry } from '../hooks/useEntries';
 import { useExport } from '../hooks/useExport';
 import { entriesApi } from '../services/api';
 import { formatDate, getEntryTypeLabel, countWords } from '../utils/helpers';
-import { Modal, ConfirmDialog } from '../components/ui/Modal';
-import { EntryEditor } from '../components/diary/EntryEditor';
+import { ConfirmDialog } from '../components/ui/Modal';
 import { useToast } from '../context/ToastContext';
 import {
   Edit3, Trash2, Star, Pin, ArrowLeft, ArrowRight,
@@ -23,7 +22,6 @@ export const EntryDetail = () => {
   const { exportEntry, exporting } = useExport();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [copied, setCopied] = useState(false);
   const [fontSizeLarge, setFontSizeLarge] = useState(false);
@@ -44,13 +42,13 @@ export const EntryDetail = () => {
   // Keyboard shortcut: Escape goes back
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && !showEdit && !showDeleteConfirm) {
+      if (e.key === 'Escape' && !showDeleteConfirm) {
         navigate(-1);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [navigate, showEdit, showDeleteConfirm]);
+  }, [navigate, showDeleteConfirm]);
 
   const handleFavorite = async () => {
     try {
@@ -290,7 +288,7 @@ export const EntryDetail = () => {
           {/* Edit Button (Primary) */}
           <button
             type="button"
-            onClick={() => setShowEdit(true)}
+            onClick={() => navigate(`/entries/${id}/edit?from=${encodeURIComponent(`/entries/${id}`)}`)}
             className="entry-detail-action-btn entry-detail-action-btn-primary"
           >
             <Edit3 size={14} />
@@ -577,35 +575,6 @@ export const EntryDetail = () => {
         confirmLabel="Delete"
         variant="danger"
       />
-
-      {showEdit && (
-        <Modal opened={true} onClose={() => setShowEdit(false)} title="Edit Entry" size="lg">
-          <EntryEditor
-            initialData={{
-              title: entry.title,
-              content: entry.content,
-              type: entry.type,
-              tags: entry.tags || [],
-              isFavorite: entry.isFavorite,
-              isPinned: entry.isPinned,
-              visibility: entry.visibility || 'private',
-              entryDate: entry.entryDate,
-            }}
-            onSave={async (data) => {
-              try {
-                await entriesApi.update(id, data);
-                toast?.success?.('Entry updated successfully.');
-                refresh();
-                setShowEdit(false);
-              } catch (err) {
-                const isTimeout = err.code === 'ECONNABORTED' || err.message?.toLowerCase().includes('timeout');
-                toast?.error?.(isTimeout ? 'Server took too long to respond. Please try again.' : (err.response?.data?.error || 'Failed to update entry. Please try again.'));
-              }
-            }}
-            onCancel={() => setShowEdit(false)}
-          />
-        </Modal>
-      )}
     </div>
   );
 };
