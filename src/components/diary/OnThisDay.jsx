@@ -106,12 +106,49 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
   const lastYearKey  = toDateKey(lastYearDate);
 
   const [serverMemories, setServerMemories] = useState([]);
+  const [serverLastMonth, setServerLastMonth] = useState([]);
+  const [serverLastYear, setServerLastYear] = useState([]);
+  const [serverLoading, setServerLoading] = useState(false);
 
   const fetchServerMemories = useCallback(() => {
-    entriesApi.onThisDay()
+    setServerLoading(true);
+    const localNow = getLocalToday();
+    const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const lMonthDate = getLastMonthSameDay(localNow);
+    const lMonthKey = toDateKey(lMonthDate);
+
+    // Primary: fetch On This Day memories from the backend (handling both lastMonth and past years)
+    entriesApi.onThisDay({
+      month: localNow.getMonth() + 1,
+      day: localNow.getDate(),
+      year: localNow.getFullYear(),
+      timezone: userTz,
+    })
       .then((res) => {
         if (res.data?.entries && Array.isArray(res.data.entries)) {
           setServerMemories(res.data.entries);
+        }
+        if (res.data?.lastMonth && Array.isArray(res.data.lastMonth)) {
+          setServerLastMonth(res.data.lastMonth);
+        }
+        if (res.data?.lastYear && Array.isArray(res.data.lastYear)) {
+          setServerLastYear(res.data.lastYear);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        setServerLoading(false);
+      });
+
+    // Secondary fail-safe: directly query list endpoint for the exact last-month date key
+    entriesApi.list({ date: lMonthKey, limit: 20 })
+      .then((res) => {
+        if (res.data?.entries && Array.isArray(res.data.entries) && res.data.entries.length > 0) {
+          setServerLastMonth((prev) => {
+            const idSet = new Set(prev.map(e => String(e._id)));
+            const newItems = res.data.entries.filter(e => !idSet.has(String(e._id)));
+            return [...prev, ...newItems];
+          });
         }
       })
       .catch(() => {});
@@ -131,11 +168,30 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
       .filter((e) => toDateKey(entryDay(e)) === key)
       .sort((a, b) => new Date(b.entryDate || b.createdAt) - new Date(a.entryDate || a.createdAt));
 
+  const lastMonthEntries = (() => {
+    const localMatches = byDate(lastMonthKey);
+    const idSet = new Set(localMatches.map(e => String(e._id)));
+    const serverMatches = [
+      ...(serverLastMonth || []),
+      ...(serverMemories || []).filter(e => toDateKey(entryDay(e)) === lastMonthKey),
+    ];
+    const uniqueServer = serverMatches.filter(e => !idSet.has(String(e._id)));
+    const combined = [...localMatches, ...uniqueServer];
+    return Array.from(new Map(combined.map(e => [String(e._id), e])).values()).sort(
+      (a, b) => new Date(b.entryDate || b.createdAt) - new Date(a.entryDate || a.createdAt)
+    );
+  })();
+
   const lastYearEntries = (() => {
     const localMatches = byDate(lastYearKey);
     const idSet = new Set(localMatches.map(e => String(e._id)));
-    const additional = (serverMemories || []).filter(e => !idSet.has(String(e._id)));
-    return [...localMatches, ...additional].sort(
+    const serverMatches = [
+      ...(serverLastYear || []),
+      ...(serverMemories || []).filter(e => toDateKey(entryDay(e)) === lastYearKey),
+    ];
+    const uniqueServer = serverMatches.filter(e => !idSet.has(String(e._id)));
+    const combined = [...localMatches, ...uniqueServer];
+    return Array.from(new Map(combined.map(e => [String(e._id), e])).values()).sort(
       (a, b) => new Date(b.entryDate || b.createdAt) - new Date(a.entryDate || a.createdAt)
     );
   })();
@@ -145,7 +201,7 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
       id: 'lastMonth',
       label: 'Last Month',
       subtitle: formatDate(`${lastMonthKey}T00:00:00`, 'SHORT'),
-      data: byDate(lastMonthKey),
+      data: lastMonthEntries,
       emptyMsg: 'Nothing written a month ago today.',
       emptyHint: 'Keep writing — future you will thank you.',
     },
@@ -240,7 +296,7 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
           </div>
 
           {/* ── Body ── */}
-          {loading ? (
+          {(loading || (serverLoading && active.data.length === 0)) ? (
             <div style={{ padding: '24px', textAlign: 'center' }}>
               <div
                 style={{
