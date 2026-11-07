@@ -141,7 +141,9 @@ export const RecentMemories = ({ entries = [], loading = false }) => {
     grouped[bucket.key] = [];
   }
 
-  for (const entry of entries) {
+  const safeEntries = Array.isArray(entries) ? entries : [];
+  for (const entry of safeEntries) {
+    if (!entry) continue;
     const keys = getBucketEntries(entry, map);
     for (const key of keys) {
       grouped[key].push(entry);

@@ -20,6 +20,7 @@ import { formatDate } from '../../utils/helpers';
 import { Modal } from '../ui/Modal';
 import { ENTRY_TYPES } from '../../constants';
 import { entriesApi } from '../../services/api';
+import { getCache, setCache, invalidateCache } from '../../utils/cache';
 
 // ─── local date helpers ───────────────────────────────────────────────────────
 
@@ -105,58 +106,70 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
   const lastYearDate = getLastYearSameDay(today);
   const lastYearKey  = toDateKey(lastYearDate);
 
-  const [serverMemories, setServerMemories] = useState([]);
-  const [serverLastMonth, setServerLastMonth] = useState([]);
-  const [serverLastYear, setServerLastYear] = useState([]);
-  const [serverLoading, setServerLoading] = useState(false);
+  const dayCacheKey = `onThisDay:${toDateKey(today)}`;
+  const cachedDay = getCache(dayCacheKey);
 
-  const fetchServerMemories = useCallback(() => {
-    setServerLoading(true);
+  const [serverMemories, setServerMemories] = useState(() => (Array.isArray(cachedDay?.data?.memories) ? cachedDay.data.memories : []));
+  const [serverLastMonth, setServerLastMonth] = useState(() => (Array.isArray(cachedDay?.data?.lastMonth) ? cachedDay.data.lastMonth : []));
+  const [serverLastYear, setServerLastYear] = useState(() => (Array.isArray(cachedDay?.data?.lastYear) ? cachedDay.data.lastYear : []));
+  const [serverLoading, setServerLoading] = useState(() => !cachedDay?.data);
+
+  const fetchServerMemories = useCallback(async () => {
     const localNow = getLocalToday();
+    const currentKey = `onThisDay:${toDateKey(localNow)}`;
+    const freshCached = getCache(currentKey);
+    if (freshCached?.data) {
+      setServerMemories(Array.isArray(freshCached.data.memories) ? freshCached.data.memories : []);
+      setServerLastMonth(Array.isArray(freshCached.data.lastMonth) ? freshCached.data.lastMonth : []);
+      setServerLastYear(Array.isArray(freshCached.data.lastYear) ? freshCached.data.lastYear : []);
+      setServerLoading(false);
+      return;
+    }
+
+    setServerLoading(true);
     const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const lMonthDate = getLastMonthSameDay(localNow);
     const lMonthKey = toDateKey(lMonthDate);
 
-    // Primary: fetch On This Day memories from the backend (handling both lastMonth and past years)
-    entriesApi.onThisDay({
-      month: localNow.getMonth() + 1,
-      day: localNow.getDate(),
-      year: localNow.getFullYear(),
-      timezone: userTz,
-    })
-      .then((res) => {
-        if (res.data?.entries && Array.isArray(res.data.entries)) {
-          setServerMemories(res.data.entries);
-        }
-        if (res.data?.lastMonth && Array.isArray(res.data.lastMonth)) {
-          setServerLastMonth(res.data.lastMonth);
-        }
-        if (res.data?.lastYear && Array.isArray(res.data.lastYear)) {
-          setServerLastYear(res.data.lastYear);
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        setServerLoading(false);
-      });
+    try {
+      const [onThisDayRes, lastMonthRes] = await Promise.allSettled([
+        entriesApi.onThisDay({
+          month: localNow.getMonth() + 1,
+          day: localNow.getDate(),
+          year: localNow.getFullYear(),
+          timezone: userTz,
+        }),
+        entriesApi.list({ date: lMonthKey, limit: 20 }),
+      ]);
 
-    // Secondary fail-safe: directly query list endpoint for the exact last-month date key
-    entriesApi.list({ date: lMonthKey, limit: 20 })
-      .then((res) => {
-        if (res.data?.entries && Array.isArray(res.data.entries) && res.data.entries.length > 0) {
-          setServerLastMonth((prev) => {
-            const idSet = new Set(prev.map(e => String(e._id)));
-            const newItems = res.data.entries.filter(e => !idSet.has(String(e._id)));
-            return [...prev, ...newItems];
-          });
-        }
-      })
-      .catch(() => {});
+      let mems = [];
+      let lMonth = [];
+      let lYear = [];
+
+      if (onThisDayRes.status === 'fulfilled' && Array.isArray(onThisDayRes.value?.data?.entries)) {
+        mems = onThisDayRes.value.data.entries;
+      }
+      if (lastMonthRes.status === 'fulfilled' && Array.isArray(lastMonthRes.value?.data?.entries)) {
+        lMonth = lastMonthRes.value.data.entries;
+      }
+
+      setServerMemories(mems);
+      setServerLastMonth(lMonth);
+      setServerLastYear(lYear);
+      setCache(currentKey, { memories: mems, lastMonth: lMonth, lastYear: lYear });
+    } catch {
+      // Graceful fallback
+    } finally {
+      setServerLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     fetchServerMemories();
-    const handleUpdate = () => fetchServerMemories();
+    const handleUpdate = () => {
+      invalidateCache('onThisDay');
+      fetchServerMemories();
+    };
     window.addEventListener('entries-updated', handleUpdate);
     return () => {
       window.removeEventListener('entries-updated', handleUpdate);
@@ -164,34 +177,38 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
   }, [fetchServerMemories]);
 
   const byDate = (key) =>
-    [...entries]
-      .filter((e) => toDateKey(entryDay(e)) === key)
+    (Array.isArray(entries) ? entries : [])
+      .filter((e) => e && toDateKey(entryDay(e)) === key)
       .sort((a, b) => new Date(b.entryDate || b.createdAt) - new Date(a.entryDate || a.createdAt));
 
   const lastMonthEntries = (() => {
     const localMatches = byDate(lastMonthKey);
-    const idSet = new Set(localMatches.map(e => String(e._id)));
+    const idSet = new Set(localMatches.map((e) => String(e._id)));
     const serverMatches = [
-      ...(serverLastMonth || []),
-      ...(serverMemories || []).filter(e => toDateKey(entryDay(e)) === lastMonthKey),
+      ...(Array.isArray(serverLastMonth) ? serverLastMonth : []),
+      ...(Array.isArray(serverMemories) ? serverMemories : []).filter(
+        (e) => e && toDateKey(entryDay(e)) === lastMonthKey
+      ),
     ];
-    const uniqueServer = serverMatches.filter(e => !idSet.has(String(e._id)));
+    const uniqueServer = serverMatches.filter((e) => e && !idSet.has(String(e._id)));
     const combined = [...localMatches, ...uniqueServer];
-    return Array.from(new Map(combined.map(e => [String(e._id), e])).values()).sort(
+    return Array.from(new Map(combined.map((e) => [String(e._id), e])).values()).sort(
       (a, b) => new Date(b.entryDate || b.createdAt) - new Date(a.entryDate || a.createdAt)
     );
   })();
 
   const lastYearEntries = (() => {
     const localMatches = byDate(lastYearKey);
-    const idSet = new Set(localMatches.map(e => String(e._id)));
+    const idSet = new Set(localMatches.map((e) => String(e._id)));
     const serverMatches = [
-      ...(serverLastYear || []),
-      ...(serverMemories || []).filter(e => toDateKey(entryDay(e)) === lastYearKey),
+      ...(Array.isArray(serverLastYear) ? serverLastYear : []),
+      ...(Array.isArray(serverMemories) ? serverMemories : []).filter(
+        (e) => e && toDateKey(entryDay(e)) === lastYearKey
+      ),
     ];
-    const uniqueServer = serverMatches.filter(e => !idSet.has(String(e._id)));
+    const uniqueServer = serverMatches.filter((e) => e && !idSet.has(String(e._id)));
     const combined = [...localMatches, ...uniqueServer];
-    return Array.from(new Map(combined.map(e => [String(e._id), e])).values()).sort(
+    return Array.from(new Map(combined.map((e) => [String(e._id), e])).values()).sort(
       (a, b) => new Date(b.entryDate || b.createdAt) - new Date(a.entryDate || a.createdAt)
     );
   })();
@@ -201,7 +218,7 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
       id: 'lastMonth',
       label: 'Last Month',
       subtitle: formatDate(`${lastMonthKey}T00:00:00`, 'SHORT'),
-      data: lastMonthEntries,
+      data: Array.isArray(lastMonthEntries) ? lastMonthEntries : [],
       emptyMsg: 'Nothing written a month ago today.',
       emptyHint: 'Keep writing — future you will thank you.',
     },
@@ -209,13 +226,13 @@ export const OnThisDay = ({ entries = [], loading = false }) => {
       id: 'lastYear',
       label: 'Last Year',
       subtitle: formatDate(`${lastYearKey}T00:00:00`, 'SHORT'),
-      data: lastYearEntries,
+      data: Array.isArray(lastYearEntries) ? lastYearEntries : [],
       emptyMsg: 'Nothing written a year ago today.',
       emptyHint: 'This time last year was still waiting for your words.',
     },
   ];
 
-  const totalCount = tabs.reduce((acc, tab) => acc + tab.data.length, 0);
+  const totalCount = tabs.reduce((acc, tab) => acc + (tab.data?.length || 0), 0);
   const active = tabs.find((t) => t.id === activeTab) ?? tabs[0];
 
   const openEntry = (entry) => {

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Globe, Lock, Star, MoreVertical, Edit, Trash2, Pin, Eye, BookOpen, Clock } from 'lucide-react';
 import { entriesApi } from '../../services/api';
@@ -7,7 +7,7 @@ import { ConfirmDialog } from '../ui/Modal';
 import { TypeBadge } from '../ui/Badge';
 import { countWords, formatRelativeTime, formatDate } from '../../utils/helpers';
 
-export const DashboardEntryCard = ({ entry, onDelete, index }) => {
+export const DashboardEntryCard = memo(({ entry, onDelete, index }) => {
   const navigate = useNavigate();
   const { success, error: showError } = useToast();
   const [showMenu, setShowMenu] = useState(false);
@@ -344,6 +344,6 @@ export const DashboardEntryCard = ({ entry, onDelete, index }) => {
       />
     </div>
   );
-};
+});
 
 export default DashboardEntryCard;

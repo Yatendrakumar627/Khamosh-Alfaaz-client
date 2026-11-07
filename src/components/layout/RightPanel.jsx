@@ -10,7 +10,11 @@ import { QUOTES } from '../../constants';
 import { entriesApi } from '../../services/api';
 
 export const RightPanel = () => {
-  const { entries, loading } = useEntries({ limit: 60, sort: 'newest' });
+  const { entries, loading } = useEntries({
+    limit: 15,
+    sort: 'newest',
+    fields: '_id,title,type,entryDate,createdAt,content,tags,isFavorite,isPinned',
+  });
   const [dailyQuote] = useState(QUOTES[Math.floor(Math.random() * QUOTES.length)]);
 
   const handleSaveQuote = async (quote) => {

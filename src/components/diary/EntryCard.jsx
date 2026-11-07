@@ -1,12 +1,12 @@
+import { useState, useEffect, useRef, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { formatDate, formatRelativeTime, countWords } from '../../utils/helpers';
 import { TypeBadge, VisibilityBadge } from '../ui/Badge';
 import { Calendar, Star, MoreVertical, Edit, Trash2, Globe, Lock, Eye, Pin, BookOpen } from 'lucide-react';
 import { ConfirmDialog } from '../ui/Modal';
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context';
 
-export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibility, showActions = true, index = 0 }) => {
+export const EntryCard = memo(({ entry, onEdit, onDelete, onFavorite, onPin, onVisibility, showActions = true, index = 0 }) => {
   const navigate = useNavigate();
   const { error: showError } = useToast();
   const [showMenu, setShowMenu] = useState(false);
@@ -290,4 +290,4 @@ export const EntryCard = ({ entry, onEdit, onDelete, onFavorite, onPin, onVisibi
       />
     </div>
   );
-};
+});

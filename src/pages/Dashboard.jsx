@@ -9,6 +9,7 @@ import { DashboardEntryCard } from '../components/diary/DashboardEntryCard';
 import { LoadingState } from '../components/ui/LoadingState';
 import { getGreeting, getLocalDateString } from '../utils/helpers';
 import { entriesApi } from '../services/api';
+import { getCache, setCache } from '../utils/cache';
 
 const OrnamentDivider = () => (
   <div
@@ -34,14 +35,18 @@ export const Dashboard = () => {
   const { entries, loading, pagination, refresh } = useEntries({ limit: 5, sort: 'newest', date });
 
   const displayName = name || 'Anonymous Writer';
-  const [todayTotal, setTodayTotal] = useState(0);
+  const todayKey = getLocalDateString();
+  const cachedToday = getCache(`dashboard:todayCount:${todayKey}`);
+  const [todayTotal, setTodayTotal] = useState(() => (typeof cachedToday?.data === 'number' ? cachedToday.data : 0));
 
   const fetchTodayCount = useCallback(() => {
     const today = getLocalDateString();
     entriesApi.list({ date: today, limit: 1 })
       .then((res) => {
         if (typeof res.data?.pagination?.total === 'number') {
-          setTodayTotal(res.data.pagination.total);
+          const count = res.data.pagination.total;
+          setTodayTotal(count);
+          setCache(`dashboard:todayCount:${today}`, count);
         }
       })
       .catch(() => {});

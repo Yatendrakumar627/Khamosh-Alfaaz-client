@@ -1,16 +1,38 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { entriesApi, categoriesApi } from '../services/api';
 import { useToast } from '../context';
+import { getCache, setCache, invalidateCache } from '../utils/cache';
+
+const sanitizeParams = (p) => {
+  const { signal, ...clean } = p;
+  for (const key of ['type', 'search', 'tags', 'from', 'to', 'date', 'calendar', 'fields']) {
+    if (clean[key] === undefined || clean[key] === null || clean[key] === '') {
+      delete clean[key];
+    }
+  }
+  if (clean.favorite !== true) delete clean.favorite;
+  if (clean.pinned !== true) delete clean.pinned;
+  return clean;
+};
+
+const getEntriesCacheKey = (p) => `entries:${JSON.stringify(sanitizeParams(p))}`;
 
 export const useEntries = (initialParams = {}) => {
-  const [entries, setEntries] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const initialLimit = initialParams.limit || 20;
+  const mergedParams = { page: 1, limit: initialLimit, ...initialParams };
+  const initialCacheKey = getEntriesCacheKey(mergedParams);
+  const cached = getCache(initialCacheKey);
+
+  const [entries, setEntries] = useState(() => (Array.isArray(cached?.data?.entries) ? cached.data.entries : []));
+  const [loading, setLoading] = useState(() => !Array.isArray(cached?.data?.entries) || cached.data.entries.length === 0);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState(null);
 
-  const initialLimit = initialParams.limit || 1000;
-  const [pagination, setPagination] = useState({ page: 1, limit: initialLimit, total: 0, totalPages: 0 });
-  const [params, setParams] = useState({ page: 1, limit: initialLimit, ...initialParams });
+  const [pagination, setPagination] = useState(
+    () => cached?.data?.pagination || { page: 1, limit: initialLimit, total: 0, totalPages: 0 }
+  );
+  const [params, setParams] = useState(mergedParams);
 
   const abortRef = useRef(null);
   const { error: showError } = useToast();
@@ -26,29 +48,28 @@ export const useEntries = (initialParams = {}) => {
   useEffect(() => {
     if (prevTypeRef.current !== initialParams.type) {
       prevTypeRef.current = initialParams.type;
-      setEntries([]);
+      const nextKey = getEntriesCacheKey({ ...paramsRef.current, type: initialParams.type });
+      const nextCached = getCache(nextKey);
+      setEntries(nextCached?.data?.entries || []);
     }
   }, [initialParams.type]);
-
-  const sanitizeParams = (p) => {
-    const { signal, ...clean } = p;
-    for (const key of ['type', 'search', 'tags', 'from', 'to', 'date', 'calendar']) {
-      if (clean[key] === undefined || clean[key] === null || clean[key] === '') {
-        delete clean[key];
-      }
-    }
-    if (clean.favorite !== true) delete clean.favorite;
-    if (clean.pinned !== true) delete clean.pinned;
-    return clean;
-  };
 
   const fetchEntries = useCallback(async (fetchParams = paramsRef.current, append = false) => {
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
     abortRef.current = controller;
 
+    const cacheKey = getEntriesCacheKey(fetchParams);
+    const cachedItem = getCache(cacheKey);
+
     if (append) {
       setLoadingMore(true);
+    } else if (Array.isArray(cachedItem?.data?.entries)) {
+      // Instant (0ms) render from cache!
+      setEntries(cachedItem.data.entries);
+      if (cachedItem.data.pagination) setPagination(cachedItem.data.pagination);
+      setLoading(false);
+      setIsValidating(true);
     } else {
       setLoading(true);
     }
@@ -64,19 +85,22 @@ export const useEntries = (initialParams = {}) => {
         response = await entriesApi.list(queryParams, reqConfig);
       }
       if (controller.signal.aborted) return;
-      const { entries: data, pagination: pag } = response.data;
+      const data = Array.isArray(response.data?.entries) ? response.data.entries : [];
+      const pag = response.data?.pagination;
       if (append) {
         setEntries(prev => {
-          const existingIds = new Set(prev.map(e => e._id));
-          const uniqueNew = (data || []).filter(e => !existingIds.has(e._id));
-          return [...prev, ...uniqueNew];
+          const safePrev = Array.isArray(prev) ? prev : [];
+          const existingIds = new Set(safePrev.map(e => e._id));
+          const uniqueNew = data.filter(e => e && !existingIds.has(e._id));
+          return [...safePrev, ...uniqueNew];
         });
       } else {
-        setEntries(data || []);
+        setEntries(data);
       }
       if (pag) {
         setPagination(pag);
       }
+      setCache(cacheKey, { entries: data, pagination: pag });
     } catch (err) {
       if (err.name === 'AbortError' || err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || controller.signal.aborted) {
         return;
@@ -89,6 +113,7 @@ export const useEntries = (initialParams = {}) => {
           setLoadingMore(false);
         } else {
           setLoading(false);
+          setIsValidating(false);
         }
       }
     }
@@ -121,8 +146,11 @@ export const useEntries = (initialParams = {}) => {
   const createEntry = useCallback(async (data) => {
     try {
       const response = await entriesApi.create(data);
-      setEntries(prev => [response.data.entry, ...prev]);
-      return response.data.entry;
+      const newEntry = response.data.entry;
+      setEntries(prev => [newEntry, ...prev]);
+      invalidateCache('entries');
+      invalidateCache('dashboard');
+      return newEntry;
     } catch (err) {
       showError('Failed to create entry');
       throw err;
@@ -132,8 +160,12 @@ export const useEntries = (initialParams = {}) => {
   const updateEntry = useCallback(async (id, data) => {
     try {
       const response = await entriesApi.update(id, data);
-      setEntries(prev => prev.map(e => e._id === id ? response.data.entry : e));
-      return response.data.entry;
+      const updated = response.data.entry;
+      setEntries(prev => prev.map(e => e._id === id ? updated : e));
+      invalidateCache('entries');
+      invalidateCache('dashboard');
+      invalidateCache(`entry:${id}`);
+      return updated;
     } catch (err) {
       showError('Failed to update entry');
       throw err;
@@ -149,6 +181,9 @@ export const useEntries = (initialParams = {}) => {
         const pages = Math.ceil(total / prev.limit) || 1;
         return { ...prev, total, pages, totalPages: pages };
       });
+      invalidateCache('entries');
+      invalidateCache('dashboard');
+      invalidateCache(`entry:${id}`);
     } catch (err) {
       showError('Failed to delete entry');
       throw err;
@@ -158,8 +193,10 @@ export const useEntries = (initialParams = {}) => {
   const toggleFavorite = useCallback(async (id, value) => {
     try {
       const response = await entriesApi.toggleFavorite(id, value);
-      setEntries(prev => prev.map(e => e._id === id ? response.data.entry : e));
-      return response.data.entry;
+      const updated = response.data.entry;
+      setEntries(prev => prev.map(e => e._id === id ? updated : e));
+      invalidateCache('entries');
+      return updated;
     } catch (err) {
       showError('Failed to update favorite');
       throw err;
@@ -169,8 +206,10 @@ export const useEntries = (initialParams = {}) => {
   const togglePin = useCallback(async (id, value) => {
     try {
       const response = await entriesApi.togglePin(id, value);
-      setEntries(prev => prev.map(e => e._id === id ? response.data.entry : e));
-      return response.data.entry;
+      const updated = response.data.entry;
+      setEntries(prev => prev.map(e => e._id === id ? updated : e));
+      invalidateCache('entries');
+      return updated;
     } catch (err) {
       showError('Failed to update pin');
       throw err;
@@ -194,6 +233,7 @@ export const useEntries = (initialParams = {}) => {
   }, [fetchEntries]);
 
   const refresh = useCallback(() => {
+    invalidateCache('entries');
     return fetchEntries({ ...paramsRef.current, page: 1 }, false);
   }, [fetchEntries]);
 
@@ -201,6 +241,7 @@ export const useEntries = (initialParams = {}) => {
     entries,
     loading,
     loadingMore,
+    isValidating,
     hasMore,
     loadMore,
     error,
@@ -220,25 +261,36 @@ export const useEntries = (initialParams = {}) => {
 };
 
 export const useEntry = (id) => {
-  const [entry, setEntry] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const cacheKey = `entry:${id}`;
+  const cached = id ? getCache(cacheKey) : null;
+
+  const [entry, setEntry] = useState(() => cached?.data?.entry || null);
+  const [loading, setLoading] = useState(() => !cached?.data?.entry);
   const [error, setError] = useState(null);
   const { error: showError } = useToast();
 
   const fetchEntry = useCallback(async () => {
     if (!id) return;
-    setLoading(true);
+    const currentCached = getCache(cacheKey);
+    if (currentCached?.data?.entry) {
+      setEntry(currentCached.data.entry);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const response = await entriesApi.get(id);
-      setEntry(response.data.entry);
+      const fetched = response.data.entry;
+      setEntry(fetched);
+      setCache(cacheKey, { entry: fetched });
     } catch (err) {
       setError(err.message);
       showError('Failed to load entry');
     } finally {
       setLoading(false);
     }
-  }, [id, showError]);
+  }, [id, cacheKey, showError]);
 
   useEffect(() => {
     fetchEntry();
@@ -248,30 +300,43 @@ export const useEntry = (id) => {
 };
 
 export const useCategories = () => {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const cacheKey = 'categories:list';
+  const cached = getCache(cacheKey);
+
+  const [categories, setCategories] = useState(() => cached?.data?.categories || []);
+  const [loading, setLoading] = useState(() => !cached?.data?.categories?.length);
   const [error, setError] = useState(null);
   const { error: showError } = useToast();
 
   const fetchCategories = useCallback(async () => {
-    setLoading(true);
+    const currentCached = getCache(cacheKey);
+    if (currentCached?.data?.categories?.length) {
+      setCategories(currentCached.data.categories);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const response = await categoriesApi.list();
-      setCategories(response.data.categories || []);
+      const fetched = response.data.categories || [];
+      setCategories(fetched);
+      setCache(cacheKey, { categories: fetched });
     } catch (err) {
       setError(err.message);
       showError('Failed to load categories');
     } finally {
       setLoading(false);
     }
-  }, [showError]);
+  }, [cacheKey, showError]);
 
   const createCategory = useCallback(async (data) => {
     try {
       const response = await categoriesApi.create(data);
-      setCategories(prev => [...prev, response.data.category]);
-      return response.data.category;
+      const created = response.data.category;
+      setCategories(prev => [...prev, created]);
+      invalidateCache('categories');
+      return created;
     } catch (err) {
       showError('Failed to create category');
       throw err;
@@ -281,8 +346,10 @@ export const useCategories = () => {
   const updateCategory = useCallback(async (id, data) => {
     try {
       const response = await categoriesApi.update(id, data);
-      setCategories(prev => prev.map(c => c._id === id ? response.data.category : c));
-      return response.data.category;
+      const updated = response.data.category;
+      setCategories(prev => prev.map(c => c._id === id ? updated : c));
+      invalidateCache('categories');
+      return updated;
     } catch (err) {
       showError('Failed to update category');
       throw err;
@@ -293,6 +360,7 @@ export const useCategories = () => {
     try {
       await categoriesApi.delete(id);
       setCategories(prev => prev.filter(c => c._id !== id));
+      invalidateCache('categories');
     } catch (err) {
       showError('Failed to delete category');
       throw err;
@@ -307,27 +375,40 @@ export const useCategories = () => {
 };
 
 export const useCalendar = (month) => {
-  const [byDay, setByDay] = useState({});
-  const [entries, setEntries] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const cacheKey = `calendar:${month}`;
+  const cached = month ? getCache(cacheKey) : null;
+
+  const [byDay, setByDay] = useState(() => cached?.data?.byDay || {});
+  const [entries, setEntries] = useState(() => cached?.data?.entries || []);
+  const [loading, setLoading] = useState(() => !cached?.data);
   const [error, setError] = useState(null);
   const { error: showError } = useToast();
 
   const fetchCalendar = useCallback(async () => {
     if (!month) return;
-    setLoading(true);
+    const currentCached = getCache(cacheKey);
+    if (currentCached?.data) {
+      setByDay(currentCached.data.byDay || {});
+      setEntries(currentCached.data.entries || []);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const response = await entriesApi.calendar(month);
-      setByDay(response.data.byDay || {});
-      setEntries(response.data.entries || []);
+      const dataByDay = response.data.byDay || {};
+      const dataEntries = response.data.entries || [];
+      setByDay(dataByDay);
+      setEntries(dataEntries);
+      setCache(cacheKey, { byDay: dataByDay, entries: dataEntries });
     } catch (err) {
       setError(err.message);
       showError('Failed to load calendar');
     } finally {
       setLoading(false);
     }
-  }, [month, showError]);
+  }, [month, cacheKey, showError]);
 
   useEffect(() => {
     fetchCalendar();

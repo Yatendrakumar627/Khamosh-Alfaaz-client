@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Feather } from 'lucide-react';
 import { formatDate, getEntryTypeLabel, truncate } from '../../utils/helpers';
 
-export const PublicEntryCard = ({ entry }) => {
+export const PublicEntryCard = memo(({ entry }) => {
   const typeLabel = getEntryTypeLabel(entry.type);
 
   return (
@@ -118,6 +119,6 @@ export const PublicEntryCard = ({ entry }) => {
       </div>
     </Link>
   );
-};
+});
 
 export default PublicEntryCard;
