@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { sessionApi, healthApi } from '../services/api';
 import { STORAGE_KEYS } from '../constants';
+import { clearAllCache } from '../utils/cache';
 
 const SessionContext = createContext(null);
 
@@ -57,10 +58,7 @@ export const SessionProvider = ({ children }) => {
       }
     } catch (err) {
       if (err?.response?.status === 401 && typeof window !== 'undefined') {
-        setVisitor(null);
-        setNameState('');
-        localStorage.removeItem('ka_token');
-        localStorage.removeItem(STORAGE_KEYS.VISITOR);
+        clearSession();
       }
       setError(getErrorMessage(err));
     } finally {
@@ -117,9 +115,22 @@ export const SessionProvider = ({ children }) => {
   const clearSession = useCallback(() => {
     setVisitor(null);
     setNameState('');
-    localStorage.removeItem(STORAGE_KEYS.NAME);
-    localStorage.removeItem(STORAGE_KEYS.VISITOR);
-    localStorage.removeItem('ka_token');
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem(STORAGE_KEYS.NAME);
+        localStorage.removeItem(STORAGE_KEYS.VISITOR);
+        localStorage.removeItem('ka_token');
+        localStorage.removeItem(STORAGE_KEYS.DRAFT);
+        // Clear any orphaned edit drafts from storage
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('khamosh_alfaaz_edit_draft_')) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch {}
+    }
+    clearAllCache();
   }, []);
 
   const deleteSession = useCallback(async () => {

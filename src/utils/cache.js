@@ -6,6 +6,7 @@
 
 const memoryCache = new Map();
 const DEFAULT_TTL = 3 * 60 * 1000; // 3 minutes
+const MAX_CACHE_ENTRIES = 100;
 
 const getSessionStorageKey = (key) => `ka_cache_${key}`;
 
@@ -47,6 +48,18 @@ export const getCache = (key, maxAge = DEFAULT_TTL) => {
 };
 
 export const setCache = (key, data) => {
+  if (memoryCache.size >= MAX_CACHE_ENTRIES && !memoryCache.has(key)) {
+    const firstKey = memoryCache.keys().next().value;
+    if (firstKey) {
+      memoryCache.delete(firstKey);
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.removeItem(getSessionStorageKey(firstKey));
+        } catch {}
+      }
+    }
+  }
+
   const item = {
     data,
     timestamp: Date.now(),
@@ -85,7 +98,30 @@ export const invalidateCache = (pattern) => {
     for (const [key, item] of memoryCache.entries()) {
       if (pattern(key, item)) {
         memoryCache.delete(key);
+        if (typeof window !== 'undefined') {
+          try {
+            sessionStorage.removeItem(getSessionStorageKey(key));
+          } catch {}
+        }
       }
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        const prefix = 'ka_cache_';
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+          const k = sessionStorage.key(i);
+          if (k && k.startsWith(prefix)) {
+            const raw = sessionStorage.getItem(k);
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              const realKey = k.slice(prefix.length);
+              if (pattern(realKey, parsed)) {
+                sessionStorage.removeItem(k);
+              }
+            }
+          }
+        }
+      } catch {}
     }
   }
 };

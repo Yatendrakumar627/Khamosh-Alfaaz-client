@@ -65,8 +65,17 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !isSessionRequest(originalRequest.url) && !originalRequest._authRetry) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('ka_token');
-        localStorage.removeItem('ka_visitor');
+        try {
+          localStorage.removeItem('ka_token');
+          localStorage.removeItem('ka_visitor');
+          localStorage.removeItem('khamosh-name');
+          localStorage.removeItem('khamosh-draft');
+          const prefix = 'ka_cache_';
+          for (let i = sessionStorage.length - 1; i >= 0; i--) {
+            const k = sessionStorage.key(i);
+            if (k && k.startsWith(prefix)) sessionStorage.removeItem(k);
+          }
+        } catch {}
       }
       originalRequest._authRetry = true;
       // If user is currently composing or editing, avoid a hard page reload that destroys their written draft
@@ -124,15 +133,17 @@ export const exportApi = {
 
 export const backupApi = {
   export: () => api.get(API_ENDPOINTS.BACKUP, { responseType: 'blob' }),
-  import: (data) => {
-    const payload = data instanceof File ? null : data;
+  import: (data, pin) => {
+    const payload = data instanceof File ? null : { ...data };
+    const headers = pin ? { 'x-pin': pin } : {};
     if (data instanceof File) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
           try {
             const parsed = JSON.parse(reader.result);
-            resolve(api.post(API_ENDPOINTS.BACKUP_RESTORE, parsed));
+            if (pin) parsed.pin = pin;
+            resolve(api.post(API_ENDPOINTS.BACKUP_RESTORE, parsed, { headers }));
           } catch (err) {
             reject(err);
           }
@@ -141,7 +152,8 @@ export const backupApi = {
         reader.readAsText(data);
       });
     }
-    return api.post(API_ENDPOINTS.BACKUP_RESTORE, payload);
+    if (pin && payload) payload.pin = pin;
+    return api.post(API_ENDPOINTS.BACKUP_RESTORE, payload, { headers });
   },
   deleteAll: (pin) => api.post(API_ENDPOINTS.BACKUP_DELETE_ALL, { pin }),
 };

@@ -200,12 +200,6 @@ export const validateEntry = (data) => {
   return { isValid: Object.keys(errors).length === 0, errors };
 };
 
-export const sanitizeHtml = (html) => {
-  const div = document.createElement('div');
-  div.textContent = html;
-  return div.innerHTML;
-};
-
 export const classNames = (...classes) => {
   return classes.filter(Boolean).join(' ');
 };

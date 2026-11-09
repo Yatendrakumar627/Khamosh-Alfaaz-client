@@ -1,5 +1,6 @@
 import { Modal, ConfirmDialog } from '../ui/Modal';
 import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
 import { DatePicker } from '../ui/DatePicker';
 import { EXPORT_FORMATS, EXPORT_SCOPES } from '../../constants';
 import { useState, useRef } from 'react';
@@ -220,6 +221,7 @@ export const ExportDialog = ({ opened, onClose, onExport, exporting = false, ent
 
 export const BackupDialog = ({ opened, onClose, onExport, onImport, exporting = false, importing = false }) => {
   const [file, setFile] = useState(null);
+  const [pin, setPin] = useState('');
   const [importError, setImportError] = useState('');
   const inputRef = useRef(null);
 
@@ -233,12 +235,18 @@ export const BackupDialog = ({ opened, onClose, onExport, onImport, exporting = 
 
   const handleImport = async () => {
     if (!file) return;
+    if (!pin.trim()) {
+      setImportError('Please enter your PIN to authorize backup restore');
+      return;
+    }
     setImportError('');
     try {
-      await onImport(file);
+      await onImport(file, pin.trim());
+      setPin('');
+      setFile(null);
       onClose();
     } catch (err) {
-      setImportError(err.response?.data?.message || 'Invalid backup file');
+      setImportError(err.response?.data?.error || err.response?.data?.message || 'Invalid backup file or incorrect PIN');
     }
   };
 
@@ -272,6 +280,22 @@ export const BackupDialog = ({ opened, onClose, onExport, onImport, exporting = 
             <p style={{ margin: 'var(--spacing-sm) 0 0', fontSize: '0.85rem', color: 'var(--ink-muted)' }}>
               Selected: {file.name}
             </p>
+          )}
+          {file && (
+            <div style={{ marginTop: 'var(--spacing-md)' }}>
+              <Input
+                type="password"
+                label="Confirm Your PIN to Restore"
+                placeholder="Enter your 4-12 digit PIN"
+                value={pin}
+                onChange={(e) => {
+                  setPin(e.target.value);
+                  setImportError('');
+                }}
+                maxLength={12}
+                autoComplete="current-password"
+              />
+            </div>
           )}
           {importError && (
             <p style={{ margin: 'var(--spacing-sm) 0 0', fontSize: '0.85rem', color: 'var(--error)' }}>

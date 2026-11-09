@@ -66,15 +66,15 @@ export const useExport = () => {
     }
   }, [success, error]);
 
-  const importBackup = useCallback(async (file) => {
+  const importBackup = useCallback(async (file, pin) => {
     setExporting(true);
     setProgress(0);
     try {
-      await backupApi.import(file);
+      await backupApi.import(file, pin);
       success('Backup imported successfully');
       return true;
     } catch (err) {
-      error('Failed to import backup');
+      error(err?.response?.data?.error || err?.response?.data?.message || 'Failed to import backup');
       throw err;
     } finally {
       setExporting(false);
